@@ -2,7 +2,7 @@
 {
     public class Player
     {
-        public Guid Id { get; set; }
-        public Guid? AuthUserId { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public required Guid AuthUserId { get; set; }
     }
 }

@@ -21,6 +21,10 @@ namespace F1Tipping
             builder.Services.AddDefaultIdentity<IdentityUser<Guid>>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = true;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
             }).AddEntityFrameworkStores<AppDbContext>();
             builder.Services.AddRazorPages();
 
