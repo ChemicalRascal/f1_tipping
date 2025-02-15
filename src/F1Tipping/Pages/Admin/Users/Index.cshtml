@@ -1,0 +1,59 @@
+﻿@page
+@model IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Users[0].User.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Users[0].User.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Users[0].Roles)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Users)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.Id)
+                </td>
+                <td>
+                    <span>
+                        @foreach (var role in item.Roles.SkipLast(1))
+                        {
+                            <b>@role.Name</b>
+                            @(",")
+                        }
+                        @if (item.Roles.Any())
+                        {
+                            <b>@item.Roles.Last().Name</b>
+                        }
+                    </span>
+                </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.User.Id">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.User.Id">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.User.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

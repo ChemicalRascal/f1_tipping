@@ -25,8 +25,10 @@ namespace F1Tipping
                 options.Password.RequireLowercase = false;
                 options.Password.RequireDigit = false;
                 options.Password.RequireNonAlphanumeric = false;
-            }).AddEntityFrameworkStores<AppDbContext>();
-            builder.Services.AddRazorPages();
+            }).AddRoles<IdentityRole<Guid>>()
+              .AddEntityFrameworkStores<AppDbContext>();
+
+            builder.Services.AddRazorPages(options => { });
 
             var app = builder.Build();
 
@@ -52,7 +54,71 @@ namespace F1Tipping
             app.MapRazorPages()
                .WithStaticAssets();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                SeedRolesAndUsers(scope).Wait();
+            }
+
             app.Run();
+        }
+
+        private static async Task SeedRolesAndUsers(IServiceScope scope)
+        {
+            string[] roles = [ "Administrator", "Player", "ExtraRole1", "ExtraRole2" ];
+            (string,string)[] coreAdmins = [ ("admin@denholm.dev", "adminpass") ];
+
+            var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
+            var userManager = scope.ServiceProvider.GetService<UserManager<IdentityUser<Guid>>>();
+
+            foreach (var role in roles)
+            {
+                if (!await roleManager!.RoleExistsAsync(role))
+                {
+                    var roleResult = await roleManager.CreateAsync(new IdentityRole<Guid>(role));
+                    throwOnFailure(roleResult);
+                }
+            }
+
+            foreach (var (email, pass) in coreAdmins)
+            {
+                var user = await userManager!.FindByEmailAsync(email);
+                if (user is null)
+                {
+                    var userResult = await userManager.CreateAsync(
+                        new IdentityUser<Guid>(email)
+                        {
+                            Email = email,
+                            EmailConfirmed = true,
+                        }, pass);
+                    throwOnFailure(userResult);
+                    user = await userManager.FindByEmailAsync(email);
+                }
+
+                var userRoles = await userManager!.GetRolesAsync(user!);
+                if (!userRoles.Contains("Administrator"))
+                {
+                    var roleAssignment = await userManager.AddToRoleAsync(user!, "Administrator");
+                    throwOnFailure(roleAssignment);
+                }
+            }
+
+            var joeyResult = await userManager.CreateAsync(
+                new IdentityUser<Guid>("joey@joey.com"), "12345joeypass"
+                );
+            var joey = await userManager.FindByNameAsync("joey@joey.com");
+
+            foreach (var role in roles)
+            {
+                await userManager.AddToRoleAsync(joey, role);
+            }
+
+            void throwOnFailure(IdentityResult? result)
+            {
+                if ((!result?.Succeeded) ?? true)
+                {
+                    throw new ApplicationException($"Couldn't seed data! {result}");
+                }
+            }
         }
     }
 }
