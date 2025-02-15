@@ -127,7 +127,11 @@ namespace F1Tipping.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    _modelDb.Players.Add(new() { AuthUserId = user.Id });
+                    _modelDb.Players.Add(new()
+                    {
+                        AuthUserId = user.Id,
+                        Status = Model.Tipping.PlayerStatus.Uninitialized,
+                    });
                     await _modelDb.SaveChangesAsync();
 
                     var userId = await _userManager.GetUserIdAsync(user);
