@@ -64,7 +64,7 @@ namespace F1Tipping
 
         private static async Task SeedRolesAndUsers(IServiceScope scope)
         {
-            string[] roles = [ "Administrator", "Player", "ExtraRole1", "ExtraRole2" ];
+            string[] roles = [ "Administrator", "Player", ];
             (string,string)[] coreAdmins = [ ("admin@denholm.dev", "adminpass") ];
 
             var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
@@ -100,16 +100,6 @@ namespace F1Tipping
                     var roleAssignment = await userManager.AddToRoleAsync(user!, "Administrator");
                     throwOnFailure(roleAssignment);
                 }
-            }
-
-            var joeyResult = await userManager.CreateAsync(
-                new IdentityUser<Guid>("joey@joey.com"), "12345joeypass"
-                );
-            var joey = await userManager.FindByNameAsync("joey@joey.com");
-
-            foreach (var role in roles)
-            {
-                await userManager.AddToRoleAsync(joey, role);
             }
 
             void throwOnFailure(IdentityResult? result)
