@@ -17,6 +17,9 @@
                 @Html.DisplayNameFor(model => model.Users[0].User.Email)
             </th>
             <th>
+                Player?
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Users[0].User.Id)
             </th>
             <th>
@@ -31,6 +34,12 @@
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.User.Email)
+                </td>
+                <td>
+                    @if (item.PlayerId is not null)
+                    {
+                        @Html.DisplayFor(modelItem => item.PlayerId)
+                    }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.User.Id)

@@ -10,39 +10,42 @@ namespace F1Tipping.Pages.Admin.Users
 {
     public class IndexModel : AdminPageModel
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _appContext;
+        private readonly ModelDbContext _modelContext;
 
-        public IndexModel(AppDbContext context)
+        public IndexModel(AppDbContext appContext, ModelDbContext modelContext)
         {
-            _context = context;
+            _appContext = appContext;
+            _modelContext = modelContext;
         }
 
-        public IList<UserWithRoles> Users { get; set; } = default!;
+        public IList<UserIndexEntry> Users { get; set; } = default!;
 
         public async Task OnGetAsync()
         {
-            var users = await _context.Users.ToListAsync();
-            var userRoles = await _context.UserRoles.ToListAsync();
+            var users = await _appContext.Users.ToListAsync();
+            var userRoles = await _appContext.UserRoles.ToListAsync();
+            var roles = await _appContext.Roles.ToListAsync();
+            var players = await _modelContext.Players.ToListAsync();
 
-            // TODO fix whatever is fucking this up
-            Users = (await Task.WhenAll(
-                users.Select(async u =>
-                    new UserWithRoles
-                    {
-                        User = u,
-                        Roles = await _context.Roles.Join(
-                            userRoles.Where(ur => ur.UserId == u.Id),
-                            role => role.Id,
-                            userRole => userRole.RoleId,
-                            (role, userRole) => role)
-                        .ToListAsync(),
-                    }))).ToList();
+            Users = users.Select(u =>
+                new UserIndexEntry
+                {
+                    User = u,
+                    Roles = roles.Join(
+                        userRoles.Where(ur => ur.UserId == u.Id),
+                        role => role.Id,
+                        userRole => userRole.RoleId,
+                        (role, userRole) => role).ToList(),
+                    PlayerId = players.SingleOrDefault(p => p.AuthUserId == u.Id)?.Id,
+                }).ToList();
         }
 
-        public class UserWithRoles
+        public class UserIndexEntry
         {
             public required IdentityUser<Guid> User { get; set; }
             public IList<IdentityRole<Guid>> Roles { get; set; } = default!;
+            public Guid? PlayerId { get; set; }
         }
     }
 }
