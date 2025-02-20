@@ -102,6 +102,15 @@ namespace F1Tipping
                 }
             }
 
+            var lockTestUser = await userManager!.FindByEmailAsync("foo@bar.com");
+            if (lockTestUser is null)
+            {
+                await userManager!.CreateAsync(new IdentityUser<Guid>("foo@bar.com")
+                { Email = "foo@bar.com", EmailConfirmed = true });
+                var lockedUser = await userManager!.FindByEmailAsync("foo@bar.com");
+                await userManager!.SetLockoutEndDateAsync(lockedUser, new DateTimeOffset(new DateTime(2026, 1, 1)));
+            }
+
             void throwOnFailure(IdentityResult? result)
             {
                 if ((!result?.Succeeded) ?? true)

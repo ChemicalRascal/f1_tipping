@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using F1Tipping.Data;
-using F1Tipping.Model.Tipping;
-using Microsoft.AspNetCore.Authorization;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace F1Tipping.Pages.Admin.Users
 {
@@ -12,14 +10,22 @@ namespace F1Tipping.Pages.Admin.Users
     {
         private readonly AppDbContext _appContext;
         private readonly ModelDbContext _modelContext;
+        private readonly UserManager<IdentityUser<Guid>> _userManager;
 
-        public IndexModel(AppDbContext appContext, ModelDbContext modelContext)
+        public IndexModel(
+            AppDbContext appContext,
+            ModelDbContext modelContext,
+            UserManager<IdentityUser<Guid>> userManager)
         {
             _appContext = appContext;
             _modelContext = modelContext;
+            _userManager = userManager;
         }
 
+        [BindProperty]
         public IList<UserIndexEntry> Users { get; set; } = default!;
+        [BindProperty]
+        public string? StatusMessage { get; set; } = null;
 
         public async Task OnGetAsync()
         {
@@ -28,7 +34,7 @@ namespace F1Tipping.Pages.Admin.Users
             var roles = await _appContext.Roles.ToListAsync();
             var players = await _modelContext.Players.ToListAsync();
 
-            Users = users.Select(u =>
+            Users = await Task.WhenAll(users.Select(async u =>
                 new UserIndexEntry
                 {
                     User = u,
@@ -38,7 +44,61 @@ namespace F1Tipping.Pages.Admin.Users
                         userRole => userRole.RoleId,
                         (role, userRole) => role).ToList(),
                     PlayerId = players.SingleOrDefault(p => p.AuthUserId == u.Id)?.Id,
-                }).ToList();
+                    IsLocked = await _userManager.IsLockedOutAsync(u),
+            }));
+        }
+
+        public async Task<IActionResult> OnGetLockdownUser(Guid? id)
+        {
+            if (!_userManager.SupportsUserLockout)
+            {
+                StatusMessage = "User lockdown is not supported.";
+                // TODO: Fix these, this doesn't work yet.
+                return Page();
+            }
+
+            if (id is null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user is null)
+            {
+                return NotFound();
+            }
+
+            var lockoutResult = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+            if (!lockoutResult.Succeeded)
+            {
+                StatusMessage = "User lockdown failed.";
+                return Page();
+            }
+
+            return Page();
+        }
+
+        public async Task<IActionResult> OnGetUnlockUser(Guid? id)
+        {
+            if (id is null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user is null)
+            {
+                return NotFound();
+            }
+
+            var lockoutResult = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.Now.AddDays(-1));
+            if (!lockoutResult.Succeeded)
+            {
+                StatusMessage = "User unlock failed.";
+                return Page();
+            }
+
+            return Page();
         }
 
         public class UserIndexEntry
@@ -46,6 +106,7 @@ namespace F1Tipping.Pages.Admin.Users
             public required IdentityUser<Guid> User { get; set; }
             public IList<IdentityRole<Guid>> Roles { get; set; } = default!;
             public Guid? PlayerId { get; set; }
+            public bool IsLocked { get; set; }
         }
     }
 }
