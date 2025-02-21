@@ -9,10 +9,10 @@
 
 <h4>User</h4>
 <hr />
-<div class="row">
-    <partial name="_StatusMessage" model="Model.StatusMessage" />
-    <div class="col-md-6">
-        <form method="post">
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<form method="post">
+    <div class="row">
+        <div class="col-md-6">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="UserToEdit.Id" />
             <div class="form-group">
@@ -20,13 +20,26 @@
                 <input asp-for="UserToEdit.Email" class="form-control" />
                 <span asp-validation-for="UserToEdit.Email" class="text-danger"></span>
             </div>
-            <div />
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
+    @for (int i = 0; i < Model.UserRoles.Count; i++)
+    {
+        <div class="row">
+            @Html.HiddenFor(model => model.UserRoles[i].Role)
+            <div class="col-3">
+                @Model.UserRoles[i].Role
+            </div>
+            <div class="col-1">
+                @Html.CheckBoxFor(model => model.UserRoles[i].UserInRole)
+            </div>
+        </div>
+    }
+    <div class="row">
+        <div class="form-group">
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+    </div>
+</form>
 
 <div>
     <a asp-page="./Index">Back to List</a>

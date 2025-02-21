@@ -1,6 +1,8 @@
 using F1Tipping.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace F1Tipping.Pages
 {
@@ -8,19 +10,27 @@ namespace F1Tipping.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private ModelDbContext _modelDb;
+        private UserManager<IdentityUser<Guid>> _userManager;
 
-        public IndexModel(ILogger<IndexModel> logger, ModelDbContext modelDb)
+        public IndexModel(ILogger<IndexModel> logger, ModelDbContext modelDb, UserManager<IdentityUser<Guid>> userManager)
         {
             _logger = logger;
             _modelDb = modelDb;
+            _userManager = userManager;
         }
 
-        public void OnGet()
+        public async Task OnGet()
         {
-            //if (User is not null)
-            //{
-            //    Redirect("Player/Init");
-            //}
+            if ((User?.Identity?.IsAuthenticated ?? false) && User.IsInRole("Player"))
+            {
+                var user = await _userManager.GetUserAsync(User);
+                var player = await _modelDb.Players.SingleOrDefaultAsync(p => p.AuthUserId == user!.Id);
+
+                if (player is null)
+                {
+                    Redirect("PlayerAdmin/Init");
+                }
+            }
         }
     }
 }

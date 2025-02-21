@@ -27,7 +27,7 @@ namespace F1Tipping.Pages.Admin.Users
         [BindProperty]
         public string? StatusMessage { get; set; } = null;
 
-        private async Task buildUsersListAsync()
+        private async Task BuildUsersListAsync()
         {
             var users = await _appContext.Users.ToListAsync();
             var userRoles = await _appContext.UserRoles.ToListAsync();
@@ -50,7 +50,7 @@ namespace F1Tipping.Pages.Admin.Users
 
         public async Task OnGetAsync()
         {
-            await buildUsersListAsync();
+            await BuildUsersListAsync();
         }
 
         public async Task<IActionResult> OnGetLockdownUser(Guid? id)
@@ -58,7 +58,7 @@ namespace F1Tipping.Pages.Admin.Users
             if (!_userManager.SupportsUserLockout)
             {
                 StatusMessage = "User lockdown is not supported.";
-                await buildUsersListAsync();
+                await BuildUsersListAsync();
                 return Page();
             }
 
@@ -67,7 +67,7 @@ namespace F1Tipping.Pages.Admin.Users
                 return NotFound();
             }
 
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            var user = await _userManager.FindByIdAsync(id.ToString() ?? string.Empty);
             if (user is null)
             {
                 return NotFound();
@@ -77,11 +77,11 @@ namespace F1Tipping.Pages.Admin.Users
             if (!lockoutResult.Succeeded)
             {
                 StatusMessage = "User lockdown failed.";
-                await buildUsersListAsync();
+                await BuildUsersListAsync();
                 return Page();
             }
 
-            await buildUsersListAsync();
+            await BuildUsersListAsync();
             return Page();
         }
 
@@ -92,7 +92,7 @@ namespace F1Tipping.Pages.Admin.Users
                 return NotFound();
             }
 
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            var user = await _userManager.FindByIdAsync(id.ToString() ?? string.Empty);
             if (user is null)
             {
                 return NotFound();
@@ -102,11 +102,11 @@ namespace F1Tipping.Pages.Admin.Users
             if (!lockoutResult.Succeeded)
             {
                 StatusMessage = "User unlock failed.";
-                await buildUsersListAsync();
+                await BuildUsersListAsync();
                 return Page();
             }
 
-            await buildUsersListAsync();
+            await BuildUsersListAsync();
             return Page();
         }
 

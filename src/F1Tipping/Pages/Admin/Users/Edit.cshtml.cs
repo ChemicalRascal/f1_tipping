@@ -3,17 +3,18 @@ using Microsoft.EntityFrameworkCore;
 using F1Tipping.Data;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
+using System.Net;
 
 namespace F1Tipping.Pages.Admin.Users
 {
     public class EditModel : AdminPageModel
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _appDb;
         private readonly UserManager<IdentityUser<Guid>> _userManager;
 
-        public EditModel(AppDbContext context, UserManager<IdentityUser<Guid>> userManager)
+        public EditModel(AppDbContext appDb, UserManager<IdentityUser<Guid>> userManager)
         {
-            _context = context;
+            _appDb = appDb;
             _userManager = userManager;
         }
 
@@ -21,6 +22,8 @@ namespace F1Tipping.Pages.Admin.Users
         public UserView UserToEdit { get; set; } = default!;
         [BindProperty]
         public string? StatusMessage { get; set; } = null;
+        [BindProperty]
+        public List<UserRoleView> UserRoles { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync(Guid? id)
         {
@@ -29,12 +32,22 @@ namespace F1Tipping.Pages.Admin.Users
                 return NotFound();
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
+            var user = await _appDb.Users.FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
                 return NotFound();
             }
             UserToEdit = new UserView(user.Id, user.Email);
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var allRoles = await _appDb.Roles.ToListAsync();
+
+            allRoles.ForEach(r =>
+                UserRoles.Add(new(
+                    user.Id,
+                    r.Name ?? string.Empty,
+                    userRoles.Contains(r.Name ?? string.Empty))));
+
             return Page();
         }
 
@@ -42,51 +55,51 @@ namespace F1Tipping.Pages.Admin.Users
         {
             if (!ModelState.IsValid)
             {
+                StatusMessage = "ModelState is not valid.";
                 return Page();
             }
 
             var user = await _userManager.FindByIdAsync(UserToEdit.Id.ToString());
-            if (user == null)
+            if (user is null)
             {
                 return NotFound($"Unable to load user with ID '{UserToEdit.Id}'.");
             }
 
-            var result = await _userManager.SetEmailAsync(user, UserToEdit.Email);
-            if (!result.Succeeded)
+            var currentRoles = await _userManager.GetRolesAsync(user);
+
+            if (UserToEdit.Email != user.Email)
             {
-                StatusMessage = "Error changing email.";
-                return Page();
+                var result = await _userManager.SetEmailAsync(user, UserToEdit.Email);
+                if (!result.Succeeded)
+                {
+                    StatusMessage = "Error changing email.";
+                    return Page();
+                }
+
+                var setUserNameResult = await _userManager.SetUserNameAsync(user, UserToEdit.Email);
+                if (!setUserNameResult.Succeeded)
+                {
+                    StatusMessage = "Error changing user name.";
+                    return Page();
+                }
+
+                user = await _userManager.FindByIdAsync(user.Id.ToString());
+                if (user is null)
+                {
+                    return StatusCode((int)HttpStatusCode.InternalServerError,
+                        "Could not retrieve user.");
+                }
             }
 
-            var setUserNameResult = await _userManager.SetUserNameAsync(user, UserToEdit.Email);
-            if (!setUserNameResult.Succeeded)
-            {
-                StatusMessage = "Error changing user name.";
-                return Page();
-            }
+            var newRoles = UserRoles.Where(ur => ur.UserInRole).Select(ur => ur.Role);
 
-            try
+            if (!currentRoles.ToHashSet().SetEquals(newRoles))
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(UserToEdit.Id))
-                {
-                    return BadRequest();
-                }
-                else
-                {
-                    throw;
-                }
+                await _userManager.RemoveFromRolesAsync(user, currentRoles.Except(newRoles));
+                await _userManager.AddToRolesAsync(user, newRoles.Except(currentRoles));
             }
 
             return RedirectToPage("./Index");
-        }
-
-        private bool UserExists(Guid id)
-        {
-            return _context.Users.Any(e => e.Id == id);
         }
     }
 }
