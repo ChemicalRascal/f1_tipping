@@ -19,18 +19,20 @@ namespace F1Tipping.Pages
             _userManager = userManager;
         }
 
-        public async Task OnGet()
+        public async Task<IActionResult> OnGet()
         {
             if ((User?.Identity?.IsAuthenticated ?? false) && User.IsInRole("Player"))
             {
                 var user = await _userManager.GetUserAsync(User);
                 var player = await _modelDb.Players.SingleOrDefaultAsync(p => p.AuthUserId == user!.Id);
 
-                if (player is null)
+                if (player is null || player.Status == Model.Tipping.PlayerStatus.Uninitialized)
                 {
-                    Redirect("PlayerAdmin/Init");
+                    return Redirect("PlayerAdmin/Init");
                 }
             }
+
+            return Page();
         }
     }
 }
