@@ -71,8 +71,8 @@
                     else
                     {
                         <a asp-page-handler="LockdownUser" asp-route-id="@item.User.Id">Lockdown</a>
-                    } |
-                    <a asp-page="./Delete" asp-route-id="@item.User.Id">Delete</a>
+                    }
+                    @* | <a asp-page="./Delete" asp-route-id="@item.User.Id">Delete</a> *@
             </td>
         </tr>
 }

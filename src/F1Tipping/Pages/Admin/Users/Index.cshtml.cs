@@ -27,7 +27,7 @@ namespace F1Tipping.Pages.Admin.Users
         [BindProperty]
         public string? StatusMessage { get; set; } = null;
 
-        public async Task OnGetAsync()
+        private async Task buildUsersListAsync()
         {
             var users = await _appContext.Users.ToListAsync();
             var userRoles = await _appContext.UserRoles.ToListAsync();
@@ -48,12 +48,17 @@ namespace F1Tipping.Pages.Admin.Users
             }));
         }
 
+        public async Task OnGetAsync()
+        {
+            await buildUsersListAsync();
+        }
+
         public async Task<IActionResult> OnGetLockdownUser(Guid? id)
         {
             if (!_userManager.SupportsUserLockout)
             {
                 StatusMessage = "User lockdown is not supported.";
-                // TODO: Fix these, this doesn't work yet.
+                await buildUsersListAsync();
                 return Page();
             }
 
@@ -72,9 +77,11 @@ namespace F1Tipping.Pages.Admin.Users
             if (!lockoutResult.Succeeded)
             {
                 StatusMessage = "User lockdown failed.";
+                await buildUsersListAsync();
                 return Page();
             }
 
+            await buildUsersListAsync();
             return Page();
         }
 
@@ -95,9 +102,11 @@ namespace F1Tipping.Pages.Admin.Users
             if (!lockoutResult.Succeeded)
             {
                 StatusMessage = "User unlock failed.";
+                await buildUsersListAsync();
                 return Page();
             }
 
+            await buildUsersListAsync();
             return Page();
         }
 
