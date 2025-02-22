@@ -1,5 +1,5 @@
 using F1Tipping.Data;
-using F1Tipping.Pages.Shared.Components.TippingIndex;
+using F1Tipping.Pages.Tipping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -37,8 +37,7 @@ namespace F1Tipping.Pages
                     return Redirect("PlayerAdmin/Init");
                 }
 
-                MainViewComponent = typeof(TippingIndexViewComponent);
-                MainViewComponentParameters = player;
+                return Redirect("Tipping");
             }
 
             return Page();

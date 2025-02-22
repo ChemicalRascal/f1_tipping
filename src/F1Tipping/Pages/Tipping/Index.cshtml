@@ -1,0 +1,10 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Tipping";
+}
+
+@foreach (var round in Model.Rounds)
+{
+    <a asp-page-handler="Tipping/Round" asp-route-id="@round.Id">@round.Title</a>
+}

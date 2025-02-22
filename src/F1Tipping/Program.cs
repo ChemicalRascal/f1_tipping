@@ -1,4 +1,5 @@
 using F1Tipping.Data;
+using F1Tipping.Tipping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,7 @@ namespace F1Tipping
                 options.UseSqlServer(connectionString));
             builder.Services.AddDbContext<ModelDbContext>(options =>
                 options.UseSqlServer(connectionString));
+            builder.Services.AddScoped<DataSeeder>();
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddDefaultIdentity<IdentityUser<Guid>>(options =>

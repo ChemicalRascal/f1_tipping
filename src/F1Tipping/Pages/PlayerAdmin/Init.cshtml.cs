@@ -59,7 +59,7 @@ namespace F1Tipping.Pages.PlayerAdmin
                 return BadRequest();
             }
 
-            if (await ModelDb.CreatePlayerIfNeededAsync(AuthUser!))
+            if (await _modelDb.CreatePlayerIfNeededAsync(AuthUser!))
             {
                 await SetUserAsync(User);
             }
@@ -75,8 +75,8 @@ namespace F1Tipping.Pages.PlayerAdmin
                             ? Details.DisplayName : null,
             };
             Player.Status = Model.Tipping.PlayerStatus.Normal;
-            ModelDb.Update(Player);
-            await ModelDb.SaveChangesAsync();
+            _modelDb.Update(Player);
+            await _modelDb.SaveChangesAsync();
 
             return Page();
         }

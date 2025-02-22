@@ -35,7 +35,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
 
                     b.HasDiscriminator().HasValue("Event");
 
@@ -55,7 +55,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RacingEntities");
+                    b.ToTable("RacingEntities", (string)null);
 
                     b.HasDiscriminator().HasValue("RacingEntity");
 
@@ -89,7 +89,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasIndex("ResultHolderId");
 
-                    b.ToTable("Results");
+                    b.ToTable("Results", (string)null);
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Round", b =>
@@ -98,8 +98,14 @@ namespace F1Tipping.Data.ModelMigrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("Index")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("SeasonId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("StartDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -107,7 +113,9 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Rounds");
+                    b.HasIndex("SeasonId");
+
+                    b.ToTable("Rounds", (string)null);
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Tipping.Player", b =>
@@ -127,7 +135,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Players");
+                    b.ToTable("Players", (string)null);
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Tipping.Tip", b =>
@@ -148,7 +156,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasIndex("TipperId");
 
-                    b.ToTable("Tips");
+                    b.ToTable("Tips", (string)null);
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Race", b =>
@@ -170,8 +178,8 @@ namespace F1Tipping.Data.ModelMigrations
                 {
                     b.HasBaseType("F1Tipping.Model.Event");
 
-                    b.Property<DateTime>("Year")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
 
                     b.HasDiscriminator().HasValue("Season");
                 });
@@ -222,6 +230,17 @@ namespace F1Tipping.Data.ModelMigrations
                     b.Navigation("ResultHolder");
                 });
 
+            modelBuilder.Entity("F1Tipping.Model.Round", b =>
+                {
+                    b.HasOne("F1Tipping.Model.Season", "Season")
+                        .WithMany("Rounds")
+                        .HasForeignKey("SeasonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Season");
+                });
+
             modelBuilder.Entity("F1Tipping.Model.Tipping.Player", b =>
                 {
                     b.OwnsOne("F1Tipping.Model.Tipping.Player+Identity", "Details", b1 =>
@@ -241,7 +260,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                             b1.HasKey("PlayerId");
 
-                            b1.ToTable("Players");
+                            b1.ToTable("Players", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PlayerId");
@@ -289,6 +308,11 @@ namespace F1Tipping.Data.ModelMigrations
                         .IsRequired();
 
                     b.Navigation("Team");
+                });
+
+            modelBuilder.Entity("F1Tipping.Model.Season", b =>
+                {
+                    b.Navigation("Rounds");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,6 @@
-﻿namespace F1Tipping.Model
+﻿using F1Tipping.Common;
+
+namespace F1Tipping.Model
 {
     public abstract class Event
     {
@@ -28,7 +30,8 @@
             ResultType.ConstructorsChampionship,
         ];
 
-        public DateTime Year { get; set; }
+        public Year Year { get; set; }
+        public List<Round> Rounds { get; set; } = [];
 
         public static IEnumerable<ResultType> GetApplicableResultTypes() => results;
     }

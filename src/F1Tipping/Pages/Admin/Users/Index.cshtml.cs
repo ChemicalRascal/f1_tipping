@@ -64,7 +64,7 @@ namespace F1Tipping.Pages.Admin.Users
             await BuildUsersListAsync();
         }
 
-        public async Task<IActionResult> OnGetLockdownUser(Guid? id)
+        public async Task<IActionResult> OnGetLockdownUserAsync(Guid? id)
         {
             if (!_userManager.SupportsUserLockout)
             {
@@ -96,7 +96,7 @@ namespace F1Tipping.Pages.Admin.Users
             return Page();
         }
 
-        public async Task<IActionResult> OnGetUnlockUser(Guid? id)
+        public async Task<IActionResult> OnGetUnlockUserAsync(Guid? id)
         {
             if (id is null)
             {

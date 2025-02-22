@@ -1,8 +1,10 @@
-﻿using F1Tipping.Model;
+﻿using F1Tipping.Common;
+using F1Tipping.Model;
 using F1Tipping.Model.Tipping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Reflection;
 
 namespace F1Tipping.Data
@@ -10,11 +12,12 @@ namespace F1Tipping.Data
     public class ModelDbContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Event> Events { get; set; }
+        public DbSet<Season> Seasons { get; set; }
+        public DbSet<Race> Races { get; set; }
         public DbSet<RacingEntity> RacingEntities { get; set; }
         public DbSet<Result> Results { get; set; }
         public DbSet<Round> Rounds { get; set; }
         public DbSet<Player> Players { get; set; }
-        //public DbSet<Player.Identity> Identities { get; set; }
         public DbSet<Tip> Tips { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -28,8 +31,22 @@ namespace F1Tipping.Data
             }
 
             builder.Entity<Player>().OwnsOne(player => player.Details);
+            builder.Entity<Season>().HasMany(season => season.Rounds);
+            builder.Entity<Round>().HasOne(round => round.Season);
 
             base.OnModelCreating(builder);
+        }
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder builder)
+        {
+            builder.Properties<Year>().HaveConversion<YearConverter>();
+            base.ConfigureConventions(builder);
+        }
+
+        public class YearConverter : ValueConverter<Year, int>
+        {
+            public YearConverter() : base(year => year.ToInt(),
+                dbVal => new Year(dbVal)) { }
         }
 
         public async Task<bool> CreatePlayerIfNeededAsync(IdentityUser<Guid> user)

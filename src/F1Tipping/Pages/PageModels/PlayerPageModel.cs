@@ -12,9 +12,9 @@ namespace F1Tipping.Pages.PageModels
     [Authorize(Roles = "Player")]
     public abstract class PlayerPageModel : PageModel
     {
-        private UserManager<IdentityUser<Guid>> UserManager { get; set; } = default!;
-        private AppDbContext AppDb { get; set; } = default!;
-        protected ModelDbContext ModelDb { get; set; } = default!;
+        private UserManager<IdentityUser<Guid>> _userManager;
+        private AppDbContext _appDb;
+        protected ModelDbContext _modelDb;
 
         [BindProperty]
         public IdentityUser<Guid>? AuthUser { get; set; }
@@ -27,17 +27,17 @@ namespace F1Tipping.Pages.PageModels
             ModelDbContext modelDb
             )
         {
-            UserManager = userManager;
-            AppDb = appDb;
-            ModelDb = modelDb;
+            _userManager = userManager;
+            _appDb = appDb;
+            _modelDb = modelDb;
         }
 
         protected async Task SetUserAsync(ClaimsPrincipal userToSet)
         {
-            AuthUser = await UserManager.GetUserAsync(userToSet);
+            AuthUser = await _userManager.GetUserAsync(userToSet);
             if (AuthUser is not null)
             {
-                Player = await ModelDb.Players.SingleOrDefaultAsync(p => p.AuthUserId == AuthUser.Id);
+                Player = await _modelDb.Players.SingleOrDefaultAsync(p => p.AuthUserId == AuthUser.Id);
             }
         }
     }
