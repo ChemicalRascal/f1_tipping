@@ -122,38 +122,12 @@ namespace F1Tipping.Data.ModelMigrations
                     b.Property<Guid>("AuthUserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DetailsId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DetailsId");
-
                     b.ToTable("Players");
-                });
-
-            modelBuilder.Entity("F1Tipping.Model.Tipping.Player+Identity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DisplayName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Identity");
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Tipping.Tip", b =>
@@ -250,9 +224,28 @@ namespace F1Tipping.Data.ModelMigrations
 
             modelBuilder.Entity("F1Tipping.Model.Tipping.Player", b =>
                 {
-                    b.HasOne("F1Tipping.Model.Tipping.Player+Identity", "Details")
-                        .WithMany()
-                        .HasForeignKey("DetailsId");
+                    b.OwnsOne("F1Tipping.Model.Tipping.Player+Identity", "Details", b1 =>
+                        {
+                            b1.Property<Guid>("PlayerId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("DisplayName")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("FirstName")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("LastName")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("PlayerId");
+
+                            b1.ToTable("Players");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PlayerId");
+                        });
 
                     b.Navigation("Details");
                 });

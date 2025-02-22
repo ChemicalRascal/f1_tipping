@@ -14,6 +14,7 @@ namespace F1Tipping.Data
         public DbSet<Result> Results { get; set; }
         public DbSet<Round> Rounds { get; set; }
         public DbSet<Player> Players { get; set; }
+        //public DbSet<Player.Identity> Identities { get; set; }
         public DbSet<Tip> Tips { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -25,6 +26,8 @@ namespace F1Tipping.Data
                     builder.Entity(type);
                 }
             }
+
+            builder.Entity<Player>().OwnsOne(player => player.Details);
 
             base.OnModelCreating(builder);
         }

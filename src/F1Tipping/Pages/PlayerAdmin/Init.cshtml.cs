@@ -74,6 +74,9 @@ namespace F1Tipping.Pages.PlayerAdmin
                 DisplayName = !Details.DisplayName.IsNullOrEmpty()
                             ? Details.DisplayName : null,
             };
+            Player.Status = Model.Tipping.PlayerStatus.Normal;
+            ModelDb.Update(Player);
+            await ModelDb.SaveChangesAsync();
 
             return Page();
         }

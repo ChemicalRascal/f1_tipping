@@ -10,7 +10,6 @@
 
         public class Identity
         {
-            public Guid Id { get; set; } = Guid.NewGuid();
             public required string FirstName { get; set; }
             public string? LastName { get; set; }
             public string? DisplayName { get; set; }
