@@ -1,4 +1,28 @@
 ﻿@page
 @model F1Tipping.Pages.PlayerAdmin.InitModel
 @{
+    ViewData["Title"] = "Onboard New Player";
 }
+
+<h1>Welcome, @(Model?.Player?.Details?.FirstName ?? Model?.AuthUser?.Email ?? "Delicious Friend!")</h1>
+<h2>Before we get to the tipping competition, we need a few details from you.</h2>
+
+<div class="row">
+    <div class="col-4">
+        <form method="post">
+            <div class="row">
+                @Html.LabelFor(m => m.Details.FirstName, new {@class="col-6"})
+                @Html.TextBoxFor(m => m.Details.FirstName, new {@class="col-6"})
+            </div>
+            <div class="row">
+                @Html.LabelFor(m => m.Details.LastName, new {@class="col-6"})
+                @Html.TextBoxFor(m => m.Details.LastName, new {@class="col-6"})
+            </div>
+            <div class="row">
+                @Html.LabelFor(m => m.Details.DisplayName, new {@class="col-6"})
+                @Html.TextBoxFor(m => m.Details.DisplayName, new {@class="col-6"})
+            </div>
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </form>
+    </div>
+</div>

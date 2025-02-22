@@ -18,7 +18,7 @@
                 @Html.DisplayNameFor(model => model.Users[0].User.Id)
             </th>
             <th>
-                Player?
+                @Html.DisplayNameFor(Model => Model.Users[0].PlayerName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Users[0].Roles)
@@ -42,7 +42,16 @@
                 <td>
                     @if (item.PlayerId is not null)
                     {
-                        @Html.DisplayFor(modelItem => item.PlayerId)
+                        <a asp-page="../Players/Details" asp-route-id="@item.PlayerId">
+                            @if (item.PlayerName is not null)
+                            {
+                                @Html.DisplayFor(modelItem => item.PlayerName)
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(modelItem => item.PlayerId)
+                            }
+                        </a>
                     }
                 </td>
                 <td>

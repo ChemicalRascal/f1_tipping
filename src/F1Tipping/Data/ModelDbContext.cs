@@ -1,5 +1,6 @@
 ﻿using F1Tipping.Model;
 using F1Tipping.Model.Tipping;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
@@ -26,6 +27,22 @@ namespace F1Tipping.Data
             }
 
             base.OnModelCreating(builder);
+        }
+
+        public async Task<bool> CreatePlayerIfNeededAsync(IdentityUser<Guid> user)
+        {
+            if (await Players.SingleOrDefaultAsync(p => p.AuthUserId == user.Id) is null)
+            {
+                Players.Add(new()
+                {
+                    AuthUserId = user.Id,
+                    Status = PlayerStatus.Uninitialized,
+                });
+                await SaveChangesAsync();
+                return true;
+            }
+
+            return false;
         }
     }
 

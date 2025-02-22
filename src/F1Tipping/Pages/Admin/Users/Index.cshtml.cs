@@ -3,6 +3,8 @@ using F1Tipping.Data;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using F1Tipping.Pages.Admin.Players;
+using System.ComponentModel.DataAnnotations;
 
 namespace F1Tipping.Pages.Admin.Users
 {
@@ -35,7 +37,9 @@ namespace F1Tipping.Pages.Admin.Users
             var players = await _modelContext.Players.ToListAsync();
 
             Users = await Task.WhenAll(users.Select(async u =>
-                new UserIndexEntry
+            {
+                var p = players.SingleOrDefault(p => p.AuthUserId == u.Id);
+                return new UserIndexEntry
                 {
                     User = u,
                     Roles = roles.Join(
@@ -43,8 +47,15 @@ namespace F1Tipping.Pages.Admin.Users
                         role => role.Id,
                         userRole => userRole.RoleId,
                         (role, userRole) => role).ToList(),
-                    PlayerId = players.SingleOrDefault(p => p.AuthUserId == u.Id)?.Id,
+                    PlayerId = p?.Id,
+                    PlayerName = p?.Details is not null
+                        ? p?.Details?.FirstName
+                            + p?.Details.LastName is not null
+                            ? " " + p!.Details.LastName
+                            : string.Empty
+                        : null,
                     IsLocked = await _userManager.IsLockedOutAsync(u),
+                };
             }));
         }
 
@@ -115,6 +126,8 @@ namespace F1Tipping.Pages.Admin.Users
             public required IdentityUser<Guid> User { get; set; }
             public IList<IdentityRole<Guid>> Roles { get; set; } = default!;
             public Guid? PlayerId { get; set; }
+            [Display(Name="Player")]
+            public string? PlayerName { get; set; }
             public bool IsLocked { get; set; }
         }
     }
