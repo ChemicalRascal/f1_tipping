@@ -1,4 +1,5 @@
 using F1Tipping.Data;
+using F1Tipping.Pages.Shared.Components.TippingIndex;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,6 +12,11 @@ namespace F1Tipping.Pages
         private readonly ILogger<IndexModel> _logger;
         private ModelDbContext _modelDb;
         private UserManager<IdentityUser<Guid>> _userManager;
+
+        [BindProperty]
+        public Type? MainViewComponent { get; set; } = default;
+        [BindProperty]
+        public object? MainViewComponentParameters { get; set; } = default;
 
         public IndexModel(ILogger<IndexModel> logger, ModelDbContext modelDb, UserManager<IdentityUser<Guid>> userManager)
         {
@@ -30,6 +36,9 @@ namespace F1Tipping.Pages
                 {
                     return Redirect("PlayerAdmin/Init");
                 }
+
+                MainViewComponent = typeof(TippingIndexViewComponent);
+                MainViewComponentParameters = player;
             }
 
             return Page();
