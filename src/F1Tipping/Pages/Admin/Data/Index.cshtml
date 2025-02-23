@@ -4,6 +4,74 @@
     ViewData["Title"] = "Tipping Data";
 }
 
-<a asp-page-handler="SeedData" class="btn btn-primary">Seed Data</a>
+@using F1Tipping.Model
 
 <a asp-page="Rounds/Index">Rounds</a>
+
+@if (!Model.Events.Any())
+{
+    <a asp-page-handler="SeedData" class="btn btn-primary">Seed Data</a>
+}
+else
+{
+    <table>
+        <tr>
+            <th> @* Html.DisplayNameFor(m => m.Events[0]) *@
+                Year
+            </th>
+            <th>
+                Round
+            </th>
+            <th>
+                Round Title
+            </th>
+            <th>
+                Event Type
+            </th>
+            <th>
+                Quali Start
+            </th>
+            <th>
+                Race Start
+            </th>
+        </tr>
+        @foreach (var @event in Model.Events)
+        {
+            <tr>
+                @switch (@event)
+                {
+                    case Season season:
+                        <td>
+                            @Html.DisplayFor(_ => season.Year)
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td>(Season)</td>
+                        <td></td>
+                        <td></td>
+                        break;
+                    case Race race:
+                        <td>
+                            @Html.DisplayFor(_ => race.Weekend.Season.Year)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(_ => race.Weekend.Index)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(_ => race.Weekend.Title)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(_ => race.Type)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(_ => race.QualificationStart)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(_ => race.RaceStart)
+                        </td>
+                        break;
+                }
+            </tr>
+        }
+    </table>
+}

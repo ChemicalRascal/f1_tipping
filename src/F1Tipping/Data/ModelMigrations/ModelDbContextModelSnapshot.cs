@@ -35,7 +35,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
 
                     b.HasDiscriminator().HasValue("Event");
 
@@ -55,7 +55,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RacingEntities", (string)null);
+                    b.ToTable("RacingEntities");
 
                     b.HasDiscriminator().HasValue("RacingEntity");
 
@@ -89,7 +89,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasIndex("ResultHolderId");
 
-                    b.ToTable("Results", (string)null);
+                    b.ToTable("Results");
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Round", b =>
@@ -115,7 +115,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasIndex("SeasonId");
 
-                    b.ToTable("Rounds", (string)null);
+                    b.ToTable("Rounds");
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Tipping.Player", b =>
@@ -135,7 +135,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Players", (string)null);
+                    b.ToTable("Players");
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Tipping.Tip", b =>
@@ -156,12 +156,18 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasIndex("TipperId");
 
-                    b.ToTable("Tips", (string)null);
+                    b.ToTable("Tips");
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Race", b =>
                 {
                     b.HasBaseType("F1Tipping.Model.Event");
+
+                    b.Property<DateTimeOffset>("QualificationStart")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("RaceStart")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -260,7 +266,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                             b1.HasKey("PlayerId");
 
-                            b1.ToTable("Players", (string)null);
+                            b1.ToTable("Players");
 
                             b1.WithOwner()
                                 .HasForeignKey("PlayerId");

@@ -1,21 +1,30 @@
+using F1Tipping.Data;
+using F1Tipping.Model;
 using F1Tipping.Pages.PageModels;
 using F1Tipping.Tipping;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace F1Tipping.Pages.Admin.Data
 {
     public class IndexModel : AdminPageModel
     {
         private DataSeeder _dataSeeder;
+        private ModelDbContext _modelDb;
 
-        public IndexModel(DataSeeder dataSeeder)
+        [BindProperty]
+        public IList<Event> Events { get; set; } = default!;
+
+        public IndexModel(DataSeeder dataSeeder, ModelDbContext modelDb)
         {
             _dataSeeder = dataSeeder;
+            _modelDb = modelDb;
         }
 
         public async Task OnGetAsync()
         {
+            Events = (await _modelDb.Events.ToListAsync()).OrderBy(e => e.OrderKey).ToList();
         }
 
         public async Task OnGetSeedDataAsync()

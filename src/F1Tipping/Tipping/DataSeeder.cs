@@ -20,12 +20,20 @@ namespace F1Tipping.Tipping
             {
                 _modelDb.Add(round);
             }
-            await _modelDb.SaveChangesAsync();
+            foreach (var race in Races2025)
+            {
+                _modelDb.Add(race);
+            }
+            foreach (var sprintRace in SprintRaces2025)
+            {
+                _modelDb.Add(sprintRace);
+            }
 
-            var season = await _modelDb.Seasons.ToListAsync();
+            await _modelDb.SaveChangesAsync();
         }
 
-        private static Season Season2025 = new() { Year = new(2025), Id = Guid.NewGuid() };
+        private static Season Season2025 = new() { Year = new(2025) };
+
         private static List<Round> Rounds2025 = [
             new() { Season = Season2025, Index = 1, Title="Australia",      StartDate = new(2025, 03, 14, 01, 30, 00, TimeZoneInfo.Utc.BaseUtcOffset) },
             new() { Season = Season2025, Index = 2, Title="China",          StartDate = new(2025, 03, 21, 03, 30, 00, TimeZoneInfo.Utc.BaseUtcOffset) },
@@ -52,5 +60,99 @@ namespace F1Tipping.Tipping
             new() { Season = Season2025, Index = 23, Title="Qatar",         StartDate = new(2025, 11, 28, 13, 30, 00, TimeZoneInfo.Utc.BaseUtcOffset) },
             new() { Season = Season2025, Index = 24, Title="Abu Dhabi",     StartDate = new(2025, 12, 05, 09, 30, 00, TimeZoneInfo.Utc.BaseUtcOffset) },
             ];
+
+        private static List<DateTimeOffset> QualiStartTimes2025 = [
+            new(2025, 03, 15, 05, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 03, 22, 07, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 04, 05, 06, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 04, 12, 16, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 04, 19, 17, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 05, 03, 20, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 05, 17, 14, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 05, 24, 14, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 05, 31, 14, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 06, 14, 20, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 06, 28, 14, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 07, 05, 14, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 07, 26, 14, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 08, 02, 14, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 08, 30, 13, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 09, 06, 14, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 09, 20, 12, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 10, 04, 13, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 10, 18, 21, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 10, 25, 21, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 11, 08, 18, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 11, 22, 04, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 11, 29, 18, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 12, 06, 14, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            ];
+
+        private static List<DateTimeOffset> SprintQualiStartTimes2025 = [
+            new(2025, 03, 21, 07, 30, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 05, 02, 20, 30, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 07, 25, 14, 30, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 10, 17, 21, 30, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 11, 07, 18, 30, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 11, 28, 17, 30, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            ];
+
+        private static List<DateTimeOffset> RaceStartTimes2025 = [
+            new(2025, 03, 16, 04, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 03, 23, 07, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 04, 06, 05, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 04, 13, 15, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 04, 20, 17, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 05, 04, 20, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 05, 18, 13, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 05, 25, 13, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 06, 01, 13, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 06, 15, 18, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 06, 29, 13, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 07, 06, 14, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 07, 27, 13, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 08, 03, 13, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 08, 31, 13, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 09, 07, 13, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 09, 21, 11, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 10, 05, 12, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 10, 19, 19, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 10, 26, 20, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 11, 09, 17, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 11, 23, 04, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 11, 30, 16, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 12, 07, 13, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            ];
+
+        private static List<DateTimeOffset> SprintRaceStartTimes2025 = [
+            new(2025, 03, 22, 03, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 05, 03, 16, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 07, 26, 10, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 10, 18, 17, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 11, 08, 14, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            new(2025, 11, 29, 14, 00, 00, TimeZoneInfo.Utc.BaseUtcOffset),
+            ];
+
+        private static IEnumerable<Race> Races2025 = RaceStartTimes2025.Select(raceStart =>
+            new Race() {
+                Type = RaceType.Main,
+                RaceStart = raceStart,
+                QualificationStart = QualiStartTimes2025
+                                    .Where(qualiStart => qualiStart < raceStart)
+                                    .OrderByDescending(qualiStart => qualiStart).First(),
+                Weekend = Rounds2025.Where(round => round.StartDate < raceStart)
+                                    .OrderByDescending(round => round.StartDate).First(),
+            });
+
+        private static IEnumerable<Race> SprintRaces2025 = SprintRaceStartTimes2025.Select(raceStart =>
+            new Race() {
+                Type = RaceType.Sprint,
+                RaceStart = raceStart,
+                QualificationStart = SprintQualiStartTimes2025
+                                    .Where(qualiStart => qualiStart < raceStart)
+                                    .OrderByDescending(qualiStart => qualiStart).First(),
+                Weekend = Rounds2025.Where(round => round.StartDate < raceStart)
+                                    .OrderByDescending(round => round.StartDate).First(),
+            });
     }
 }

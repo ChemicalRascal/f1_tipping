@@ -31,8 +31,11 @@ namespace F1Tipping.Data
             }
 
             builder.Entity<Player>().OwnsOne(player => player.Details);
+            builder.Entity<Player>().Navigation(player => player.Details).AutoInclude();
             builder.Entity<Season>().HasMany(season => season.Rounds);
+            builder.Entity<Season>().Navigation(season => season.Rounds).AutoInclude();
             builder.Entity<Round>().HasOne(round => round.Season);
+            builder.Entity<Round>().Navigation(round => round.Season).AutoInclude();
 
             base.OnModelCreating(builder);
         }
