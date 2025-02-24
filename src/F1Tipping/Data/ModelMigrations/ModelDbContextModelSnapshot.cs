@@ -64,12 +64,11 @@ namespace F1Tipping.Data.ModelMigrations
 
             modelBuilder.Entity("F1Tipping.Model.Result", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("EventId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("EventId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("ResultHolderId")
                         .HasColumnType("uniqueidentifier");
@@ -80,12 +79,7 @@ namespace F1Tipping.Data.ModelMigrations
                     b.Property<Guid?>("SetByAuthUser")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventId");
+                    b.HasKey("EventId", "Type");
 
                     b.HasIndex("ResultHolderId");
 
@@ -144,17 +138,29 @@ namespace F1Tipping.Data.ModelMigrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("TargetId")
+                    b.Property<string>("Debug_Tip")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("SubmittedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("SubmittedBy_AuthUser")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TargetEventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TargetType")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("TipperId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TargetId");
-
                     b.HasIndex("TipperId");
+
+                    b.HasIndex("TargetEventId", "TargetType");
 
                     b.ToTable("Tips");
                 });
@@ -225,7 +231,9 @@ namespace F1Tipping.Data.ModelMigrations
                 {
                     b.HasOne("F1Tipping.Model.Event", "Event")
                         .WithMany()
-                        .HasForeignKey("EventId");
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("F1Tipping.Model.RacingEntity", "ResultHolder")
                         .WithMany()
@@ -277,15 +285,15 @@ namespace F1Tipping.Data.ModelMigrations
 
             modelBuilder.Entity("F1Tipping.Model.Tipping.Tip", b =>
                 {
-                    b.HasOne("F1Tipping.Model.Result", "Target")
-                        .WithMany()
-                        .HasForeignKey("TargetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("F1Tipping.Model.Tipping.Player", "Tipper")
                         .WithMany()
                         .HasForeignKey("TipperId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("F1Tipping.Model.Result", "Target")
+                        .WithMany()
+                        .HasForeignKey("TargetEventId", "TargetType")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

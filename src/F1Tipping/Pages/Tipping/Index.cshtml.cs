@@ -6,27 +6,59 @@ using F1Tipping.Model;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using F1Tipping.PlayerData;
+using F1Tipping.Tipping;
 
 namespace F1Tipping.Pages.Tipping
 {
     [PlayerMustBeInitalized]
     public class IndexModel : PlayerPageModel
     {
+        private TipReportingService _tips;
+
         public IndexModel(
             UserManager<IdentityUser<Guid>> userManager,
             AppDbContext appDb,
-            ModelDbContext modelDb)
+            ModelDbContext modelDb,
+            TipReportingService tips)
             : base(userManager, appDb, modelDb)
-        { }
+        {
+            _tips = tips;
+        }
 
         [BindProperty]
-        public IList<Round> Rounds { get; set; } = default!;
+        public IEnumerable<EventTipView> EventTips { get; set; } = default!;
 
         public async Task<IActionResult> OnGet()
         {
-            Rounds = await _modelDb.Rounds.ToListAsync();
+            var events = (await _modelDb.Events.ToListAsync()).OrderBy(e => e.OrderKey);
+
+            EventTips = events.Select(e => new EventTipView(
+                    EventId: e.Id,
+                    Name: e switch
+                    {
+                        Season s => $"{s.Year} Season",
+                        Race r => BuildRaceName(r),
+                        _ => throw new NotImplementedException(),
+                    },
+                    HasTips: e switch
+                    {
+                        IEventWithResults er => _tips.GetTips(Player!, er).Any(),
+                        _ => false,
+                    }));
 
             return Page();
         }
+
+        private static string BuildRaceName(Race r)
+        {
+            return $"{r.Weekend.Season.Year}, Round {r.Weekend.Index} - {
+                r.Type switch {
+                    RaceType.Main => "Main Race",
+                    RaceType.Sprint => "Sprint Race",
+                    _ => throw new NotImplementedException(),
+                }} - {r.Weekend.Title}";
+        }
+
+        public record EventTipView(Guid EventId, string Name, bool HasTips);
     }
 }

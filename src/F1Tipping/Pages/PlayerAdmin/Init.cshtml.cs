@@ -78,7 +78,7 @@ namespace F1Tipping.Pages.PlayerAdmin
             _modelDb.Update(Player);
             await _modelDb.SaveChangesAsync();
 
-            return Page();
+            return Redirect("/");
         }
     }
 }

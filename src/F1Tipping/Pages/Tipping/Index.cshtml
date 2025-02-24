@@ -4,7 +4,10 @@
     ViewData["Title"] = "Tipping";
 }
 
-@foreach (var round in Model.Rounds)
+@foreach (var e in Model.EventTips)
 {
-    <a asp-page-handler="Tipping/Round" asp-route-id="@round.Id">@round.Title</a>
+    <div class="row">
+        <a asp-page="./Event" asp-route-id="@e.EventId">@e.Name</a>
+        @Html.DisplayFor(_ => e.HasTips)
+    </div>
 }

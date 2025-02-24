@@ -18,7 +18,10 @@ namespace F1Tipping
                 options.UseSqlServer(connectionString));
             builder.Services.AddDbContext<ModelDbContext>(options =>
                 options.UseSqlServer(connectionString));
+
             builder.Services.AddScoped<DataSeeder>();
+            builder.Services.AddScoped<TipReportingService>();
+
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddDefaultIdentity<IdentityUser<Guid>>(options =>

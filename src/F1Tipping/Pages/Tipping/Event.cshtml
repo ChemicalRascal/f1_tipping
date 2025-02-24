@@ -1,0 +1,24 @@
+﻿@page
+@model F1Tipping.Pages.Tipping.EventModel
+@{
+    ViewData["Title"] = "Tip An Event";
+}
+
+@using (Html.BeginForm(FormMethod.Post))
+{
+    <input type="hidden" name="EventId" value="@Model.EventId" />
+    @for (var i = 0; i < Model.ResultsAndTips.Count(); i++)
+    {
+        <div class="row">
+            @Html.HiddenFor(m => m.ResultsAndTips[i].EventId)
+            <div class="col-3">
+                @Html.DisplayFor(m => m.ResultsAndTips[i].Target)
+                @Html.HiddenFor(m => m.ResultsAndTips[i].Target)
+            </div>
+            <div class="col-3">
+                @Html.TextBoxFor(m => m.ResultsAndTips[i].Tip)
+            </div>
+        </div>
+    }
+    <input type="submit" value="Submit Tips" class="btn btn-primary" />
+}

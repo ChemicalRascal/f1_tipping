@@ -2,8 +2,7 @@
 {
     public class Result
     {
-        public Guid Id { get; set; }
-        public Event? Event { get; set; }
+        public required Event Event { get; set; }
         public ResultType Type { get; set; }
         public RacingEntity? ResultHolder { get; set; }
         public DateTime? Set { get; set; }

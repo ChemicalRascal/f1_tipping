@@ -33,6 +33,7 @@ namespace F1Tipping.Model
             };
 
         public static IEnumerable<ResultType> GetApplicableResultTypes() => results;
+        public IEnumerable<ResultType> GetResultTypes() => GetApplicableResultTypes();
     }
 
     public class Season : Event, IEventWithResults
@@ -48,10 +49,12 @@ namespace F1Tipping.Model
         public override float OrderKey => -1f;
 
         public static IEnumerable<ResultType> GetApplicableResultTypes() => results;
+        public IEnumerable<ResultType> GetResultTypes() => GetApplicableResultTypes();
     }
 
     public interface IEventWithResults
     {
         public abstract static IEnumerable<ResultType> GetApplicableResultTypes();
+        public IEnumerable<ResultType> GetResultTypes();
     }
 }
