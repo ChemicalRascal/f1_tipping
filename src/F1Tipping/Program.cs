@@ -1,4 +1,5 @@
 using F1Tipping.Data;
+using F1Tipping.PlayerData;
 using F1Tipping.Tipping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -47,14 +48,14 @@ namespace F1Tipping
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.MapStaticAssets();
             app.MapRazorPages()
                .WithStaticAssets();
+
+            app.UseForcePlayerInitialization();
 
             using (var scope = app.Services.CreateScope())
             {
