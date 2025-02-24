@@ -4,9 +4,11 @@ using F1Tipping.Model.Tipping;
 using F1Tipping.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using F1Tipping.PlayerData;
 
 namespace F1Tipping.Pages.PlayerAdmin
 {
+    [PlayerMustBeInitalized]
     public class IndexModel : PageModel
     {
         private readonly ModelDbContext _modelDb;

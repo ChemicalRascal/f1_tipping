@@ -1,5 +1,6 @@
 using F1Tipping.Data;
 using F1Tipping.Pages.Tipping;
+using F1Tipping.PlayerData;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace F1Tipping.Pages
 {
+    [PlayerMustBeInitalized]
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;

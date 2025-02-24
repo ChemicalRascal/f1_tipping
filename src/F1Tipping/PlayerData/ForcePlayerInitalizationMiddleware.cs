@@ -1,10 +1,13 @@
 ﻿using F1Tipping.Data;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
 
 namespace F1Tipping.PlayerData
 {
+    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+    public class PlayerMustBeInitalizedAttribute : Attribute {}
+
     public class ForcePlayerInitalizationMiddleware
     {
         private readonly RequestDelegate _next;
@@ -21,9 +24,8 @@ namespace F1Tipping.PlayerData
             ModelDbContext modelDb,
             UserManager<IdentityUser<Guid>> userManager)
         {
-            // TODO: Fix this redirecting stuff like static assets
-            // Just need to redirect Tipping pages and the home page.
-            if (context.Request.Path != INIT_PATH
+            if (context.GetEndpoint()?.Metadata
+                ?.GetMetadata<PlayerMustBeInitalizedAttribute>() is not null
                 && (context.User.Identity?.IsAuthenticated ?? false)
                 && context.User.IsInRole("Player"))
             {

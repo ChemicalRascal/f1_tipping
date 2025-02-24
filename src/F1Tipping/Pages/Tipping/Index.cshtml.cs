@@ -5,9 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using F1Tipping.Model;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
+using F1Tipping.PlayerData;
 
 namespace F1Tipping.Pages.Tipping
 {
+    [PlayerMustBeInitalized]
     public class IndexModel : PlayerPageModel
     {
         public IndexModel(
