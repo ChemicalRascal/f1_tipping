@@ -7,6 +7,7 @@ namespace F1Tipping.Model
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public abstract float OrderKey { get; }
+        //public abstract DateTimeOffset TipsDeadline { get; }
     }
 
     public class Race : Event, IEventWithResults

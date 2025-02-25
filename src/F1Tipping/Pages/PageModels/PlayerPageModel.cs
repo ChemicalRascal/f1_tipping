@@ -1,4 +1,5 @@
-﻿using F1Tipping.Data;
+﻿using AspNetCoreGeneratedDocument;
+using F1Tipping.Data;
 using F1Tipping.Model.Tipping;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -16,10 +17,21 @@ namespace F1Tipping.Pages.PageModels
         private AppDbContext _appDb;
         protected ModelDbContext _modelDb;
 
+        // TODO: Rework SetUserAsync call into being part of middleware, to
+        // ensure that call is made after authentication in pipeline. Doing so
+        // should allow us to just use normal properties here as well
         [BindProperty]
-        public IdentityUser<Guid>? AuthUser { get; set; }
+        public IdentityUser<Guid>? AuthUser
+        { get { if (!_stateSet) { SetUserAsync(User).Wait(); }
+                return _authUser; } }
         [BindProperty]
-        public Player? Player { get; set; }
+        public Player? Player
+        { get { if (!_stateSet) { SetUserAsync(User).Wait(); }
+                return _player; } }
+
+        private bool _stateSet = false;
+        private IdentityUser<Guid>? _authUser;
+        private Player? _player;
 
         protected PlayerPageModel(
             UserManager<IdentityUser<Guid>> userManager,
@@ -34,11 +46,13 @@ namespace F1Tipping.Pages.PageModels
 
         protected async Task SetUserAsync(ClaimsPrincipal userToSet)
         {
-            AuthUser = await _userManager.GetUserAsync(userToSet);
-            if (AuthUser is not null)
+            _authUser = await _userManager.GetUserAsync(userToSet);
+            if (_authUser is not null)
             {
-                Player = await _modelDb.Players.SingleOrDefaultAsync(p => p.AuthUserId == AuthUser.Id);
+                _player = await _modelDb.Players.SingleOrDefaultAsync(
+                    p => p.AuthUserId == _authUser.Id);
             }
+            _stateSet = true;
         }
     }
 }

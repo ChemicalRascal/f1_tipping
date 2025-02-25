@@ -36,6 +36,8 @@ namespace F1Tipping.Data
             builder.Entity<Season>().Navigation(season => season.Rounds).AutoInclude();
             builder.Entity<Round>().HasOne(round => round.Season);
             builder.Entity<Round>().Navigation(round => round.Season).AutoInclude();
+            builder.Entity<Tip>().HasOne(tip => tip.Target);
+            builder.Entity<Tip>().Navigation(tip => tip.Target).AutoInclude();
 
             builder.Entity<Result>().HasOne(result => result.Event);
             builder.Entity<Result>().HasKey(nameof(Result.Event)+"Id", nameof(Result.Type));

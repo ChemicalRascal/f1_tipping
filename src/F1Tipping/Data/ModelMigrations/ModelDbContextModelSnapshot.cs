@@ -35,7 +35,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
 
                     b.HasDiscriminator().HasValue("Event");
 
@@ -55,7 +55,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RacingEntities");
+                    b.ToTable("RacingEntities", (string)null);
 
                     b.HasDiscriminator().HasValue("RacingEntity");
 
@@ -83,7 +83,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasIndex("ResultHolderId");
 
-                    b.ToTable("Results");
+                    b.ToTable("Results", (string)null);
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Round", b =>
@@ -109,7 +109,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasIndex("SeasonId");
 
-                    b.ToTable("Rounds");
+                    b.ToTable("Rounds", (string)null);
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Tipping.Player", b =>
@@ -129,7 +129,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Players");
+                    b.ToTable("Players", (string)null);
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Tipping.Tip", b =>
@@ -162,7 +162,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                     b.HasIndex("TargetEventId", "TargetType");
 
-                    b.ToTable("Tips");
+                    b.ToTable("Tips", (string)null);
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Race", b =>
@@ -274,7 +274,7 @@ namespace F1Tipping.Data.ModelMigrations
 
                             b1.HasKey("PlayerId");
 
-                            b1.ToTable("Players");
+                            b1.ToTable("Players", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PlayerId");

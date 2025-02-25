@@ -14,8 +14,7 @@ namespace F1Tipping.Tipping
             _modelDb = modelDb;
         }
 
-        public IEnumerable<Tip> GetTips(
-            Player player, IEventWithResults @event)
+        public IEnumerable<Tip> GetTips(Player player, IEventWithResults @event)
         {
             return _modelDb.Tips
                 .Where(t => t.Target.Event == @event && t.Tipper == player)
