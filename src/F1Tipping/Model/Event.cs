@@ -18,6 +18,7 @@ namespace F1Tipping.Model
             ResultType.ThirdPlace,
             ResultType.PolePosition,
             ResultType.FirstDnf,
+            ResultType.FastestLap,
         ];
 
         public RaceType Type { get; set; } = RaceType.NotSet;

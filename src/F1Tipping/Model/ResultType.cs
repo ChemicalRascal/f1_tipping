@@ -19,6 +19,8 @@ namespace F1Tipping.Model
         DriversChampionship,
         [Display(Name = "Constructor's Championship")]
         ConstructorsChampionship,
+        [Display(Name = "Fastest Lap")]
+        FastestLap,
     }
 
     public static class ResultTypeHelper
@@ -34,6 +36,7 @@ namespace F1Tipping.Model
                 ResultType.FirstDnf => [typeof(Driver)],
                 ResultType.DriversChampionship => [typeof(Driver)],
                 ResultType.ConstructorsChampionship => [typeof(Team)],
+                ResultType.FastestLap => [typeof(Driver)],
                 _ => throw new NotImplementedException(),
             };
         }
