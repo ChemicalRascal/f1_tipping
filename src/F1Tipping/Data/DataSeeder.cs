@@ -1,8 +1,6 @@
-﻿using F1Tipping.Data;
-using F1Tipping.Model;
-using Microsoft.EntityFrameworkCore;
+﻿using F1Tipping.Model;
 
-namespace F1Tipping.Tipping
+namespace F1Tipping.Data
 {
     public class DataSeeder
     {
