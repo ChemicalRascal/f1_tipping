@@ -5,6 +5,7 @@
 }
 
 <partial name="_StatusMessage" model="Model.StatusMessage" />
+@Html.ValidationSummary()
 @using (Html.BeginForm(FormMethod.Post))
 {
     <input type="hidden" name="EventId" value="@Model.EventId" />
@@ -17,7 +18,10 @@
                 @Html.HiddenFor(m => m.IncomingTips[i].TargetType)
             </div>
             <div class="col-3">
-                @Html.TextBoxFor(m => m.IncomingTips[i].Tip)
+                @Html.ValidationMessageFor(m => m.IncomingTips[i].Selection)
+@*                 @Html.TextBoxFor(m => m.IncomingTips[i].Tip) *@
+                @Html.DropDownListFor(m => m.IncomingTips[i].Selection,
+                    Model.TipSelections[i], "Select...", null)
             </div>
         </div>
     }

@@ -138,8 +138,8 @@ namespace F1Tipping.Data.ModelMigrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Debug_Tip")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("SelectionId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("SubmittedAt")
                         .HasColumnType("datetimeoffset");
@@ -157,6 +157,8 @@ namespace F1Tipping.Data.ModelMigrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SelectionId");
 
                     b.HasIndex("TipperId");
 
@@ -285,6 +287,12 @@ namespace F1Tipping.Data.ModelMigrations
 
             modelBuilder.Entity("F1Tipping.Model.Tipping.Tip", b =>
                 {
+                    b.HasOne("F1Tipping.Model.RacingEntity", "Selection")
+                        .WithMany()
+                        .HasForeignKey("SelectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("F1Tipping.Model.Tipping.Player", "Tipper")
                         .WithMany()
                         .HasForeignKey("TipperId")
@@ -296,6 +304,8 @@ namespace F1Tipping.Data.ModelMigrations
                         .HasForeignKey("TargetEventId", "TargetType")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Selection");
 
                     b.Navigation("Target");
 

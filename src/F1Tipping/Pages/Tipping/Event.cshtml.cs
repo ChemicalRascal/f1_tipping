@@ -1,3 +1,4 @@
+using F1Tipping.Common;
 using F1Tipping.Data;
 using F1Tipping.Model;
 using F1Tipping.Model.Tipping;
@@ -6,6 +7,11 @@ using F1Tipping.PlayerData;
 using F1Tipping.Tipping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging;
 
 namespace F1Tipping.Pages.Tipping
 {
@@ -29,6 +35,10 @@ namespace F1Tipping.Pages.Tipping
         [BindProperty]
         public required IList<TipView> IncomingTips { get; set; } = default!;
         [BindProperty]
+        [ValidateNever]
+        public IList<IList<SelectListItem>> TipSelections { get; set; } = default!;
+        [BindProperty]
+        [ValidateNever]
         public string? StatusMessage { get; set; }
 
         public async Task<IActionResult> OnGetAsync(Guid id)
@@ -39,12 +49,12 @@ namespace F1Tipping.Pages.Tipping
                 return BadRequest();
             }
 
-            RefreshTipState(eventToTip);
+            await RefreshTipStateAsync(eventToTip);
 
             return Page();
         }
 
-        private void RefreshTipState(Event eventToTip)
+        private async Task RefreshTipStateAsync(Event eventToTip)
         {
             EventId = eventToTip.Id;
 
@@ -59,28 +69,52 @@ namespace F1Tipping.Pages.Tipping
                     on (result.Event, result.Type)
                     equals (tip.Target.Event, tip.Target.Type)
                     into tipgroup
-                    from tip in tipgroup.DefaultIfEmpty()
+                from tip in tipgroup.DefaultIfEmpty()
                 select new TipView(
                     EventId,
                     result.Type,
-                    tip?.Debug_Tip ?? string.Empty
+                    tip?.Selection.Id ?? Guid.Empty
                     )
                 ).ToList();
+
+            var requiredRacingEntitySets = results.Select(
+                r => ResultTypeHelper.RacingEntityTypes(r.Type))
+                .DistinctBy(a => a, new EnumerableComparer<Type>());
+
+            var resolvedRequirementsMap =
+                new Dictionary<IEnumerable<Type>, IList<SelectListItem>>
+                (new EnumerableComparer<Type>());
+
+            foreach (var set in requiredRacingEntitySets)
+            {
+                resolvedRequirementsMap[set] = new List<SelectListItem>();
+                foreach (var reType in set)
+                {
+                    resolvedRequirementsMap[set].AddRange(
+                        (await _modelDb.RacingEntities.ToListAsync())
+                        .Where(re => re.GetType() == reType)
+                        .Select(re => new SelectListItem(re.DisplayName, re.Id.ToString())));
+                }
+            }
+
+            TipSelections = results
+                .Select(r => ResultTypeHelper.RacingEntityTypes(r.Type))
+                .Select(s => resolvedRequirementsMap[s]).ToList();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            //await SetUserAsync(User);
-
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                StatusMessage = "Submission failed.";
+                return Page();
             }
 
             // TODO: Expand single form to cover entire round? This is vestigial
             if (IncomingTips.Any(t => t.EventId != EventId))
             {
-                return BadRequest();
+                StatusMessage = "Submission failed. EventID mismatch.";
+                return Page();
             }
 
             var targetEvent = await _modelDb.FindAsync<Event>(EventId);
@@ -99,6 +133,7 @@ namespace F1Tipping.Pages.Tipping
 
             var resultTypes = eventWithResults.GetResultTypes();
             var existingTips = _tipsService.GetTips(Player!, eventWithResults);
+            var racingEntityIdMap = new Dictionary<Guid, RacingEntity>();
 
             foreach (var resultType in resultTypes)
             {
@@ -116,10 +151,26 @@ namespace F1Tipping.Pages.Tipping
                 }
 
                 var existingTip = existingTips.SingleOrDefault(tip => tip.Target.Type == resultType);
-                if (newTip.Tip == existingTip?.Debug_Tip)
+                if (newTip.Selection == existingTip?.Selection.Id)
                 {
                     IncomingTips.Remove(newTip);
                     continue;
+                }
+
+                if (!racingEntityIdMap.TryGetValue(newTip.Selection, out var selection))
+                {
+                    selection = await _modelDb.FindAsync<RacingEntity>(newTip.Selection);
+                    if (selection is null)
+                    {
+                        throw new ApplicationException($"Can't find RacingEntity {newTip.Selection}");
+                    }
+                    racingEntityIdMap[newTip.Selection] = selection;
+                }
+
+                var allowedTypes = ResultTypeHelper.RacingEntityTypes(newTip.TargetType);
+                if (!allowedTypes.Contains(selection.GetType()))
+                {
+                    throw new ApplicationException($"RacingEntity {newTip.Selection} not valid for {newTip.TargetType}");
                 }
 
                 await _modelDb.AddAsync(new Tip()
@@ -128,7 +179,7 @@ namespace F1Tipping.Pages.Tipping
                     SubmittedBy_AuthUser = AuthUser!.Id,
                     Tipper = Player!,
                     Target = result,
-                    Debug_Tip = newTip!.Tip,
+                    Selection = selection,
                 });
                 IncomingTips.Remove(newTip);
             }
@@ -143,11 +194,11 @@ namespace F1Tipping.Pages.Tipping
 
             await _modelDb.SaveChangesAsync();
 
-            RefreshTipState(targetEvent);
+            await RefreshTipStateAsync(targetEvent);
 
             return Page();
         }
 
-        public record TipView(Guid EventId, ResultType TargetType, string Tip);
+        public record TipView(Guid EventId, ResultType TargetType, Guid Selection);
     }
 }

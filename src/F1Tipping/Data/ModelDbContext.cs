@@ -15,6 +15,8 @@ namespace F1Tipping.Data
         public DbSet<Season> Seasons { get; set; }
         public DbSet<Race> Races { get; set; }
         public DbSet<RacingEntity> RacingEntities { get; set; }
+        public DbSet<Team> Teams { get; set; }
+        public DbSet<Driver> Drivers { get; set; }
         public DbSet<Result> Results { get; set; }
         public DbSet<Round> Rounds { get; set; }
         public DbSet<Player> Players { get; set; }
@@ -38,6 +40,8 @@ namespace F1Tipping.Data
             builder.Entity<Round>().Navigation(round => round.Season).AutoInclude();
             builder.Entity<Tip>().HasOne(tip => tip.Target);
             builder.Entity<Tip>().Navigation(tip => tip.Target).AutoInclude();
+            builder.Entity<Tip>().HasOne(tip => tip.Selection);
+            builder.Entity<Tip>().Navigation(tip => tip.Selection).AutoInclude();
 
             builder.Entity<Result>().HasOne(result => result.Event);
             builder.Entity<Result>().HasKey(nameof(Result.Event)+"Id", nameof(Result.Type));
