@@ -29,6 +29,15 @@ namespace F1Tipping.Tipping
                 _modelDb.Add(sprintRace);
             }
 
+            foreach (var team in Teams2025.Values)
+            {
+                _modelDb.Add(team);
+            }
+            foreach (var driver in Drivers2025)
+            {
+                _modelDb.Add(driver);
+            }
+
             await _modelDb.SaveChangesAsync();
         }
 
@@ -153,6 +162,43 @@ namespace F1Tipping.Tipping
                                     .OrderByDescending(qualiStart => qualiStart).First(),
                 Weekend = Rounds2025.Where(round => round.StartDate < raceStart)
                                     .OrderByDescending(round => round.StartDate).First(),
+            });
+
+        private static List<(string first, string last, string nationality,
+            string teamname, string number)> DriverNames2025 = [
+                ("Oscar","Piastri","Australia","McLaren","81"),
+                ("Lando","Norris","United Kingdom","McLaren","4"),
+                ("Charles","Leclerc","Monaco","Ferrari","16"),
+                ("Lewis","Hamilton","United Kingdom","Ferrari","44"),
+                ("Max","Verstappen","Netherlands","Red Bull Racing","1"),
+                ("Liam","Lawson","New Zealand","Red Bull Racing","30"),
+                ("George","Russell","United Kingdom","Mercedes","63"),
+                ("Andrea Kimi","Antonelli","Italy","Mercedes","12"),
+                ("Lance","Stroll","Canada","Aston Martin","18"),
+                ("Fernando","Alonso","Spain","Aston Martin","14"),
+                ("Pierre","Gasly","France","Alpine","10"),
+                ("Jack","Doohan","Australia","Alpine","7"),
+                ("Isack","Hadjar","France","Racing Bulls","6"),
+                ("Yuki","Tsunoda","Japan","Racing Bulls","22"),
+                ("Esteban","Ocon","France","Haas","31"),
+                ("Oliver","Bearman","United Kingdom","Haas","87"),
+                ("Alexander","Albon","Thailand","Williams","23"),
+                ("Carlos","Sainz","Spain","Williams","55"),
+                ("Nico","Hulkenberg","Germany","Kick Sauber","27"),
+                ("Gabriel","Bortoleto","Brazil","Kick Sauber","5"),
+            ];
+
+        private static IDictionary<string, Team> Teams2025 = DriverNames2025
+            .Select(dn => dn.teamname).Distinct()
+            .ToDictionary(tn => tn, tn => new Team() { Name = tn });
+
+        private static IEnumerable<Driver> Drivers2025 = DriverNames2025
+            .Select(dn => new Driver() {
+                FirstName = dn.first,
+                LastName = dn.last,
+                Nationality = dn.nationality,
+                Number = dn.number,
+                Team = Teams2025[dn.teamname],
             });
     }
 }

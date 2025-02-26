@@ -64,45 +64,9 @@ namespace F1Tipping
             using (var scope = app.Services.CreateScope())
             {
                 SeedRolesAndUsers(scope).Wait();
-                SeedDebugDriversTeams(scope).Wait();
             }
 
             app.Run();
-        }
-
-        private static async Task SeedDebugDriversTeams(IServiceScope scope)
-        {
-            var modelDb = scope.ServiceProvider.GetService<ModelDbContext>();
-
-            string[] teamNames = ["McLaren", "Ferrari", "Red Bull", "VCARB"];
-            (string, string, string)[] driverNames = [
-                ("Lewis", "Hamilton", "Ferrari"),
-                ("Max", "Verstappen", "Red Bull"),
-                ("Oscar", "Piastri", "McLaren"),
-                ("Yuki", "Tsunoda", "VCARB"),
-                ];
-
-            foreach (var teamName in teamNames)
-            {
-                // TODO -- Make a SingleOrAdd<T>(func, T) extension method
-                var team = await modelDb!.Teams.SingleOrDefaultAsync(
-                    t => t.Name == teamName) ?? modelDb.Add(new Team() { Name = teamName }).Entity;
-
-                foreach (var driverName in driverNames.Where(d => d.Item3 == teamName))
-                {
-                    var driver = await modelDb.Drivers.SingleOrDefaultAsync(
-                        d => d.FirstName == driverName.Item1
-                        && d.LastName == driverName.Item2) ?? modelDb.Add(
-                            new Driver()
-                            {
-                                FirstName = driverName.Item1,
-                                LastName = driverName.Item2,
-                                Team = team,
-                            }).Entity;
-                }
-            }
-
-            await modelDb!.SaveChangesAsync();
         }
 
         private static async Task SeedRolesAndUsers(IServiceScope scope)

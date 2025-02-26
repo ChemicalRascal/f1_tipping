@@ -30,6 +30,7 @@ namespace F1Tipping.Pages.Admin.Data
         public async Task OnGetSeedDataAsync()
         {
             await _dataSeeder.Seed2025SeasonAsync();
+            await OnGetAsync();
         }
     }
 }

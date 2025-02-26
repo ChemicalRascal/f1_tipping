@@ -43,6 +43,9 @@ namespace F1Tipping.Data
             builder.Entity<Tip>().HasOne(tip => tip.Selection);
             builder.Entity<Tip>().Navigation(tip => tip.Selection).AutoInclude();
 
+            builder.Entity<Driver>().HasOne(driver => driver.Team);
+            builder.Entity<Driver>().Navigation(driver => driver.Team).AutoInclude();
+
             builder.Entity<Result>().HasOne(result => result.Event);
             builder.Entity<Result>().HasKey(nameof(Result.Event)+"Id", nameof(Result.Type));
 
