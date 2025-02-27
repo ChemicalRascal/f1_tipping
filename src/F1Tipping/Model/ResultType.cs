@@ -5,6 +5,10 @@ namespace F1Tipping.Model
     public enum ResultType
     {
         NotSet,
+        [Display(Name = "Driver's Championship")]
+        DriversChampionship,
+        [Display(Name = "Constructor's Championship")]
+        ConstructorsChampionship,
         [Display(Name = "Pole Position")]
         PolePosition,
         [Display(Name = "First Place")]
@@ -13,14 +17,10 @@ namespace F1Tipping.Model
         SecondPlace,
         [Display(Name = "Third Place")]
         ThirdPlace,
-        [Display(Name = "First DNF")]
-        FirstDnf,
-        [Display(Name = "Driver's Championship")]
-        DriversChampionship,
-        [Display(Name = "Constructor's Championship")]
-        ConstructorsChampionship,
         [Display(Name = "Fastest Lap")]
         FastestLap,
+        [Display(Name = "First DNF")]
+        FirstDnf,
     }
 
     public static class ResultTypeHelper
