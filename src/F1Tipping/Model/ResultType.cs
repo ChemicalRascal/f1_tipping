@@ -40,5 +40,15 @@ namespace F1Tipping.Model
                 _ => throw new NotImplementedException(),
             };
         }
+
+        public static Type ResultStructure(ResultType result)
+        {
+            return result switch
+            {
+                ResultType.FirstDnf => typeof(MultiEntityResult),
+                ResultType.NotSet => throw new NotImplementedException(),
+                _ => typeof(Result),
+            };
+        }
     }
 }

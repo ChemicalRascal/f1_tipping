@@ -73,6 +73,11 @@ namespace F1Tipping.Data.ModelMigrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("nvarchar(21)");
+
                     b.Property<Guid?>("ResultHolderId")
                         .HasColumnType("uniqueidentifier");
 
@@ -87,6 +92,10 @@ namespace F1Tipping.Data.ModelMigrations
                     b.HasIndex("ResultHolderId");
 
                     b.ToTable("Results");
+
+                    b.HasDiscriminator().HasValue("Result");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Round", b =>
@@ -170,6 +179,24 @@ namespace F1Tipping.Data.ModelMigrations
                     b.ToTable("Tips");
                 });
 
+            modelBuilder.Entity("MultiEntityResultRacingEntity", b =>
+                {
+                    b.Property<Guid>("ResultHoldersId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("MultiEntityResultEventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("MultiEntityResultType")
+                        .HasColumnType("int");
+
+                    b.HasKey("ResultHoldersId", "MultiEntityResultEventId", "MultiEntityResultType");
+
+                    b.HasIndex("MultiEntityResultEventId", "MultiEntityResultType");
+
+                    b.ToTable("MultiEntityResultRacingEntity");
+                });
+
             modelBuilder.Entity("F1Tipping.Model.Race", b =>
                 {
                     b.HasBaseType("F1Tipping.Model.Event");
@@ -238,6 +265,13 @@ namespace F1Tipping.Data.ModelMigrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("Team");
+                });
+
+            modelBuilder.Entity("F1Tipping.Model.MultiEntityResult", b =>
+                {
+                    b.HasBaseType("F1Tipping.Model.Result");
+
+                    b.HasDiscriminator().HasValue("MultiEntityResult");
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Result", b =>
@@ -321,6 +355,21 @@ namespace F1Tipping.Data.ModelMigrations
                     b.Navigation("Target");
 
                     b.Navigation("Tipper");
+                });
+
+            modelBuilder.Entity("MultiEntityResultRacingEntity", b =>
+                {
+                    b.HasOne("F1Tipping.Model.RacingEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ResultHoldersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("F1Tipping.Model.MultiEntityResult", null)
+                        .WithMany()
+                        .HasForeignKey("MultiEntityResultEventId", "MultiEntityResultType")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Race", b =>

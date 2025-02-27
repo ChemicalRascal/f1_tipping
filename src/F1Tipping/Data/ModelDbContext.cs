@@ -24,7 +24,10 @@ namespace F1Tipping.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            foreach (var parentType in new Type[] {typeof(Event), typeof(RacingEntity)})
+            foreach (var parentType in new Type[] {
+                typeof(Event),
+                typeof(RacingEntity),
+                typeof(Result)})
             {
                 foreach (var type in parentType.GetDerivedClasses())
                 {
@@ -48,6 +51,8 @@ namespace F1Tipping.Data
 
             builder.Entity<Result>().HasOne(result => result.Event);
             builder.Entity<Result>().HasKey(nameof(Result.Event)+"Id", nameof(Result.Type));
+
+            builder.Entity<MultiEntityResult>().HasMany(result => result.ResultHolders).WithMany();
 
             base.OnModelCreating(builder);
         }

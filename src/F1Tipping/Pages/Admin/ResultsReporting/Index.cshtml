@@ -1,0 +1,32 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Tipping";
+}
+
+<div class="row">
+    <div class="col">
+        @Html.DisplayNameFor(m => m.Events.First().Name)
+    </div>
+    <div class="col">
+        @Html.DisplayNameFor(m => m.Events.First().TimeUntilQuali)
+    </div>
+    <div class="col">
+        @Html.DisplayNameFor(m => m.Events.First().TimeUntilRace)
+    </div>
+</div>
+
+@foreach (var e in Model.Events)
+{
+    <div class="row">
+        <div class="col">
+            <a asp-page="./Event" asp-route-id="@e.EventId">@e.Name</a>
+        </div>
+        <div class="col">
+            @e.TimeUntilQuali?.ToString(@"dd\d\ hh\:mm")
+        </div>
+        <div class="col">
+            @e.TimeUntilRace?.ToString(@"dd\d\ hh\:mm")
+        </div>
+    </div>
+}

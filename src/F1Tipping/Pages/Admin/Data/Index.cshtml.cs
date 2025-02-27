@@ -1,9 +1,7 @@
 using F1Tipping.Data;
 using F1Tipping.Model;
 using F1Tipping.Pages.PageModels;
-using F1Tipping.Tipping;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace F1Tipping.Pages.Admin.Data
