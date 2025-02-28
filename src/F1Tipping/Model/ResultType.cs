@@ -33,10 +33,10 @@ namespace F1Tipping.Model
                 ResultType.FirstPlace => [typeof(Driver)],
                 ResultType.SecondPlace => [typeof(Driver)],
                 ResultType.ThirdPlace => [typeof(Driver)],
+                ResultType.FastestLap => [typeof(Driver)],
                 ResultType.FirstDnf => [typeof(Driver)],
                 ResultType.DriversChampionship => [typeof(Driver)],
                 ResultType.ConstructorsChampionship => [typeof(Team)],
-                ResultType.FastestLap => [typeof(Driver)],
                 _ => throw new NotImplementedException(),
             };
         }
@@ -45,9 +45,15 @@ namespace F1Tipping.Model
         {
             return result switch
             {
+                ResultType.PolePosition => typeof(Result),
+                ResultType.FirstPlace => typeof(Result),
+                ResultType.SecondPlace => typeof(Result),
+                ResultType.ThirdPlace => typeof(Result),
+                ResultType.FastestLap => typeof(Result),
                 ResultType.FirstDnf => typeof(MultiEntityResult),
-                ResultType.NotSet => throw new NotImplementedException(),
-                _ => typeof(Result),
+                ResultType.DriversChampionship => typeof(Result),
+                ResultType.ConstructorsChampionship => typeof(Result),
+                _ => throw new NotImplementedException(),
             };
         }
     }

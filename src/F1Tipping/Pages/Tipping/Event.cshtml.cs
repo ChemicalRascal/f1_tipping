@@ -76,29 +76,37 @@ namespace F1Tipping.Pages.Tipping
                     )
                 ).ToList();
 
-            var requiredRacingEntitySets = results.Select(
-                r => ResultTypeHelper.RacingEntityTypes(r.Type))
+            var resolvedCandidates = await GetCandidates(results.Select(r => r.Type));
+
+            TipSelections = results
+                .Select(r => ResultTypeHelper.RacingEntityTypes(r.Type))
+                .Select(s => resolvedCandidates[s]).ToList();
+        }
+
+        private async Task<Dictionary<IEnumerable<Type>, IList<SelectListItem>>>
+            GetCandidates(IEnumerable<ResultType> resultTypes)
+        {
+            var requiredCandidateSets = resultTypes.Select(
+                r => ResultTypeHelper.RacingEntityTypes(r))
                 .DistinctBy(a => a, new EnumerableComparer<Type>());
 
-            var resolvedRequirementsMap =
+            var resolvedCandidates =
                 new Dictionary<IEnumerable<Type>, IList<SelectListItem>>
                 (new EnumerableComparer<Type>());
 
-            foreach (var set in requiredRacingEntitySets)
+            foreach (var set in requiredCandidateSets)
             {
-                resolvedRequirementsMap[set] = new List<SelectListItem>();
+                resolvedCandidates[set] = new List<SelectListItem>();
                 foreach (var reType in set)
                 {
-                    resolvedRequirementsMap[set].AddRange(
+                    resolvedCandidates[set].AddRange(
                         (await _modelDb.RacingEntities.ToListAsync())
                         .Where(re => re.GetType() == reType)
                         .Select(re => new SelectListItem(re.DisplayName, re.Id.ToString())));
                 }
             }
 
-            TipSelections = results
-                .Select(r => ResultTypeHelper.RacingEntityTypes(r.Type))
-                .Select(s => resolvedRequirementsMap[s]).ToList();
+            return resolvedCandidates;
         }
 
         public async Task<IActionResult> OnPostAsync()
