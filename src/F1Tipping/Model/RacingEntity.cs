@@ -9,6 +9,7 @@ namespace F1Tipping.Model
         public int? ListOrder { get; set; }
         [Display(Name = "Name")]
         public abstract string DisplayName { get; }
+        public virtual int? GetListOrder() => ListOrder;
     }
 
     public class Driver : RacingEntity
@@ -19,6 +20,7 @@ namespace F1Tipping.Model
         public required string Number { get; set; }
         public required Team Team { get; set; }
         public override string DisplayName { get => $"{FirstName} {LastName} - {Team?.DisplayName}"; }
+        public override int? GetListOrder() => Team.GetListOrder() * 100 + base.GetListOrder();
     }
 
     public class Team : RacingEntity

@@ -4,12 +4,13 @@
 {
     <script type="text/javascript">
         function addRow(btn) {
-            // Nav up to the row the button is on. Yes, this is easier.
+            // Nav up to the row the button is on.
             btn = btn.parentElement.parentElement;
             var newRow = btn.previousElementSibling.cloneNode(true);
             var newIndex = Math.max(...Array.from(
                     btn.parentElement.children, x=>x.children[0])
-                .filter((n) => n && n?.type == "hidden").map(n => n.value))+1;
+                .filter((n) => n && n?.type == "hidden" && n?.name == "index")
+                .map(n => n.value))+1;
             newRow.children[0].value = newIndex;
             newRow.querySelectorAll('input, select').forEach(n =>
                 {
@@ -29,9 +30,12 @@
     ViewData["Title"] = "Results Entry";
 }
 
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<h1>@(Model.EventTitle)</h1>
 @using (Html.BeginForm(FormMethod.Post))
 {
     <div class="row">
+        @(Html.HiddenFor(m => m.EventId))
         <div class="col">
             @Html.DisplayNameFor(m => Model.Results[0].TypeOfResult)
         </div>
@@ -52,13 +56,14 @@
             </div>
             <div class="col">
                 @Html.DropDownListFor(m => m.Results[i].HolderId, Model.Results[i].Candidates)
-                @*<select name="Model.Results[@(i)].HolderId" asp-items="@(Model.Results[i].Candidates)"></select>*@
             </div>
             <div class="col">
             </div>
         </div>
 
-        @if (i == Model.Results.Count() - 1)
+        @if (Model.Results[i].MultiEntity &&
+            (i == Model.Results.Count() - 1
+                || Model.Results[i+1].TypeOfResult != Model.Results[i].TypeOfResult))
         {
             <div class="row">
                 <div class="form-group">

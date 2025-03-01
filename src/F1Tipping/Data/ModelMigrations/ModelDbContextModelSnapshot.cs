@@ -81,8 +81,8 @@ namespace F1Tipping.Data.ModelMigrations
                     b.Property<Guid?>("ResultHolderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("Set")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("Set")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid?>("SetByAuthUser")
                         .HasColumnType("uniqueidentifier");
