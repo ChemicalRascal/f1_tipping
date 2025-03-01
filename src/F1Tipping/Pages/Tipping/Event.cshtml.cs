@@ -17,16 +17,20 @@ namespace F1Tipping.Pages.Tipping
     [PlayerMustBeInitalized]
     public class EventModel : PlayerPageModel
     {
-        private TipReportingService _tipsService;
+        private TipReportingService _tipsReporting;
+        private TipValidiationService _tipsValidation;
 
         public EventModel(
             UserManager<IdentityUser<Guid>> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb,
-            TipReportingService tipsService)
+            TipReportingService tipsService,
+            TipValidiationService tipsValidation
+            )
             : base(userManager, appDb, modelDb)
         {
-            _tipsService = tipsService;
+            _tipsReporting = tipsService;
+            _tipsValidation = tipsValidation;
         }
 
         [BindProperty]
@@ -59,7 +63,7 @@ namespace F1Tipping.Pages.Tipping
 
             var results = ((IEventWithResults)eventToTip).GetResultTypes().Select(
                 rt => new Result() { Event = eventToTip, Type = rt }).ToList();
-            var tips = _tipsService.GetTips(
+            var tips = _tipsReporting.GetTips(
                 Player!, (IEventWithResults)eventToTip).ToList();
 
             IncomingTips = (
@@ -70,7 +74,6 @@ namespace F1Tipping.Pages.Tipping
                     into tipgroup
                 from tip in tipgroup.DefaultIfEmpty()
                 select new TipView(
-                    EventId,
                     result.Type,
                     tip?.Selection.Id ?? Guid.Empty
                     )
@@ -111,16 +114,25 @@ namespace F1Tipping.Pages.Tipping
 
         public async Task<IActionResult> OnPostAsync()
         {
+            var validationErrors = _tipsValidation.GetErrors(
+                IncomingTips.Select(t => (IThinTip)t).ToList());
+
+            foreach (var eKey in validationErrors.Keys)
+            {
+                ModelState.AddModelError($"IncomingTips[{
+                    IncomingTips.IndexOf(IncomingTips.First(t => t.TargetType == eKey))
+                    }].Selection", validationErrors[eKey]);
+            }
+
             if (!ModelState.IsValid)
             {
                 StatusMessage = "Submission failed.";
-                return Page();
-            }
-
-            // TODO: Expand single form to cover entire round? This is vestigial
-            if (IncomingTips.Any(t => t.EventId != EventId))
-            {
-                StatusMessage = "Submission failed. EventID mismatch.";
+                var eventToTip = (await _modelDb.FindAsync<Event>(EventId))!;
+                if (eventToTip is null || eventToTip is not IEventWithResults)
+                {
+                    return BadRequest();
+                }
+                await RefreshTipStateAsync(eventToTip);
                 return Page();
             }
 
@@ -139,7 +151,7 @@ namespace F1Tipping.Pages.Tipping
             }
 
             var resultTypes = eventWithResults.GetResultTypes();
-            var existingTips = _tipsService.GetTips(Player!, eventWithResults);
+            var existingTips = _tipsReporting.GetTips(Player!, eventWithResults);
             var racingEntityIdMap = new Dictionary<Guid, RacingEntity>();
 
             foreach (var resultType in resultTypes)
@@ -206,6 +218,10 @@ namespace F1Tipping.Pages.Tipping
             return Page();
         }
 
-        public record TipView(Guid EventId, ResultType TargetType, Guid Selection);
+        public record TipView(ResultType TargetType, Guid Selection) : IThinTip
+        {
+            ResultType IThinTip.Type => TargetType;
+            Guid IThinTip.Selection => Selection;
+        }
     }
 }

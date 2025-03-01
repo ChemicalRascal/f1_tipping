@@ -20,14 +20,15 @@ namespace F1Tipping.Tipping
                 .Where(t => t.Target.Event == @event && t.Tipper == player)
                 .GroupBy(t => t.Target.Type)
                 .Select(tg => tg.OrderByDescending(t => t.SubmittedAt).First());
+        }
 
-            /* TODO: Debug this, resolve multiple-calls-to-db-context problem
-            return await _modelDb.Tips
+        public async Task<IEnumerable<Tip>> GetTipsAsync(Player player, IEventWithResults @event)
+        {
+            return (await _modelDb.Tips
                 .Where(t => t.Target.Event == @event && t.Tipper == player)
+                .ToListAsync())
                 .GroupBy(t => t.Target.Type)
-                .Select(tg => tg.OrderByDescending(t => t.SubmittedAt).First())
-                .ToListAsync();
-            */
+                .Select(tg => tg.OrderByDescending(t => t.SubmittedAt).First());
         }
     }
 }

@@ -22,6 +22,8 @@ namespace F1Tipping
 
             builder.Services.AddScoped<DataSeeder>();
             builder.Services.AddScoped<TipReportingService>();
+            builder.Services.AddScoped<TipScoringService>();
+            builder.Services.AddScoped<TipValidiationService>();
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

@@ -32,8 +32,8 @@ namespace F1Tipping.PlayerData
                 var user = await userManager.GetUserAsync(context.User);
                 var player = await modelDb.Players.SingleOrDefaultAsync(
                     p => p.AuthUserId == user!.Id);
-                if (player is not null
-                    && player.Status == Model.Tipping.PlayerStatus.Uninitialized)
+                if (player is null
+                    || player.Status == Model.Tipping.PlayerStatus.Uninitialized)
                 {
                     context.Response.Redirect(INIT_PATH);
                 }

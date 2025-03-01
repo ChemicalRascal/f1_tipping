@@ -7,7 +7,14 @@
 @foreach (var e in Model.EventTips)
 {
     <div class="row">
-        <a asp-page="./Event" asp-route-id="@e.EventId">@e.Name</a>
-        @Html.DisplayFor(_ => e.HasTips)
+        <div class="col">
+            <a asp-page="./Event" asp-route-id="@e.EventId">@e.Name</a>
+        </div>
+        <div class="col">
+            @Html.DisplayFor(_ => e.HasTips)
+        </div>
+        <div class="col">
+            @Html.DisplayFor(_ => e.Score)
+        </div>
     </div>
 }

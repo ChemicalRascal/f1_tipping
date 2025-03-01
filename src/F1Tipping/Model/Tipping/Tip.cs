@@ -1,6 +1,6 @@
 ﻿namespace F1Tipping.Model.Tipping
 {
-    public class Tip
+    public class Tip : IThinTip
     {
         public Guid Id { get; set; }
         public required Player Tipper { get; set; }
@@ -11,5 +11,14 @@
 
         public bool IsProxyTip => SubmittedBy_AuthUser is not null &&
             Tipper.AuthUserId == SubmittedBy_AuthUser;
+
+        ResultType IThinTip.Type => Target.Type;
+        Guid IThinTip.Selection => Selection.Id;
+    }
+
+    public interface IThinTip
+    {
+        public ResultType Type { get; }
+        public Guid Selection { get; }
     }
 }

@@ -14,25 +14,35 @@ namespace F1Tipping.Pages.Tipping
     public class IndexModel : PlayerPageModel
     {
         private TipReportingService _tips;
+        private TipScoringService _scores;
 
         public IndexModel(
             UserManager<IdentityUser<Guid>> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb,
-            TipReportingService tips)
+            TipReportingService tips,
+            TipScoringService scores)
             : base(userManager, appDb, modelDb)
         {
             _tips = tips;
+            _scores = scores;
         }
 
         [BindProperty]
-        public IEnumerable<EventTipView> EventTips { get; set; } = default!;
+        public IList<EventTipView> EventTips { get; set; } = default!;
 
         public async Task<IActionResult> OnGet()
         {
             var events = (await _modelDb.Events.ToListAsync()).OrderBy(e => e.OrderKey);
 
-            EventTips = events.Select(e => new EventTipView(
+            EventTips = new List<EventTipView>();
+            foreach (var e in events)
+            {
+                var scoreReport = await _scores.GetReportAsync(Player!, e);
+                var tipList = e is IEventWithResults
+                    ? _tips.GetTips(Player!, (e as IEventWithResults)!)
+                    : Array.Empty<Tip>();
+                EventTips.Add(new EventTipView(
                     EventId: e.Id,
                     Name: e switch
                     {
@@ -40,11 +50,9 @@ namespace F1Tipping.Pages.Tipping
                         Race r => BuildRaceName(r),
                         _ => throw new NotImplementedException(),
                     },
-                    HasTips: e switch
-                    {
-                        IEventWithResults er => _tips.GetTips(Player!, er).Any(),
-                        _ => false,
-                    }));
+                    HasTips: tipList.Any(),
+                    Score: scoreReport?.EventScore));
+            }
 
             return Page();
         }
@@ -59,6 +67,6 @@ namespace F1Tipping.Pages.Tipping
                 }} - {r.Weekend.Title}";
         }
 
-        public record EventTipView(Guid EventId, string Name, bool HasTips);
+        public record EventTipView(Guid EventId, string Name, bool HasTips, int? Score);
     }
 }
