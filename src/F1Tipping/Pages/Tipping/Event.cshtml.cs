@@ -19,18 +19,21 @@ namespace F1Tipping.Pages.Tipping
     {
         private TipReportingService _tipsReporting;
         private TipValidiationService _tipsValidation;
+        private TipScoringService _tipsScoring;
 
         public EventModel(
             UserManager<IdentityUser<Guid>> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb,
             TipReportingService tipsService,
-            TipValidiationService tipsValidation
+            TipValidiationService tipsValidation,
+            TipScoringService tipsScoring
             )
             : base(userManager, appDb, modelDb)
         {
             _tipsReporting = tipsService;
             _tipsValidation = tipsValidation;
+            _tipsScoring = tipsScoring;
         }
 
         [ValidateNever]
@@ -49,6 +52,12 @@ namespace F1Tipping.Pages.Tipping
         [BindProperty]
         [ValidateNever]
         public bool Lockout { get; set; } = false;
+        [BindProperty]
+        [ValidateNever]
+        public bool DisplayResults { get; set; } = true;
+        [BindProperty]
+        [ValidateNever]
+        public IDictionary<ResultType, TipScoringService.ScoredTip>? ReportMap { get; set; } = null;
 
         public async Task<IActionResult> OnGetAsync(Guid id)
         {
@@ -70,8 +79,7 @@ namespace F1Tipping.Pages.Tipping
 
             var results = ((IEventWithResults)eventToTip).GetResultTypes().Select(
                 rt => new Result() { Event = eventToTip, Type = rt }).ToList();
-            var tips = _tipsReporting.GetTips(
-                Player!, (IEventWithResults)eventToTip).ToList();
+            var tips = _tipsReporting.GetTips(Player!, (IEventWithResults)eventToTip).ToList();
 
             IncomingTips = (
                 from result in results
@@ -93,6 +101,12 @@ namespace F1Tipping.Pages.Tipping
                 .Select(s => resolvedCandidates[s]).ToList();
 
             Lockout = eventToTip.TipsDeadline < DateTimeOffset.UtcNow;
+            //DisplayResults = Lockout;
+
+            if (DisplayResults)
+            {
+                ReportMap = (await _tipsScoring.GetReportAsync(Player!, eventToTip))?.ScoredTips.ToDictionary(st => st.Tip.Target.Type);
+            }
         }
 
         private async Task<Dictionary<IEnumerable<Type>, IList<SelectListItem>>>
