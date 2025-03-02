@@ -56,49 +56,57 @@ namespace F1Tipping.Pages.Admin.ResultsReporting
                 return Page();
             }
 
-            _modelDb.RemoveRange(await _modelDb.Results.Where(r => r.Event == @event).ToListAsync());
-            await _modelDb.SaveChangesAsync();
-
             var resultsAdded = 0;
             foreach (var rg in Results.GroupBy(r => r.TypeOfResult))
             {
-                if (rg.Any(r => r.HolderId != Guid.Empty))
+                var result = await _modelDb.Results.SingleOrDefaultAsync(
+                    r => r.Event == @event && r.Type == rg.Key);
+                var requiresInsert = result is null;
+
+                if (result is null)
                 {
                     var resultObj = Activator.CreateInstance(ResultTypeHelper.ResultStructure(rg.Key));
                     if (resultObj is null)
                     {
                         throw new ApplicationException($"Couldn't get result object for {rg.Key}");
                     }
-                    var result = (Result)resultObj;
+                    result = (Result)resultObj;
 
                     result.Event = @event;
                     result.Type = rg.Key;
-                    result.Set = DateTimeOffset.UtcNow;
-                    result.SetByAuthUser = (await _userManager.GetUserAsync(User))!.Id;
-
-                    var holderIds = rg.Select(rv => rv.HolderId);
-                    var holders = await _modelDb.RacingEntities.Where(re => holderIds.Contains(re.Id)).ToListAsync();
-                    if (resultObj is MultiEntityResult multiResult)
-                    {
-                        if (multiResult.ResultHolders is null)
-                        {
-                            multiResult.ResultHolders = new();
-                        }
-                        multiResult.ResultHolders.AddRange(holders);
-                        _modelDb.Add(multiResult);
-                        resultsAdded++;
-                    }
-                    else
-                    {
-                        if (holders.Count() != 1)
-                        {
-                            throw new ApplicationException($"{holders.Count()} RacingEntities found, expected 1 for ResultType {rg.Key}.");
-                        }
-                        result.ResultHolder = holders.First();
-                        _modelDb.Add(result);
-                        resultsAdded++;
-                    }
                 }
+                result.Set = DateTimeOffset.UtcNow;
+                result.SetByAuthUser = (await _userManager.GetUserAsync(User))!.Id;
+
+                var holderIds = rg.Select(rv => rv.HolderId).Where(id => id != Guid.Empty);
+                var holders = await _modelDb.RacingEntities.Where(re => holderIds.Contains(re.Id)).ToListAsync();
+                if (result is MultiEntityResult multiResult)
+                {
+                    if (multiResult.ResultHolders is null)
+                    {
+                        multiResult.ResultHolders = new();
+                    }
+                    multiResult.ResultHolders.Clear();
+                    multiResult.ResultHolders.AddRange(holders);
+                }
+                else
+                {
+                    if (holders.Count() > 1)
+                    {
+                        throw new ApplicationException($"{holders.Count()} RacingEntities found, expected max 1 for ResultType {rg.Key}.");
+                    }
+                    result.ResultHolder = holders.FirstOrDefault();
+                }
+
+                if (requiresInsert)
+                {
+                    await _modelDb.AddAsync(result);
+                }
+                else
+                {
+                    _modelDb.Update(result);
+                }
+                resultsAdded++;
             }
 
             await _modelDb.SaveChangesAsync();
