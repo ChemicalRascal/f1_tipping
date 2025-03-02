@@ -1,5 +1,6 @@
 ﻿using F1Tipping.Model;
 using F1Tipping.Model.Tipping;
+using System.ComponentModel.DataAnnotations;
 
 namespace F1Tipping.Tipping
 {
@@ -12,24 +13,20 @@ namespace F1Tipping.Tipping
             var tipMap = tips.ToDictionary(t => t.Type);
             foreach (var rt in tipMap.Keys)
             {
-                var rtMemberInfo = rt.GetType().GetMember(rt.ToString());
-                var attributes = rtMemberInfo
-                    .Select(mi => mi.GetCustomAttributes(false))
-                    .SelectMany(a => a);
-
-                foreach (var a in attributes)
+                foreach (var mustNotEqual in ResultTypeHelper.GetAttributes<MustNotEqualAttribute>(rt))
                 {
-                    if (a is MustNotEqualAttribute mustNotEqual)
+                    foreach (var otherType in mustNotEqual.Others)
                     {
-                        foreach (var otherType in mustNotEqual.Others)
+                        if (tipMap[otherType].Selection == tipMap[rt].Selection)
                         {
-                            if (tipMap[otherType].Selection == tipMap[rt].Selection)
-                            {
-                                var newError = $"Must not match {otherType}";
-                                errors[rt] = errors.TryGetValue(rt, out var current)
-                                    ? current + ", " + newError
-                                    : newError;
-                            }
+                            var otherTypeName = ResultTypeHelper
+                                .GetAttributes<DisplayAttribute>(otherType)
+                                .First().Name;
+                            var newError = $"Must not match {otherTypeName}";
+
+                            errors[rt] = errors.TryGetValue(rt, out var current)
+                                ? current + ", " + newError
+                                : newError;
                         }
                     }
                 }

@@ -33,6 +33,9 @@ namespace F1Tipping.Pages.Tipping
             _tipsValidation = tipsValidation;
         }
 
+        [ValidateNever]
+        [BindProperty]
+        public string? EventTitle { get; set; } = default!;
         [BindProperty]
         public Guid EventId { get; set; } = Guid.Empty;
         [BindProperty]
@@ -60,6 +63,7 @@ namespace F1Tipping.Pages.Tipping
         private async Task RefreshTipStateAsync(Event eventToTip)
         {
             EventId = eventToTip.Id;
+            EventTitle = BuildEventName(eventToTip);
 
             var results = ((IEventWithResults)eventToTip).GetResultTypes().Select(
                 rt => new Result() { Event = eventToTip, Type = rt }).ToList();
@@ -77,7 +81,7 @@ namespace F1Tipping.Pages.Tipping
                     result.Type,
                     tip?.Selection.Id ?? Guid.Empty
                     )
-                ).ToList();
+                ).OrderBy(tip => tip.TargetType).ToList();
 
             var resolvedCandidates = await GetCandidates(results.Select(r => r.Type));
 
@@ -105,6 +109,7 @@ namespace F1Tipping.Pages.Tipping
                     resolvedCandidates[set].AddRange(
                         (await _modelDb.RacingEntities.ToListAsync())
                         .Where(re => re.GetType() == reType)
+                        .OrderBy(re => re.GetListOrder())
                         .Select(re => new SelectListItem(re.DisplayName, re.Id.ToString())));
                 }
             }
@@ -137,8 +142,6 @@ namespace F1Tipping.Pages.Tipping
             }
 
             var targetEvent = await _modelDb.FindAsync<Event>(EventId);
-            // TODO: Check round deadlines before submitting tips
-            //if (targetEvent)
             if (targetEvent is null)
             {
                 StatusMessage = $"Event ID {EventId} doesn't exist!";
@@ -149,6 +152,7 @@ namespace F1Tipping.Pages.Tipping
                 StatusMessage = $"Event type {targetEvent!.GetType()} doesn't support tipping!";
                 return Page();
             }
+            // TODO: Check round deadlines before submitting tips
 
             var resultTypes = eventWithResults.GetResultTypes();
             var existingTips = _tipsReporting.GetTips(Player!, eventWithResults);
@@ -215,7 +219,24 @@ namespace F1Tipping.Pages.Tipping
 
             await RefreshTipStateAsync(targetEvent);
 
+            StatusMessage = "Tips saved.";
+
             return Page();
+        }
+
+        private static string BuildEventName(Event e)
+        {
+            return e switch
+            {
+                Season s => $"{s.Year} Season",
+                Race r => $"{r.Weekend.Season.Year}, Round {r.Weekend.Index} - {r.Type switch
+                {
+                    RaceType.Main => "Main Race",
+                    RaceType.Sprint => "Sprint Race",
+                    _ => throw new NotImplementedException(),
+                }} - {r.Weekend.Title}",
+                _ => throw new NotImplementedException(),
+            };
         }
 
         public record TipView(ResultType TargetType, Guid Selection) : IThinTip

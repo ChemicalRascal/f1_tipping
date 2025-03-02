@@ -31,10 +31,11 @@ namespace F1Tipping.Pages.Admin.ResultsReporting
         }
 
         [BindProperty]
-        public string? StatusMessage { get; set; } = default;
         [ValidateNever]
+        public string? StatusMessage { get; set; } = default;
         [BindProperty]
-        public string EventTitle { get; set; } = default!;
+        [ValidateNever]
+        public string? EventTitle { get; set; } = default;
         [BindProperty]
         public Guid EventId { get; set; }
         [BindProperty]
