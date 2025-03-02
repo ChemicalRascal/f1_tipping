@@ -1,4 +1,18 @@
 ﻿@page
 @model F1Tipping.Pages.Tipping.ScoreboardModel
 @{
+    ViewData["Title"] = "Scoreboard";
 }
+
+<h1>Scoreboard</h1>
+
+<div class="rowList">
+    @foreach (var ps in Model.PlayerScores)
+    {
+        <div class="row">
+            <div class="col-3">@ps.Name</div>
+            <div class="col-3">@ps.Score</div>
+        </div>
+    }
+</div>
+

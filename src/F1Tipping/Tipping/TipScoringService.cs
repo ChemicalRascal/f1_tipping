@@ -1,6 +1,8 @@
 ﻿using F1Tipping.Data;
 using F1Tipping.Model;
 using F1Tipping.Model.Tipping;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
 
 namespace F1Tipping.Tipping
 {
@@ -13,6 +15,19 @@ namespace F1Tipping.Tipping
         {
             _modelDb = modelDb;
             _tipService = tipService;
+        }
+
+        public async Task<decimal> GetPlayerScoreAsync(Player player)
+        {
+            var events = await _modelDb.Events.Where(e => e.Completed).ToListAsync();
+
+            var score = 0m;
+            foreach (var e in events)
+            {
+                score += (await GetReportAsync(player, e))?.EventScore ?? 0m;
+            }
+
+            return score;
         }
 
         public async Task<PlayerEventReport?> GetReportAsync(Player player, Event @event)
