@@ -1,4 +1,15 @@
 ﻿@if (Context.User.IsInRole("Administrator"))
 {
-    @* bla bla bla *@
+    <li class="nav-item">
+        <a class="nav-link text-danger" asp-area="" asp-page="/Admin/Players/Index">Players</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-danger" asp-area="" asp-page="/Admin/Users/Index">Users</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-danger" asp-area="" asp-page="/Admin/Data/Index">Data</a>
+    </li>
+    <li>
+        <a class="nav-link text-danger" asp-area="" asp-page="/Admin/ResultsReporting/Index">Report Results</a>
+    </li>
 }

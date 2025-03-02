@@ -1,4 +1,12 @@
 ﻿@if (Context.User.IsInRole("Player"))
 {
-    @* bla bla bla *@
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-page="/Tipping/Index">Tipping</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-page="/Tipping/Scoreboard">Scoreboard</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-page="/Tipping/FullScores">Score Breakdown</a>
+    </li>
 }
