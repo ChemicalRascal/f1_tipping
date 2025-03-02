@@ -22,6 +22,13 @@ namespace F1Tipping.Tipping
                 return null;
             }
 
+            var eventScoreMult = eventWithResults switch
+            {
+                Race r => RaceTypeHelper.GetAttributes<ScoreMultAttribute>(r.Type)
+                            .First().Mult,
+                Season s => 1.0m,
+                _ => throw new NotImplementedException(),
+            };
             var scoredTips = new List<ScoredTip>();
             var playerTips = await _tipService.GetTipsAsync(player, eventWithResults);
             var tipMap = playerTips.ToDictionary(tip => tip.Target.Type);
@@ -36,14 +43,14 @@ namespace F1Tipping.Tipping
                 {
                     if (tip.Target.EntityInResult(tip.Selection))
                     {
-                        scoredTip.Score += scorer.MatchPoints;
+                        scoredTip.Score += scorer.MatchPoints * eventScoreMult;
                     }
 
                     foreach (var altType in scorer.AlternateResults)
                     {
                         if (tipMap[altType].Target.EntityInResult(tip.Selection))
                         {
-                            scoredTip.Score += scorer.AlternatePoints;
+                            scoredTip.Score += scorer.AlternatePoints * eventScoreMult;
                         }
                     }
                 }
@@ -55,14 +62,14 @@ namespace F1Tipping.Tipping
         public class PlayerEventReport
         {
             public List<ScoredTip> ScoredTips { get; set; } = new();
-            public int? EventScore { get => ScoredTips.Any()
+            public decimal? EventScore { get => ScoredTips.Any()
                     ? ScoredTips.Select(x => x.Score).Aggregate((x, y) => x + y)
                     : null; }
         }
 
         public class ScoredTip
         {
-            public int Score { get; set; } = 0;
+            public decimal Score { get; set; } = 0.0m;
             public required Tip Tip { get; set; }
         }
     }

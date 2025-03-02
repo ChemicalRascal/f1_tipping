@@ -67,6 +67,6 @@ namespace F1Tipping.Pages.Tipping
                 }} - {r.Weekend.Title}";
         }
 
-        public record EventTipView(Guid EventId, string Name, bool HasTips, int? Score);
+        public record EventTipView(Guid EventId, string Name, bool HasTips, decimal? Score);
     }
 }
