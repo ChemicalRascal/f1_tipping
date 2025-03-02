@@ -8,6 +8,7 @@ namespace F1Tipping.Model
         public bool Completed { get; set; } = false;
         public abstract float OrderKey { get; }
         public abstract DateTimeOffset TipsDeadline { get; }
+        public abstract string EventName { get; }
     }
 
     public class Race : Event, IEventWithResults
@@ -36,6 +37,13 @@ namespace F1Tipping.Model
         public override DateTimeOffset TipsDeadline => Weekend.Events
             .Select(r => r.QualificationStart)
             .Min();
+        public override string EventName =>
+            $"{Weekend.Season.Year}, Round {Weekend.Index} - {
+                Type switch {
+                    RaceType.Main => "Main Race",
+                    RaceType.Sprint => "Sprint Race",
+                    _ => throw new NotImplementedException(),
+                }} - {Weekend.Title}";
 
         public static IEnumerable<ResultType> GetApplicableResultTypes() => results;
         public IEnumerable<ResultType> GetResultTypes() => GetApplicableResultTypes();
@@ -56,6 +64,7 @@ namespace F1Tipping.Model
             .SelectMany(r => r.Events)
             .Select(r => r.QualificationStart)
             .Min();
+        public override string EventName => $"{Year} Season";
 
         public static IEnumerable<ResultType> GetApplicableResultTypes() => results;
         public IEnumerable<ResultType> GetResultTypes() => GetApplicableResultTypes();
