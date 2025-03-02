@@ -54,7 +54,7 @@ namespace F1Tipping.Pages.Tipping
         public bool Lockout { get; set; } = false;
         [BindProperty]
         [ValidateNever]
-        public bool DisplayResults { get; set; } = true;
+        public bool DisplayResults { get; set; } = false;
         [BindProperty]
         [ValidateNever]
         public IDictionary<ResultType, TipScoringService.ScoredTip>? ReportMap { get; set; } = null;
@@ -101,7 +101,7 @@ namespace F1Tipping.Pages.Tipping
                 .Select(s => resolvedCandidates[s]).ToList();
 
             Lockout = eventToTip.TipsDeadline < DateTimeOffset.UtcNow;
-            //DisplayResults = Lockout;
+            DisplayResults = eventToTip.Completed;
 
             if (DisplayResults)
             {
@@ -137,6 +137,9 @@ namespace F1Tipping.Pages.Tipping
 
         public async Task<IActionResult> OnPostAsync()
         {
+            // TODO: Chase down this bizarre fucking error.
+            ModelState.Remove("");
+
             var targetEvent = await _modelDb.FindAsync<Event>(EventId);
             if (targetEvent is null)
             {

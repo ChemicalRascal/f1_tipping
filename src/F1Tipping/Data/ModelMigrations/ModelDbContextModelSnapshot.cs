@@ -28,6 +28,9 @@ namespace F1Tipping.Data.ModelMigrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("Completed")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Discriminator")
                         .IsRequired()
                         .HasMaxLength(8)
@@ -375,7 +378,7 @@ namespace F1Tipping.Data.ModelMigrations
             modelBuilder.Entity("F1Tipping.Model.Race", b =>
                 {
                     b.HasOne("F1Tipping.Model.Round", "Weekend")
-                        .WithMany()
+                        .WithMany("Events")
                         .HasForeignKey("WeekendId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -392,6 +395,11 @@ namespace F1Tipping.Data.ModelMigrations
                         .IsRequired();
 
                     b.Navigation("Team");
+                });
+
+            modelBuilder.Entity("F1Tipping.Model.Round", b =>
+                {
+                    b.Navigation("Events");
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Season", b =>

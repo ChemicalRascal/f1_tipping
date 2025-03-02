@@ -35,6 +35,14 @@
 @using (Html.BeginForm(FormMethod.Post))
 {
     @(Html.HiddenFor(m => m.EventId))
+    <div class="row">
+        <div class="col-3">
+            @Html.DisplayNameFor(m => m.EventIsComplete)
+        </div>
+        <div class="col-3">
+            @Html.CheckBoxFor(m => m.EventIsComplete)
+        </div>
+    </div>
     @if (Model.Results.Any())
     {
         <div class="row">

@@ -1,11 +1,11 @@
 ﻿using F1Tipping.Common;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace F1Tipping.Model
 {
     public abstract class Event
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+        public bool Completed { get; set; } = false;
         public abstract float OrderKey { get; }
         public abstract DateTimeOffset TipsDeadline { get; }
     }

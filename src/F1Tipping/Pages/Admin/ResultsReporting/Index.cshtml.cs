@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using F1Tipping.PlayerData;
 using F1Tipping.Tipping;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 
 namespace F1Tipping.Pages.Admin.ResultsReporting
 {
@@ -39,6 +40,7 @@ namespace F1Tipping.Pages.Admin.ResultsReporting
 
             Events = events.Select(e => new EventView(
                     EventId: e.Id,
+                    Completed: e.Completed,
                     Name: e switch
                     {
                         Season s => $"{s.Year} Season",
@@ -73,6 +75,8 @@ namespace F1Tipping.Pages.Admin.ResultsReporting
 
         public record EventView(
             Guid EventId,
+            [property: Display(Name = "Completed")]
+            bool Completed,
             [property: Display(Name = "Event")]
             string Name,
             [property: Display(Name = "Time Until Quali")]

@@ -39,6 +39,8 @@ namespace F1Tipping.Pages.Admin.ResultsReporting
         [BindProperty]
         public Guid EventId { get; set; }
         [BindProperty]
+        public bool EventIsComplete { get; set; } = false;
+        [BindProperty]
         public List<ResultViewModel> Results { get; set; } = new();
 
         public async Task<IActionResult> OnPostAsync()
@@ -54,6 +56,12 @@ namespace F1Tipping.Pages.Admin.ResultsReporting
             {
                 StatusMessage = $"Event not found.";
                 return Page();
+            }
+
+            if (@event.Completed != EventIsComplete)
+            {
+                @event.Completed = EventIsComplete;
+                _modelDb.Update(@event);
             }
 
             var resultsAdded = 0;
@@ -131,6 +139,7 @@ namespace F1Tipping.Pages.Admin.ResultsReporting
             }
 
             EventTitle = BuildEventName(eventInDb);
+            EventIsComplete = eventInDb.Completed;
             var requiredResultTypes = @event.GetResultTypes();
             var existingResults = await _modelDb.Results.Where(r => r.Event.Id == id).ToListAsync();
             var fullResults = existingResults.Concat(requiredResultTypes

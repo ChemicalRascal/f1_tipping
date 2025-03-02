@@ -9,6 +9,9 @@
         @Html.DisplayNameFor(m => m.Events.First().Name)
     </div>
     <div class="col">
+        @Html.DisplayNameFor(m => m.Events.First().Completed)
+    </div>
+    <div class="col">
         @Html.DisplayNameFor(m => m.Events.First().TimeUntilQuali)
     </div>
     <div class="col">
@@ -21,6 +24,9 @@
     <div class="row">
         <div class="col">
             <a asp-page="./Event" asp-route-id="@e.EventId">@e.Name</a>
+        </div>
+        <div class="col">
+            @Html.DisplayFor(_ => e.Completed)
         </div>
         <div class="col">
             @e.TimeUntilQuali?.ToString(@"dd\d\ hh\:mm")
