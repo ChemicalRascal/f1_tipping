@@ -46,6 +46,9 @@ namespace F1Tipping.Pages.Tipping
         [BindProperty]
         [ValidateNever]
         public string? StatusMessage { get; set; }
+        [BindProperty]
+        [ValidateNever]
+        public bool Lockout { get; set; } = false;
 
         public async Task<IActionResult> OnGetAsync(Guid id)
         {
@@ -88,13 +91,14 @@ namespace F1Tipping.Pages.Tipping
             TipSelections = results
                 .Select(r => ResultTypeHelper.RacingEntityTypes(r.Type))
                 .Select(s => resolvedCandidates[s]).ToList();
+
+            Lockout = eventToTip.TipsDeadline < DateTimeOffset.UtcNow;
         }
 
         private async Task<Dictionary<IEnumerable<Type>, IList<SelectListItem>>>
             GetCandidates(IEnumerable<ResultType> resultTypes)
         {
-            var requiredCandidateSets = resultTypes.Select(
-                r => ResultTypeHelper.RacingEntityTypes(r))
+            var requiredCandidateSets = resultTypes.Select(ResultTypeHelper.RacingEntityTypes)
                 .DistinctBy(a => a, new EnumerableComparer<Type>());
 
             var resolvedCandidates =
@@ -119,6 +123,25 @@ namespace F1Tipping.Pages.Tipping
 
         public async Task<IActionResult> OnPostAsync()
         {
+            var targetEvent = await _modelDb.FindAsync<Event>(EventId);
+            if (targetEvent is null)
+            {
+                StatusMessage = $"Event ID {EventId} doesn't exist!";
+                return Page();
+            }
+            if (targetEvent is not IEventWithResults eventWithResults)
+            {
+                StatusMessage = $"Event type {targetEvent!.GetType()} doesn't support tipping!";
+                return Page();
+            }
+
+            if (targetEvent.TipsDeadline < DateTimeOffset.UtcNow)
+            {
+                StatusMessage = $"You're too late; the tipping deadline for this event has passed.";
+                await RefreshTipStateAsync(targetEvent);
+                return Page();
+            }
+
             var validationErrors = _tipsValidation.GetErrors(
                 IncomingTips.Select(t => (IThinTip)t).ToList());
 
@@ -140,19 +163,6 @@ namespace F1Tipping.Pages.Tipping
                 await RefreshTipStateAsync(eventToTip);
                 return Page();
             }
-
-            var targetEvent = await _modelDb.FindAsync<Event>(EventId);
-            if (targetEvent is null)
-            {
-                StatusMessage = $"Event ID {EventId} doesn't exist!";
-                return Page();
-            }
-            if (targetEvent is not IEventWithResults eventWithResults)
-            {
-                StatusMessage = $"Event type {targetEvent!.GetType()} doesn't support tipping!";
-                return Page();
-            }
-            // TODO: Check round deadlines before submitting tips
 
             var resultTypes = eventWithResults.GetResultTypes();
             var existingTips = _tipsReporting.GetTips(Player!, eventWithResults);

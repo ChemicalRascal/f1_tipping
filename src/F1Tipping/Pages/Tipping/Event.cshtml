@@ -20,9 +20,9 @@
             <div class="col-3">
                 @Html.ValidationMessageFor(m => m.IncomingTips[i].Selection)
                 @Html.DropDownListFor(m => m.IncomingTips[i].Selection,
-                    Model.TipSelections[i], "Select...", null)
+                    Model.TipSelections[i], "Select...", Model.Lockout ? new {disabled = "disabled"} : new {})
             </div>
         </div>
     }
-    <input type="submit" value="Submit Tips" class="btn btn-primary" />
+    <input type="submit" value="Submit Tips" class="btn btn-primary" @(Model.Lockout ? "disabled=\"disabled\"" : "") />
 }

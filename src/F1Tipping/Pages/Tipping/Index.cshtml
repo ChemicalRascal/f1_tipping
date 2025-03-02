@@ -3,12 +3,84 @@
 @{
     ViewData["Title"] = "Tipping";
 }
+@section Scripts
+{
+    <script type="text/javascript">
+        function setTimers() {
+            var timeNow = Date.now();
+            var deadlines = document.getElementsByName("deadlineValue");
+            deadlines.forEach(d => {
+                var dest = d.nextElementSibling;
+                var deadline = d.value;
+                dest.innerHTML = msToTime(deadline - timeNow);
+            });
+            setTimeout(setTimers, 500);
+        }
+
+        p2 = (num) => num.toString().padStart(2,"0");
+
+        function msToTime(ms) {
+            let second = 1000;
+            let minute = second * 60;
+            let hour = minute * 60
+            let day = hour * 24;
+            let week = day * 7;
+
+            let weeks = Math.floor(ms / week);
+            ms -= weeks * week;
+            let days = Math.floor(ms / day);
+            ms -= days * day;
+            let hours = Math.floor(ms / hour);
+            ms -= hours * hour;
+            let minutes = Math.floor(ms / minute);
+            ms -= minutes * minute;
+            let seconds = Math.floor(ms / second);
+            ms -= seconds * second;
+
+            if (weeks >= 2)
+            {
+                return `${weeks}w ${days}d`;
+            }
+            if (weeks == 1)
+            {
+                return `${weeks}w ${days}d ${p2(hours)}h ${p2(minutes)}m`;
+            }
+
+            return `${weeks > 0 ? weeks + "w " : ""}`
+                 + `${days > 0 ? days + "d " : ""}`
+                 + `${p2(hours)}h ${p2(minutes)}m ${p2(seconds)}s`;
+        }
+        window.onload = setTimers;
+    </script>
+}
+
+<div id="eventList">
+@if (Model.EventTips.Any())
+{
+    <div class="row">
+        <div class="col">
+        </div>
+        <div class="col">
+            @Html.DisplayNameFor(m => m.EventTips[0].Deadline)
+        </div>
+        <div class="col">
+            @Html.DisplayNameFor(m => m.EventTips[0].HasTips)
+        </div>
+        <div class="col">
+            @Html.DisplayNameFor(m => m.EventTips[0].Score)
+        </div>
+    </div>
+}
 
 @foreach (var e in Model.EventTips)
 {
     <div class="row">
         <div class="col">
             <a asp-page="./Event" asp-route-id="@e.EventId">@e.Name</a>
+        </div>
+        <div class="col">
+            <input name="deadlineValue" type="hidden" value="@(e.Deadline.ToUnixTimeSeconds()*1000)"/>
+            <span name="deadlineDestination"></span>
         </div>
         <div class="col">
             @Html.DisplayFor(_ => e.HasTips)
@@ -18,3 +90,4 @@
         </div>
     </div>
 }
+</div>

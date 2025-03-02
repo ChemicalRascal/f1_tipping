@@ -7,7 +7,7 @@ namespace F1Tipping.Model
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public abstract float OrderKey { get; }
-        //public abstract DateTimeOffset TipsDeadline { get; }
+        public abstract DateTimeOffset TipsDeadline { get; }
     }
 
     public class Race : Event, IEventWithResults
@@ -33,6 +33,9 @@ namespace F1Tipping.Model
                 RaceType.Main => 0.2f,
                 _ => throw new NotImplementedException(),
             };
+        public override DateTimeOffset TipsDeadline => Weekend.Events
+            .Select(r => r.QualificationStart)
+            .Min();
 
         public static IEnumerable<ResultType> GetApplicableResultTypes() => results;
         public IEnumerable<ResultType> GetResultTypes() => GetApplicableResultTypes();
@@ -49,6 +52,10 @@ namespace F1Tipping.Model
         public List<Round> Rounds { get; set; } = [];
 
         public override float OrderKey => -1f;
+        public override DateTimeOffset TipsDeadline => Rounds
+            .SelectMany(r => r.Events)
+            .Select(r => r.QualificationStart)
+            .Min();
 
         public static IEnumerable<ResultType> GetApplicableResultTypes() => results;
         public IEnumerable<ResultType> GetResultTypes() => GetApplicableResultTypes();

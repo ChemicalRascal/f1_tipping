@@ -50,6 +50,7 @@ namespace F1Tipping.Pages.Tipping
                         Race r => BuildRaceName(r),
                         _ => throw new NotImplementedException(),
                     },
+                    Deadline: e.TipsDeadline,
                     HasTips: tipList.Any(),
                     Score: scoreReport?.EventScore));
             }
@@ -67,6 +68,10 @@ namespace F1Tipping.Pages.Tipping
                 }} - {r.Weekend.Title}";
         }
 
-        public record EventTipView(Guid EventId, string Name, bool HasTips, decimal? Score);
+        public record EventTipView(Guid EventId,
+                                   string Name,
+                                   DateTimeOffset Deadline,
+                                   bool HasTips,
+                                   decimal? Score);
     }
 }
