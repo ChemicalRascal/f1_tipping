@@ -1,26 +1,36 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@using F1Tipping.Data
+@using F1Tipping.Model.Tipping
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore;
 @inject SignInManager<IdentityUser<Guid>> SignInManager
 @inject UserManager<IdentityUser<Guid>> UserManager
+@inject ModelDbContext ModelDb
 
 <ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="nav-item">
-        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
-    </li>
-    <li class="nav-item">
-        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })">
-            <button  type="submit" class="nav-link btn btn-link text-dark">Logout</button>
-        </form>
-    </li>
-}
-else
-{
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
-    </li>
-}
+    @if (SignInManager.IsSignedIn(User))
+    {
+        Player? UserPlayer = null;
+        var AuthUser = await UserManager.GetUserAsync(User);
+        if (AuthUser is not null)
+        {
+            UserPlayer = await ModelDb.Players.SingleOrDefaultAsync(p => p.AuthUserId == AuthUser.Id);
+        }
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @(UserPlayer?.Details?.FirstName ?? User.Identity?.Name)!</a>
+        </li>
+        <li class="nav-item">
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })">
+                <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
+    }
 </ul>

@@ -1,0 +1,108 @@
+﻿@page
+@model RulesModel
+@{
+    ViewData["SuperTitle"] = "Tipping Competition";
+    ViewData["Title"] = "Rules & Scoring";
+}
+<h1>@ViewData["SuperTitle"]</h1>
+<h2>@ViewData["Title"]</h2>
+
+<hr class="pb-5" />
+
+<ul>
+    <li>
+        The tipping deadline for a race is the start of the first qualifications for
+        its round.
+        <ul>
+            <li class="text-muted">
+                (For rounds without a sprint race, this just means tips are due before
+                qualifications begin. For rounds with a sprint race, this means that the tips
+                for both the sprint race <i>as well as</i> the normal race are due before the
+                sprint race qualifications start.)
+            </li>
+        </ul>
+    </li>
+    <li>
+        The tipping deadline for a season is the first qualifications for the first
+        race for the season.
+    </li>
+
+    <li>
+        Tipping a season requires you to pick a driver for the Driver's Championship,
+        and team for the Constructor's Championship.
+        <ul>
+            <li>
+                Picking the correct driver will give you <b>15 points</b> once the Driver's Championship has been announced.
+            </li>
+            <li>
+                Likewise, picking the correct team will give you <b>15 points</b> once the Constructor's Championship has been announced.
+            </li>
+        </ul>
+    </li>
+
+    <li>
+        Tipping a race requires you to pick drivers for a set of positions, as below,
+        and scoring the associated points if the pick matches the actual result, or
+        scoring Alternate Scoring points if any are relevant to the position.
+
+        <ul>
+            <li>
+                The results for a given event will be filled in whenever the admin
+                can do so (probably as they watch the race) and updated in the case
+                of the FIA updating relevant race results. (This includes changing
+                First Place if George cheats again, Kaz.)
+            </li>
+        </ul>
+
+        <table class="table">
+            <tr>
+                <th></th>
+                <th>Scoring On Match</th>
+                <th>Alternate Scoring</th>
+            </tr>
+            <tr>
+                <td><b>Pole Position</b></td>
+                <td>1 Point</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><b>First Place</b>,<br /><b>Second Place</b>,<br /><b>Third Place</b></td>
+                <td>2 Points</td>
+                <td>1 Point if driver is elsewhere on podium</td>
+            </tr>
+            <tr>
+                <td><b>Fastest Lap</b></td>
+                <td>1 Point</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><b>First DNF</b></td>
+                <td>3 Points*</td>
+                <td></td>
+            </tr>
+        </table>
+
+        <p>
+            * <b>First DNF</b> is a little complicated. Any driver who retires
+            due to the first incident-causing-a-retirement in a race, or another
+            incident sufficiently close to that first incident, will have been
+            the "First DNF," so long as that incident occurred after the formation
+            lap began.<br />
+
+            As an example; if five drivers have a collision in the opening lap,
+            three retire immediately, and then the other two retire later due to
+            damage from that collision making racing unviable, all five will be
+            considered to have been the First DNF of the race.<br />
+
+            Some element of judgement from the administrator is present in part
+            of this.  For example, in our scoring of Monaco 2024, Ocon was judged
+            to have been one of the four drivers to have First DNF due to his
+            collision with Gasly being so soon after the
+            Perez-Hulkenberg-Magnussen collision.<br />
+
+            Naturally, the First DNF being possible during the formation lap is
+            to make picking Stroll for something a viable strategy.<br />
+        </p>
+
+    </li>
+</ul>
