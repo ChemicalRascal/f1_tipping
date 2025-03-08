@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using F1Tipping.Data;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace F1Tipping.Pages.PlayerAdmin
@@ -20,11 +18,11 @@ namespace F1Tipping.Pages.PlayerAdmin
 
         public class DetailsEditModel
         {
-            [Display(Name ="First Name")]
+            [Display(Name ="First Name", Description = "Non-optional.")]
             public string? FirstName { get; set; }
-            [Display(Name ="Last Name")]
+            [Display(Name ="Last Name", Description = "Optional.")]
             public string? LastName { get; set; }
-            [Display(Name ="Display Name")]
+            [Display(Name ="Display Name", Description = "Optional. Overrides your First Name on other people's UI.")]
             public string? DisplayName { get; set; }
         }
 

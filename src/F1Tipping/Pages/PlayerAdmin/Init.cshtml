@@ -5,22 +5,31 @@
 }
 
 <h1>Welcome, @(Model?.Player?.Details?.FirstName ?? Model?.AuthUser?.Email ?? "Delicious Friend!")</h1>
-<h2>Before we get to the tipping competition, we need a few details from you.</h2>
+<h5>Before we get to the tipping competition, we need a few details from you.</h5>
 
-<div class="row">
-    <div class="col-4">
+<div class="row pt-4">
+    <div class="col-8">
         <form method="post">
             <div class="row">
-                @Html.LabelFor(m => m.Details.FirstName, new {@class="col-6"})
-                @Html.TextBoxFor(m => m.Details.FirstName, new {@class="col-6"})
+                @Html.LabelFor(m => m.Details.FirstName, new {@class="col-2"})
+                <span class="col-7 text-muted">
+                    @Html.DescriptionFor(m => m.Details.FirstName)
+                </span>
+                @Html.TextBoxFor(m => m.Details.FirstName, new {@class="col-3", required="true"})
             </div>
             <div class="row">
-                @Html.LabelFor(m => m.Details.LastName, new {@class="col-6"})
-                @Html.TextBoxFor(m => m.Details.LastName, new {@class="col-6"})
+                @Html.LabelFor(m => m.Details.LastName, new {@class="col-2"})
+                <span class="col-7 text-muted">
+                    @Html.DescriptionFor(m => m.Details.LastName)
+                </span>
+                @Html.TextBoxFor(m => m.Details.LastName, new {@class="col-3"})
             </div>
             <div class="row">
-                @Html.LabelFor(m => m.Details.DisplayName, new {@class="col-6"})
-                @Html.TextBoxFor(m => m.Details.DisplayName, new {@class="col-6"})
+                @Html.LabelFor(m => m.Details.DisplayName, new {@class="col-2"})
+                <span class="col-7 text-muted">
+                    @Html.DescriptionFor(m => m.Details.DisplayName)
+                </span>
+                @Html.TextBoxFor(m => m.Details.DisplayName, new {@class="col-3"})
             </div>
             <input type="submit" value="Save" class="btn btn-primary" />
         </form>
