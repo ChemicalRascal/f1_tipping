@@ -31,6 +31,7 @@ namespace F1Tipping.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly ModelDbContext _modelDb;
+        private readonly AppDbContext _appDb;
 
         public RegisterModel(
             UserManager<IdentityUser<Guid>> userManager,
@@ -38,7 +39,8 @@ namespace F1Tipping.Areas.Identity.Pages.Account
             SignInManager<IdentityUser<Guid>> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            ModelDbContext modelDb
+            ModelDbContext modelDb,
+            AppDbContext appDb
             )
         {
             _userManager = userManager;
@@ -48,6 +50,7 @@ namespace F1Tipping.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             _modelDb = modelDb;
+            _appDb = appDb;
         }
 
         /// <summary>
@@ -107,12 +110,24 @@ namespace F1Tipping.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+            if (!(await _appDb.GetSystemSettingsAsync()).RegistrationEnabled)
+            {
+                _logger.LogError("Attempted registration GET with registration disabled.");
+                throw new ApplicationException("Registration disabled.");
+            }
+
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+            if (!(await _appDb.GetSystemSettingsAsync()).RegistrationEnabled)
+            {
+                _logger.LogError("Attempted registration POST with registration disabled.");
+                throw new ApplicationException("Registration disabled.");
+            }
+
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)

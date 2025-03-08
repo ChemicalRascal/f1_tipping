@@ -2,3 +2,18 @@
 @model F1Tipping.Pages.Admin.System.IndexModel
 @{
 }
+
+@using (Html.BeginForm(FormMethod.Post))
+{
+    <div class="col-6">
+        <div class="row">
+            <div class="col">
+                @Html.DisplayNameFor(m => m.SystemSettings.RegistrationEnabled)
+            </div>
+            <div class="col">
+                @Html.CheckBoxFor(m => m.SystemSettings.RegistrationEnabled)
+            </div>
+        </div>
+    </div>
+    <input type="submit" value="Save" class="btn btn-primary" />
+}
