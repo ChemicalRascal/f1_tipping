@@ -128,6 +128,7 @@ namespace F1Tipping.Areas.Identity.Pages.Account
                     _logger.LogInformation("User created a new account with password.");
 
                     await _modelDb.CreatePlayerIfNeededAsync(user);
+                    await _userManager.AddToRoleAsync(user, "Player");
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
