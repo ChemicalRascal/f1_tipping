@@ -1,6 +1,7 @@
 using F1Tipping.Data;
 using F1Tipping.Pages.Tipping;
 using F1Tipping.PlayerData;
+using F1Tipping.Tipping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -36,18 +37,8 @@ namespace F1Tipping.Pages
 
         public async Task<IActionResult> OnGet()
         {
-            //if ((User?.Identity?.IsAuthenticated ?? false) && User.IsInRole("Player"))
-            //{
-            //    return Redirect("Tipping");
-            //}
-
             WelcomeTitle = "Welcome to the F1 Tipping Competition!";
-
-            var utcNow = DateTimeOffset.UtcNow;
-            NextEventDeadline = (await _modelDb.Events.ToArrayAsync())
-                .Where(e => e.TipsDeadline > utcNow)
-                .OrderBy(e => e.TipsDeadline)
-                .FirstOrDefault()?.TipsDeadline ?? DateTimeOffset.MaxValue;
+            NextEventDeadline = await DeadlineService.GetNextDeadlineAsync(_modelDb);
 
             IdentityUser<Guid>? dbUser = null;
             if (User is not null)

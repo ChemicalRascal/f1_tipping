@@ -11,6 +11,7 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using F1Tipping.Data;
+using F1Tipping.Platform;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -110,7 +111,7 @@ namespace F1Tipping.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
-            if (!(await _appDb.GetSystemSettingsAsync()).RegistrationEnabled)
+            if (!(await SystemDataService.GetSystemSettingsAsync(_appDb)).RegistrationEnabled)
             {
                 _logger.LogError("Attempted registration GET with registration disabled.");
                 throw new ApplicationException("Registration disabled.");
@@ -122,7 +123,7 @@ namespace F1Tipping.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            if (!(await _appDb.GetSystemSettingsAsync()).RegistrationEnabled)
+            if (!(await SystemDataService.GetSystemSettingsAsync(_appDb)).RegistrationEnabled)
             {
                 _logger.LogError("Attempted registration POST with registration disabled.");
                 throw new ApplicationException("Registration disabled.");

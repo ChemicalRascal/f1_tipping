@@ -1,5 +1,6 @@
 ﻿@using F1Tipping.Data
 @using F1Tipping.Model.Tipping
+@using F1Tipping.Platform
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore;
 @inject SignInManager<IdentityUser<Guid>> SignInManager
@@ -27,7 +28,7 @@
     }
     else
     {
-        if ((await AppDb.GetSystemSettingsAsync()).RegistrationEnabled)
+        if ((await SystemDataService.GetSystemSettingsAsync(AppDb)).RegistrationEnabled)
         {
             <li class="nav-item">
                 <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>

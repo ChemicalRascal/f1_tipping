@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using F1Tipping.Pages.PageModels;
 using F1Tipping.Data;
 using Microsoft.EntityFrameworkCore;
+using F1Tipping.Platform;
 
 namespace F1Tipping.Pages.Admin.System
 {
@@ -24,7 +25,7 @@ namespace F1Tipping.Pages.Admin.System
 
         public async Task<IActionResult> OnGet()
         {
-            SystemSettings = await _appDb.GetSystemSettingsAsync();
+            SystemSettings = await SystemDataService.GetSystemSettingsAsync(_appDb);
             return Page();
         }
 
@@ -35,18 +36,21 @@ namespace F1Tipping.Pages.Admin.System
                 return BadRequest();
             }
 
+            // Skip cache here.
             var existingSettings = await _appDb.SystemSettings.SingleOrDefaultAsync();
 
             if (existingSettings is null)
             {
                 await _appDb.AddAsync(SystemSettings);
                 await _appDb.SaveChangesAsync();
+                SystemDataService.ExpireSettings();
             }
             else
             {
                 existingSettings.RegistrationEnabled = SystemSettings.RegistrationEnabled;
                 _appDb.Update(existingSettings);
                 await _appDb.SaveChangesAsync();
+                SystemDataService.ExpireSettings();
             }
 
             return Redirect("/Index");
