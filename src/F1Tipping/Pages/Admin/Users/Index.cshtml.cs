@@ -50,9 +50,9 @@ namespace F1Tipping.Pages.Admin.Users
                     PlayerId = p?.Id,
                     PlayerName = p?.Details is not null
                         ? p?.Details?.FirstName
-                            + p?.Details.LastName is not null
+                            + (p?.Details.LastName is not null
                             ? " " + p!.Details.LastName
-                            : string.Empty
+                            : string.Empty)
                         : null,
                     IsLocked = await _userManager.IsLockedOutAsync(u),
                 };

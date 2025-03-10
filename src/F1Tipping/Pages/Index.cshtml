@@ -63,10 +63,16 @@
 else
 {
     <div class="text-center">
-        <h1 class="display-4">@(Model.WelcomeTitle)</h1>
-        <p>@(Model.WelcomeSubtitle)</p>
-        <p>The next tipping submission deadline is:</p>
+        <h1 class="display-4 pb-4">@(Model.WelcomeTitle)</h1>
+        @(Model.WelcomeSubtitle)<br />
+        The next tipping submission deadline is:<br />
         <input name="deadlineValue" type="hidden" value="@(Model.NextEventDeadline.ToUnixTimeSeconds()*1000)"/>
         <span name="deadlineDestination"></span>
     </div>
+
+    <p class="pt-5">
+        Mind the mess — everything should work, I'll be putting in time to make
+        everything look decent later. The "Full Scores" scoreboard will probably
+        be reworked first.
+    </p>
 }

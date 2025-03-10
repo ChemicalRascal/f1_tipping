@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using F1Tipping.Pages.PageModels;
 using F1Tipping.Data;
 using Microsoft.EntityFrameworkCore;
@@ -8,13 +7,17 @@ namespace F1Tipping.Pages.Admin.System
 {
     public class IndexModel : AdminPageModel
     {
-        private AppDbContext _appDb;
+        private readonly ILogger<IndexModel> _logger;
+        private readonly AppDbContext _appDb;
 
-        public IndexModel(AppDbContext appDb)
+        public IndexModel(
+            ILogger<IndexModel> logger,
+            AppDbContext appDb
+            )
         {
+            _logger = logger;
             _appDb = appDb;
         }
-
 
         [BindProperty]
         public SystemSettings SystemSettings { get; set; } = default!;
@@ -22,7 +25,6 @@ namespace F1Tipping.Pages.Admin.System
         public async Task<IActionResult> OnGet()
         {
             SystemSettings = await _appDb.GetSystemSettingsAsync();
-
             return Page();
         }
 
@@ -42,8 +44,8 @@ namespace F1Tipping.Pages.Admin.System
             }
             else
             {
-                SystemSettings.Id = 1;
-                _appDb.Update(SystemSettings);
+                existingSettings.RegistrationEnabled = SystemSettings.RegistrationEnabled;
+                _appDb.Update(existingSettings);
                 await _appDb.SaveChangesAsync();
             }
 
