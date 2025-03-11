@@ -13,6 +13,8 @@ namespace F1Tipping.Pages.Admin.Data
 
         [BindProperty]
         public IList<Event> Events { get; set; } = default!;
+        [BindProperty]
+        public IDictionary<Guid, string[]> PlayersWithTips { get; set; } = default!;
 
         public IndexModel(DataSeeder dataSeeder, ModelDbContext modelDb)
         {
@@ -23,6 +25,14 @@ namespace F1Tipping.Pages.Admin.Data
         public async Task OnGetAsync()
         {
             Events = (await _modelDb.Events.ToListAsync()).OrderBy(e => e.OrderKey).ToList();
+            var tips = await _modelDb.Tips.ToListAsync();
+            var players = await _modelDb.Players.ToListAsync();
+
+            PlayersWithTips =
+                (from e in Events
+                 join t in tips on e equals t.Target.Event
+                 group t.Tipper.Details?.FirstName ?? "??" by e.Id)
+                 .ToDictionary(g => g.Key, g => g.Distinct().Order().ToArray());
         }
 
         public async Task OnGetSeedDataAsync()

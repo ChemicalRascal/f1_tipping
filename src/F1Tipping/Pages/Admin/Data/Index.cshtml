@@ -19,7 +19,7 @@ else
 {
     <table>
         <tr>
-            <th> @* Html.DisplayNameFor(m => m.Events[0]) *@
+            <th>
                 Year
             </th>
             <th>
@@ -37,9 +37,13 @@ else
             <th>
                 Race Start
             </th>
+            <th>
+                Players Who Have Submitted Tips
+            </th>
         </tr>
         @foreach (var @event in Model.Events)
         {
+            string[] players;
             <tr>
                 @switch (@event)
                 {
@@ -52,6 +56,12 @@ else
                         <td>(Season)</td>
                         <td></td>
                         <td></td>
+                        <td>
+                            @if (Model.PlayersWithTips.TryGetValue(season.Id, out players!))
+                            {
+                                @(string.Join(", ", players))
+                            }
+                        </td>
                         break;
                     case Race race:
                         <td>
@@ -71,6 +81,12 @@ else
                         </td>
                         <td>
                             @Html.DisplayFor(_ => race.RaceStart)
+                        </td>
+                        <td>
+                            @if (Model.PlayersWithTips.TryGetValue(race.Id, out players!))
+                            {
+                                @(string.Join(", ", players))
+                            }
                         </td>
                         break;
                 }
