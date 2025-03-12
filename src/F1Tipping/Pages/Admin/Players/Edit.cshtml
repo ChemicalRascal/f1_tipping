@@ -15,23 +15,37 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Player.Id" />
             <div class="form-group">
-                
                 <label asp-for="Player.AuthUserId" class="control-label"></label>
                 <input asp-for="Player.AuthUserId" class="form-control" />
                 <span asp-validation-for="Player.AuthUserId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                
-                <label asp-for="Player.Status" class="control-label"></label>
-                <select asp-for="Player.Status" class="form-control"></select>
-                <span asp-validation-for="Player.Status" class="text-danger"></span>
+                <label asp-for="Player.Details.FirstName" class="control-label"></label>
+                <input asp-for="Player.Details.FirstName" class="form-control" />
+                <span asp-validation-for="Player.Details.FirstName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                
+                <label asp-for="Player.Details.LastName" class="control-label"></label>
+                <input asp-for="Player.Details.LastName" class="form-control" />
+                <span asp-validation-for="Player.Details.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Player.Details.DisplayName" class="control-label"></label>
+                <input asp-for="Player.Details.DisplayName" class="form-control" />
+                <span asp-validation-for="Player.Details.DisplayName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Player.Status" class="control-label"></label>
+                <select asp-for="Player.Status" asp-items="Model.Statuses" class="form-control"></select>
+                <span asp-validation-for="Player.Status" class="text-danger"></span>
+            </div>
+            <!--
+            <div class="form-group">
                 <label asp-for="Player.AdditionalAuthedUsers" class="control-label"></label>
                 <input asp-for="Player.AdditionalAuthedUsers" class="form-control" />
                 <span asp-validation-for="Player.AdditionalAuthedUsers" class="text-danger"></span>
             </div>
+            -->
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

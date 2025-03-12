@@ -23,6 +23,10 @@ namespace F1Tipping.Pages.Admin.Players
 
         [BindProperty]
         public Player Player { get; set; } = default!;
+        [BindProperty]
+        public IEnumerable<SelectListItem> Statuses { get; set; } =
+            Enum.GetValues<PlayerStatus>()
+            .Select(s => new SelectListItem(s.ToString(), ((int)s).ToString()));
 
         public async Task<IActionResult> OnGetAsync(Guid? id)
         {
@@ -50,6 +54,10 @@ namespace F1Tipping.Pages.Admin.Players
             }
 
             _context.Attach(Player).State = EntityState.Modified;
+            if (Player.Details is not null)
+            {
+                _context.Attach(Player.Details).State = EntityState.Modified;
+            }
 
             try
             {

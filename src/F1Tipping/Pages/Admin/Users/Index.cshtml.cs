@@ -5,22 +5,26 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using F1Tipping.Pages.Admin.Players;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace F1Tipping.Pages.Admin.Users
 {
     public class IndexModel : AdminPageModel
     {
-        private readonly AppDbContext _appContext;
-        private readonly ModelDbContext _modelContext;
+        private readonly ILogger<IndexModel> _logger;
+        private readonly AppDbContext _appDb;
+        private readonly ModelDbContext _modelDb;
         private readonly UserManager<IdentityUser<Guid>> _userManager;
 
         public IndexModel(
-            AppDbContext appContext,
-            ModelDbContext modelContext,
+            ILogger<IndexModel> logger,
+            AppDbContext appDb,
+            ModelDbContext modelDb,
             UserManager<IdentityUser<Guid>> userManager)
         {
-            _appContext = appContext;
-            _modelContext = modelContext;
+            _logger = logger;
+            _appDb = appDb;
+            _modelDb = modelDb;
             _userManager = userManager;
         }
 
@@ -31,10 +35,10 @@ namespace F1Tipping.Pages.Admin.Users
 
         private async Task BuildUsersListAsync()
         {
-            var users = await _appContext.Users.ToListAsync();
-            var userRoles = await _appContext.UserRoles.ToListAsync();
-            var roles = await _appContext.Roles.ToListAsync();
-            var players = await _modelContext.Players.ToListAsync();
+            var users = await _appDb.Users.ToListAsync();
+            var userRoles = await _appDb.UserRoles.ToListAsync();
+            var roles = await _appDb.Roles.ToListAsync();
+            var players = await _modelDb.Players.ToListAsync();
 
             Users = await Task.WhenAll(users.Select(async u =>
             {
@@ -113,8 +117,40 @@ namespace F1Tipping.Pages.Admin.Users
             if (!lockoutResult.Succeeded)
             {
                 StatusMessage = "User unlock failed.";
+            }
+
+            await BuildUsersListAsync();
+            return Page();
+        }
+
+        public async Task<IActionResult> OnGetDeleteUserAsync(Guid? id)
+        {
+            if (id is null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(id.ToString() ?? string.Empty);
+            if (user is null)
+            {
+                return NotFound();
+            }
+
+            var player = await _modelDb.Players.SingleOrDefaultAsync(p => p.AuthUserId == id);
+            if (player is not null && player.Status != Model.Tipping.PlayerStatus.Archived)
+            {
+                StatusMessage = "Player is not archived.";
                 await BuildUsersListAsync();
                 return Page();
+            }
+
+            var deleteResult = await _userManager.DeleteAsync(user);
+            if (!deleteResult.Succeeded)
+            {
+                foreach (var e in deleteResult.Errors)
+                {
+                    _logger.LogError(e.Description);
+                }
             }
 
             await BuildUsersListAsync();
