@@ -105,7 +105,7 @@ namespace F1Tipping.Pages.Tipping
 
             if (DisplayResults)
             {
-                ReportMap = (await _tipsScoring.GetReportAsync(Player!, eventToTip))?.ScoredTips.ToDictionary(st => st.Tip.Target.Type);
+                ReportMap = (await _tipsScoring.GetReportAsync(Player!, eventToTip))?.ScoredTips;
             }
         }
 

@@ -5,43 +5,60 @@
 
 @foreach (var e in Model.Events)
 {
-    <div class="row">
-
-        <div class="col border-1">
-            <div class="row text-center">@(e.Name)</div>
-            @foreach (var r in e.Results.OrderBy(r => r.Type))
+    <table class="table">
+        <tr>
+            <th colspan="2">@(e.Name)</th>
+            @foreach (var p in Model.Players)
             {
-                <div class="row">
-                    <div class="col-4">@Html.DisplayFor(_ => r.Type)</div>
-                    <div class="col-8">@(r.ResultHolder?.DisplayName ?? "No Result.")</div>
-                </div>
+                <th colspan="2">@(p.Name)</th>
             }
-            <div class="row">
-                <div class="col-3">Event Score</div>
-                <div class="col-9"></div>
-            </div>
-        </div>
-
-        @foreach (var p in Model.Players)
+        </tr>
+        @foreach (var r in e.Results.OrderBy(r => r.Type))
         {
-            <div class="col border-1">
-                <div class="row text-center">@(p.Name)</div>
-                @if (Model.Reports.TryGetValue((p.Id, e.Id), out var report))
+            <tr>
+                <td>
+                    @Html.DisplayFor(_ => r.Type)
+                </td>
+                <td>
+                    @(r.ResultHolder?.DisplayName ?? "No Result.")
+                </td>
+                @foreach (var p in Model.Players)
                 {
-                    @foreach (var st in report.ScoredTips.OrderBy(st => st.Tip.Target.Type))
+                    <!-- This is gotta be pretty slow. Rework this into a list? -->
+                    if (Model.Reports.TryGetValue((p.Id, e.Id), out var report)
+                        && report.ScoredTips.TryGetValue(r.Type, out var scoredTip))
                     {
-                        <div class="row">
-                            <div class="col-10">@(st.Tip.Selection?.DisplayName ?? "No Tip.")</div>
-                            <div class="col-2">@(st.Score)</div>
-                        </div>
+                        <td>
+                            @(scoredTip.Tip.Selection.DisplayName)
+                        </td>
+                        <td>
+                            @(scoredTip.Score)
+                        </td>
                     }
-                    <div class="row">
-                        <div class="col-10"></div>
-                        <div class="col-2">@(report.EventScore)</div>
-                    </div>
+                    else
+                    {
+                        <td colspan="2">No tip.</td>
+                    }
                 }
-            </div>
+            </tr>
         }
-
-    </div>
+        <tr>
+            <td colspan="2">Event Score</td>
+            @foreach (var p in Model.Players)
+            {
+                <!-- This is gotta be pretty slow. Rework this into a list? -->
+                if (Model.Reports.TryGetValue((p.Id, e.Id), out var report))
+                {
+                    <td></td>
+                    <td>
+                        @(report.EventScore)
+                    </td>
+                }
+                else
+                {
+                    <td colspan="2"></td>
+                }
+            }
+        </tr>
+    </table>
 }

@@ -71,14 +71,14 @@ namespace F1Tipping.Tipping
                 }
             }
 
-            return new PlayerEventReport() { ScoredTips = scoredTips };
+            return new PlayerEventReport() { ScoredTips = scoredTips.ToDictionary(st => st.Tip.Target.Type) };
         }
 
         public class PlayerEventReport
         {
-            public List<ScoredTip> ScoredTips { get; set; } = new();
+            public Dictionary<ResultType,ScoredTip> ScoredTips { get; set; } = new();
             public decimal? EventScore { get => ScoredTips.Any()
-                    ? ScoredTips.Select(x => x.Score).Aggregate((x, y) => x + y)
+                    ? ScoredTips.Values.Select(x => x.Score).Aggregate((x, y) => x + y)
                     : null; }
         }
 

@@ -33,6 +33,7 @@ namespace F1Tipping.Pages.Tipping
         public async Task<IActionResult> OnGet()
         {
             var playerList = (await _modelDb.Players.ToListAsync()).OrderBy(p => p == Player).ThenBy(p => p.Details?.DisplayName ?? p.Details?.FirstName).ToList();
+            // TODO: Rework this after changing how TipsDeadline works
             var eventList = (await _modelDb.Events.ToListAsync()).Where(e => e.TipsDeadline < DateTimeOffset.UtcNow).OrderBy(e => e.OrderKey);
 
             foreach (var p in playerList)
@@ -48,7 +49,7 @@ namespace F1Tipping.Pages.Tipping
                 foreach (var p in playerList)
                 {
                     var report = await _tipScoring.GetReportAsync(p, e);
-                    if (report is not null)
+                    if (report is not null && report.ScoredTips.Count > 0)
                     {
                         Reports[(p.Id, e.Id)] = report;
                     }
