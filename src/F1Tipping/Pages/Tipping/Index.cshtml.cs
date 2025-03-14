@@ -13,18 +13,15 @@ namespace F1Tipping.Pages.Tipping
     [PlayerMustBeInitalized]
     public class IndexModel : PlayerPageModel
     {
-        private TipReportingService _tips;
         private TipScoringService _scores;
 
         public IndexModel(
             UserManager<IdentityUser<Guid>> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb,
-            TipReportingService tips,
             TipScoringService scores)
             : base(userManager, appDb, modelDb)
         {
-            _tips = tips;
             _scores = scores;
         }
 
@@ -40,7 +37,7 @@ namespace F1Tipping.Pages.Tipping
             {
                 var scoreReport = await _scores.GetReportAsync(Player!, e);
                 var tipList = e is IEventWithResults
-                    ? _tips.GetTips(Player!, (e as IEventWithResults)!)
+                    ? await TipReportingService.GetTipsAsync(Player!, (e as IEventWithResults)!, _modelDb)
                     : Array.Empty<Tip>();
                 EventTips.Add(new EventTipView(
                     EventId: e.Id,

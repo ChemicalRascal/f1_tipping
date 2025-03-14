@@ -21,7 +21,6 @@ namespace F1Tipping
                 options.UseSqlServer(connectionString));
 
             builder.Services.AddScoped<DataSeeder>();
-            builder.Services.AddScoped<TipReportingService>();
             builder.Services.AddScoped<TipScoringService>();
             builder.Services.AddScoped<TipValidiationService>();
 

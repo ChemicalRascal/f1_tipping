@@ -14,7 +14,6 @@ namespace F1Tipping.Pages.Admin.ResultsReporting
 {
     public class IndexModel : AdminPageModel
     {
-        private TipReportingService _tips;
         private ModelDbContext _modelDb;
         private AppDbContext _appDb;
         private UserManager<IdentityUser<Guid>> _userManager;
@@ -22,10 +21,8 @@ namespace F1Tipping.Pages.Admin.ResultsReporting
         public IndexModel(
             UserManager<IdentityUser<Guid>> userManager,
             AppDbContext appDb,
-            ModelDbContext modelDb,
-            TipReportingService tips)
+            ModelDbContext modelDb)
         {
-            _tips = tips;
             _modelDb = modelDb;
             _appDb = appDb;
             _userManager = userManager;

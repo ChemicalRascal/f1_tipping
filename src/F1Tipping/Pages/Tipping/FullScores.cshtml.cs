@@ -34,7 +34,7 @@ namespace F1Tipping.Pages.Tipping
         {
             var playerList = (await _modelDb.Players.ToListAsync()).OrderBy(p => p == Player).ThenBy(p => p.Details?.DisplayName ?? p.Details?.FirstName).ToList();
             // TODO: Rework this after changing how TipsDeadline works
-            var eventList = (await _modelDb.Events.ToListAsync()).Where(e => e.TipsDeadline < DateTimeOffset.UtcNow).OrderBy(e => e.OrderKey);
+            var eventList = (await _modelDb.Events.ToListAsync()).Where(e => true || e.TipsDeadline < DateTimeOffset.UtcNow).OrderBy(e => e.OrderKey);
 
             foreach (var p in playerList)
             {

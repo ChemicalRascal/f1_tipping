@@ -9,12 +9,10 @@ namespace F1Tipping.Tipping
     public class TipScoringService
     {
         private ModelDbContext _modelDb;
-        private TipReportingService _tipService;
 
-        public TipScoringService(ModelDbContext modelDb, TipReportingService tipService)
+        public TipScoringService(ModelDbContext modelDb)
         {
             _modelDb = modelDb;
-            _tipService = tipService;
         }
 
         public async Task<decimal> GetPlayerScoreAsync(Player player)
@@ -45,7 +43,7 @@ namespace F1Tipping.Tipping
                 _ => throw new NotImplementedException(),
             };
             var scoredTips = new List<ScoredTip>();
-            var playerTips = await _tipService.GetTipsAsync(player, eventWithResults);
+            var playerTips = await TipReportingService.GetTipsAsync(player, eventWithResults, _modelDb);
             var tipMap = playerTips.ToDictionary(tip => tip.Target.Type);
             foreach (var tip in playerTips)
             {

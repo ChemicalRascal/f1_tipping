@@ -17,7 +17,6 @@ namespace F1Tipping.Pages.Tipping
     [PlayerMustBeInitalized]
     public class EventModel : PlayerPageModel
     {
-        private TipReportingService _tipsReporting;
         private TipValidiationService _tipsValidation;
         private TipScoringService _tipsScoring;
 
@@ -25,13 +24,11 @@ namespace F1Tipping.Pages.Tipping
             UserManager<IdentityUser<Guid>> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb,
-            TipReportingService tipsService,
             TipValidiationService tipsValidation,
             TipScoringService tipsScoring
             )
             : base(userManager, appDb, modelDb)
         {
-            _tipsReporting = tipsService;
             _tipsValidation = tipsValidation;
             _tipsScoring = tipsScoring;
         }
@@ -79,13 +76,13 @@ namespace F1Tipping.Pages.Tipping
 
             var results = ((IEventWithResults)eventToTip).GetResultTypes().Select(
                 rt => new Result() { Event = eventToTip, Type = rt }).ToList();
-            var tips = _tipsReporting.GetTips(Player!, (IEventWithResults)eventToTip).ToList();
+            var tips = await TipReportingService.GetTipsAsync(Player!, (IEventWithResults)eventToTip, _modelDb);
 
             IncomingTips = (
                 from result in results
                 join tip in tips
-                    on (result.Event, result.Type)
-                    equals (tip.Target.Event, tip.Target.Type)
+                    on (result.Event.Id, result.Type)
+                    equals (tip.Target.Event.Id, tip.Target.Type)
                     into tipgroup
                 from tip in tipgroup.DefaultIfEmpty()
                 select new TipView(
@@ -182,7 +179,7 @@ namespace F1Tipping.Pages.Tipping
             }
 
             var resultTypes = eventWithResults.GetResultTypes();
-            var existingTips = _tipsReporting.GetTips(Player!, eventWithResults);
+            var existingTips = await TipReportingService.GetTipsAsync(Player!, eventWithResults, _modelDb);
             var racingEntityIdMap = new Dictionary<Guid, RacingEntity>();
 
             foreach (var resultType in resultTypes)
@@ -242,6 +239,7 @@ namespace F1Tipping.Pages.Tipping
                         (IncomingTips.Count > 1 ? ", ..." : string.Empty )})");
             }
 
+            TipReportingService.BustCache(Player!, targetEvent);
             await _modelDb.SaveChangesAsync();
 
             await RefreshTipStateAsync(targetEvent);
