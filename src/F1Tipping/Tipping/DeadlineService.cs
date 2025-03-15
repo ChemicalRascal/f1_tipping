@@ -5,9 +5,9 @@ namespace F1Tipping.Tipping
 {
     public static class DeadlineService
     {
-        public static readonly TimeSpan CACHE_LENGTH = new TimeSpan(0, minutes: 30, 0);
+        public static readonly TimeSpan CACHE_LENGTH = new TimeSpan(days: 1, 0, 0, 0);
 
-        private static CachedDeadline _settings = new(DateTimeOffset.MinValue, null);
+        private static CachedDeadline _deadline = new(DateTimeOffset.MinValue, null);
         private static readonly SemaphoreSlim settingsSemaphore = new(1, 1);
 
         public static async Task<DateTimeOffset> GetNextDeadlineAsync(ModelDbContext modelDb)
@@ -15,15 +15,16 @@ namespace F1Tipping.Tipping
             await settingsSemaphore.WaitAsync();
             try
             {
-                if (_settings.Expiry > DateTimeOffset.UtcNow
-                    && _settings.Value is not null)
+                if (_deadline.Expiry > DateTimeOffset.UtcNow
+                    && _deadline.Value is not null
+                    && _deadline.Value > DateTimeOffset.UtcNow)
                 {
-                    return _settings.Value.Value;
+                    return _deadline.Value.Value;
                 }
 
-                _settings.Value = await GetNextDeadlineImpl(modelDb);
-                _settings.Expiry = DateTimeOffset.UtcNow + CACHE_LENGTH;
-                return _settings.Value.Value;
+                _deadline.Value = await GetNextDeadlineImpl(modelDb);
+                _deadline.Expiry = DateTimeOffset.UtcNow + CACHE_LENGTH;
+                return _deadline.Value.Value;
             }
             finally
             {
@@ -33,7 +34,7 @@ namespace F1Tipping.Tipping
 
         public static void ExpireSettings()
         {
-            _settings.Expiry = DateTimeOffset.MinValue;
+            _deadline.Expiry = DateTimeOffset.MinValue;
         }
 
         protected class CachedDeadline(DateTimeOffset expiry, DateTimeOffset? value)
