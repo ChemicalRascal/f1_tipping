@@ -47,7 +47,7 @@ namespace F1Tipping.Pages.Tipping
                 (await (
                     from t in _modelDb.Tips
                     join eId in eventList.Select(e => e.Id) on t.Target.Event.Id equals eId
-                    group t by new { eId, t.Target.Type } into tgroup
+                    group t by new { eId, t.Tipper.Id, t.Target.Type } into tgroup
                     //select tgroup.MaxBy(t => t.SubmittedAt) -- MaxBy is too new for efcore?!
                     select tgroup.OrderByDescending(t => t.SubmittedAt).First())
                 .ToListAsync())
