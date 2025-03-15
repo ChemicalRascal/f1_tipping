@@ -1,8 +1,8 @@
 ﻿using F1Tipping.Data;
 using F1Tipping.Model;
 using F1Tipping.Model.Tipping;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace F1Tipping.Tipping
 {
@@ -44,6 +44,55 @@ namespace F1Tipping.Tipping
             };
             var scoredTips = new List<ScoredTip>();
             var playerTips = await TipReportingService.GetTipsAsync(player, eventWithResults, _modelDb);
+            var tipMap = playerTips.ToDictionary(tip => tip.Target.Type);
+            foreach (var tip in playerTips)
+            {
+                var scoredTip = new ScoredTip() { Tip = tip };
+                scoredTips.Add(scoredTip);
+                var scorers = ResultTypeHelper
+                    .GetAttributes<ScoresAttribute>(tip.Target.Type);
+
+                foreach (var scorer in scorers)
+                {
+                    if (tip.Target.EntityInResult(tip.Selection))
+                    {
+                        scoredTip.Score += scorer.MatchPoints * eventScoreMult;
+                    }
+
+                    foreach (var altType in scorer.AlternateResults)
+                    {
+                        if (tipMap[altType].Target.EntityInResult(tip.Selection))
+                        {
+                            scoredTip.Score += scorer.AlternatePoints * eventScoreMult;
+                        }
+                    }
+                }
+            }
+
+            return new PlayerEventReport() { ScoredTips = scoredTips.ToDictionary(st => st.Tip.Target.Type) };
+        }
+
+        public PlayerEventReport? GetReport(Event @event, IList<Tip> playerTips)
+        {
+            if (playerTips.IsNullOrEmpty())
+            {
+                return null;
+            }
+
+            if (@event is not IEventWithResults eventWithResults)
+            {
+                return null;
+            }
+
+            var eventScoreMult = eventWithResults switch
+            {
+                Race r => RaceTypeHelper.GetAttributes<ScoreMultAttribute>(r.Type)
+                            .First().Mult,
+                Season s => 1.0m,
+                _ => throw new NotImplementedException(),
+            };
+
+            var scoredTips = new List<ScoredTip>();
             var tipMap = playerTips.ToDictionary(tip => tip.Target.Type);
             foreach (var tip in playerTips)
             {
