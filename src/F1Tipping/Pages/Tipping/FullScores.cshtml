@@ -29,7 +29,7 @@
                         && report.ScoredTips.TryGetValue(r.Type, out var scoredTip))
                     {
                         <td>
-                            @(scoredTip.Tip.Selection.DisplayName)
+                            @(scoredTip.Tip.Selection.ShortDisplayName)
                         </td>
                         <td>
                             @(scoredTip.Score)

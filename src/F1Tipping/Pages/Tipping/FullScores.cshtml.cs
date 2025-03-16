@@ -3,6 +3,7 @@ using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using F1Tipping.Data;
 using F1Tipping.Model;
+using F1Tipping.Model.Tipping;
 using F1Tipping.Tipping;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,7 @@ namespace F1Tipping.Pages.Tipping
 {
     public class FullScoresModel : PlayerPageModel
     {
+        private const int DISPLAY_NAME_LEN = 7;
         private TipScoringService _tipScoring;
 
         public FullScoresModel(
@@ -55,8 +57,7 @@ namespace F1Tipping.Pages.Tipping
 
             foreach (var p in playerList)
             {
-                Players.Add(new(p.Id, p.Details?.DisplayName
-                    ?? p.Details?.FirstName ?? "Unknown Player!"));
+                Players.Add(new(p.Id, GetPlayerName(p)));
             }
 
             foreach (var e in eventList)
@@ -76,6 +77,29 @@ namespace F1Tipping.Pages.Tipping
             }
 
             return Page();
+        }
+
+        private string GetPlayerName(Player playerToDisplay)
+        {
+            string? displayName = null;
+            if (playerToDisplay.Id == Player!.Id)
+            {
+                displayName = playerToDisplay.Details?.FirstName;
+            }
+            else
+            {
+                displayName = playerToDisplay.Details?.DisplayName;
+                if (displayName is not null && displayName.Length > DISPLAY_NAME_LEN)
+                {
+                    displayName = $"{displayName[..DISPLAY_NAME_LEN]}(...)";
+                }
+                else
+                {
+                    displayName = playerToDisplay.Details?.FirstName;
+                }
+            }
+
+            return displayName ?? "Unknown Player";
         }
 
         public record PlayerView(Guid Id, string Name);
