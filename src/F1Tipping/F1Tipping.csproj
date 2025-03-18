@@ -16,25 +16,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="9.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Core" Version="9.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\ModelMigrations\" />
     <Folder Include="Pages\Shared\Components\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\F1Tipping.Common\F1Tipping.Common.csproj" />
-    <ProjectReference Include="..\F1Tipping.Model\F1Tipping.Model.csproj" />
+    <ProjectReference Include="..\F1Tipping.Postgres\F1Tipping.Postgres.csproj" />
+    <ProjectReference Include="..\F1Tipping.SqlServer\F1Tipping.SqlServer.csproj" />
   </ItemGroup>
 
 </Project>

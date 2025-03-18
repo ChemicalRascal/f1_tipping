@@ -1,5 +1,4 @@
 using F1Tipping.Data;
-using F1Tipping.Model;
 using F1Tipping.PlayerData;
 using F1Tipping.Tipping;
 using Microsoft.AspNetCore.Identity;
@@ -12,13 +11,33 @@ namespace F1Tipping
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var config = builder.Configuration;
 
-            // Add services to the container.
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(connectionString));
-            builder.Services.AddDbContext<ModelDbContext>(options =>
-                options.UseSqlServer(connectionString));
+            // Database setup
+            var provider = config.GetValue("provider", Provider.SqlServer.Name);
+            Action<DbContextOptionsBuilder> doDatabaseSetup = options =>
+            {
+                if (provider == Provider.SqlServer.Name)
+                {
+                    options.UseSqlServer(
+                        config.GetConnectionString(Provider.SqlServer.Name)!,
+                        x => x.MigrationsAssembly(Provider.SqlServer.Assembly)
+                        );
+                }
+                else if (provider == Provider.Postgres.Name)
+                {
+                    options.UseNpgsql(
+                        config.GetConnectionString(Provider.Postgres.Name)!,
+                        x => x.MigrationsAssembly(Provider.Postgres.Assembly)
+                        );
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            };
+            builder.Services.AddDbContext<AppDbContext>(doDatabaseSetup);
+            builder.Services.AddDbContext<ModelDbContext>(doDatabaseSetup);
 
             builder.Services.AddScoped<DataSeeder>();
             builder.Services.AddScoped<TipScoringService>();
