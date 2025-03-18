@@ -30,6 +30,7 @@ namespace F1Tipping.Pages.Tipping
 
         public async Task<IActionResult> OnGet()
         {
+            Console.WriteLine("EVENT TABLE GET");
             var events = (await _modelDb.Events.ToListAsync()).OrderBy(e => e.OrderKey);
 
             EventTips = new List<EventTipView>();

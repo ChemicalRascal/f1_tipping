@@ -20,6 +20,11 @@
         p2 = (num) => num.toString().padStart(2,"0");
 
         function msToTime(ms) {
+            if (ms < 0)
+            {
+                return "";
+            }
+
             let second = 1000;
             let minute = second * 60;
             let hour = minute * 60
