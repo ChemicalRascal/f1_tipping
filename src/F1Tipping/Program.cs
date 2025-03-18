@@ -13,7 +13,7 @@ namespace F1Tipping
             var builder = WebApplication.CreateBuilder(args);
             var config = builder.Configuration;
 
-            // Database setup
+            // Database setup, dependent on --provider cli arg
             var provider = config.GetValue("provider", Provider.SqlServer.Name);
             Action<DbContextOptionsBuilder> doDatabaseSetup = options =>
             {
@@ -29,7 +29,7 @@ namespace F1Tipping
                     options.UseNpgsql(
                         config.GetConnectionString(Provider.Postgres.Name)!,
                         x => x.MigrationsAssembly(Provider.Postgres.Assembly)
-                        );
+                        ).UseLowerCaseNamingConvention();
                 }
                 else
                 {
