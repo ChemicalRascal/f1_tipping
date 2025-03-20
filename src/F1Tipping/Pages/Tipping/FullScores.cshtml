@@ -1,4 +1,5 @@
 ﻿@page
+@using F1Tipping.Model
 @model F1Tipping.Pages.Tipping.FullScoresModel
 @{
 }
@@ -20,7 +21,14 @@
                     @Html.DisplayFor(_ => r.Type)
                 </td>
                 <td>
-                    @(r.ResultHolder?.DisplayName ?? "No Result.")
+                    @if (r is MultiEntityResult mer)
+                    {
+                        @(string.Join(", ", mer.ResultHolders?.Select(rh => rh.DisplayName) ?? ["No Result."]))
+                    }
+                    else
+                    {
+                        @(r.ResultHolder?.DisplayName ?? "No Result.")
+                    }
                 </td>
                 @foreach (var p in Model.Players)
                 {
