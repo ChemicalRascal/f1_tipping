@@ -187,7 +187,7 @@ namespace F1Tipping.Pages.Tipping
                 var result = await _modelDb.FindAsync<Result>(EventId, resultType);
                 if (result is null)
                 {
-                    result = new Result() { Event = targetEvent, Type = resultType };
+                    result = CreateNewResult(targetEvent, resultType);
                     await _modelDb.AddAsync(result);
                 }
 
@@ -247,6 +247,20 @@ namespace F1Tipping.Pages.Tipping
             StatusMessage = "Tips saved.";
 
             return Page();
+        }
+
+        private Result CreateNewResult(Event targetEvent, ResultType resultType)
+        {
+            var resultObj = Activator.CreateInstance(ResultTypeHelper.ResultStructure(resultType));
+            if (resultObj is null)
+            {
+                throw new ApplicationException($"{nameof(CreateNewResult)} couldn't create a valid result object for type {resultType}!");
+            }
+
+            var result = (Result)resultObj;
+            result.Event = targetEvent;
+            result.Type = resultType;
+            return result;
         }
 
         private static string BuildEventName(Event e)
