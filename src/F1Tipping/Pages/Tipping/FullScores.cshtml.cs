@@ -33,42 +33,44 @@ namespace F1Tipping.Pages.Tipping
 
         public async Task<IActionResult> OnGet()
         {
-            var playerList = (await _modelDb.Players.ToListAsync())
+            var eventCutoff = DateTimeOffset.UtcNow;
+
+            var players = (await _modelDb.Players
+                .Where(p => p.Status == PlayerStatus.Normal).ToListAsync())
                 .OrderBy(p => p == Player)
-                .ThenBy(p => p.Details?.DisplayName ?? p.Details?.FirstName)
-                .ToList();
-            // TODO: Rework this after changing how TipsDeadline works
-            var eventList = (await _modelDb.Events.ToListAsync())
-                .Where(e => e.TipsDeadline < DateTimeOffset.UtcNow)
+                .ThenBy(p => p.Details?.DisplayName ?? p.Details?.FirstName);
+
+            var scoreboardEvents = (await _modelDb.Events
+                .Where(e => e.TipsDeadline < eventCutoff).ToListAsync())
                 .OrderBy(e => e.OrderKey);
-            var resultsList = (await (
+
+            var results = (await (
                 from r in _modelDb.Results
-                join eId in eventList.Select(e => e.Id) on r.Event.Id equals eId
+                join eId in scoreboardEvents.Select(e => e.Id) on r.Event.Id equals eId
                 select r).ToListAsync()).ToLookup(r => r.Event.Id);
-            var tipsList =
-                (await (
+
+            var tips = (await (
                     from t in _modelDb.Tips
-                    join eId in eventList.Select(e => e.Id) on t.Target.Event.Id equals eId
-                    group t by new { eId, t.Tipper.Id, t.Target.Type } into tgroup
-                    //select tgroup.MaxBy(t => t.SubmittedAt) -- MaxBy is too new for efcore?!
-                    select tgroup.OrderByDescending(t => t.SubmittedAt).First())
-                .ToListAsync())
+                    join eId in scoreboardEvents.Select(e => e.Id) on t.Target.Event.Id equals eId
+                    group t by new { eId, t.Tipper.Id, t.Target.Type }
+                ).ToListAsync())
+                .Select(tipList => tipList.MaxBy(t => t.SubmittedAt)!)
                 .ToLookup(t => (t.Tipper.Id, t.Target.Event.Id));
 
-            foreach (var p in playerList)
+            foreach (var p in players)
             {
                 Players.Add(new(p.Id, GetPlayerName(p)));
             }
 
-            foreach (var e in eventList)
+            foreach (var e in scoreboardEvents)
             {
-                var results = resultsList[e.Id].OrderBy(r => r.Type).ToList();
-                Events.Add(new(e.Id, e.EventName, results));
+                var eventResults = results[e.Id].OrderBy(r => r.Type).ToList();
+                Events.Add(new(e.Id, e.EventName, eventResults));
 
-                foreach (var p in playerList)
+                foreach (var p in players)
                 {
-                    var tips = tipsList[(p.Id, e.Id)].ToList();
-                    var report = _tipScoring.GetReport(e, tips);
+                    var playerEventTips = tips[(p.Id, e.Id)].ToList();
+                    var report = _tipScoring.GetReport(e, playerEventTips);
                     if (report is not null && report.ScoredTips.Count > 0)
                     {
                         Reports[(p.Id, e.Id)] = report;

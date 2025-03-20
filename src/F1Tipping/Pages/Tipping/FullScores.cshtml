@@ -24,7 +24,6 @@
                 </td>
                 @foreach (var p in Model.Players)
                 {
-                    <!-- This is gotta be pretty slow. Rework this into a list? -->
                     if (Model.Reports.TryGetValue((p.Id, e.Id), out var report)
                         && report.ScoredTips.TryGetValue(r.Type, out var scoredTip))
                     {
@@ -46,7 +45,6 @@
             <td colspan="2">Event Score</td>
             @foreach (var p in Model.Players)
             {
-                <!-- This is gotta be pretty slow. Rework this into a list? -->
                 if (Model.Reports.TryGetValue((p.Id, e.Id), out var report))
                 {
                     <td></td>
