@@ -6,13 +6,16 @@
 
 <h1>Scoreboard</h1>
 
-<div class="rowList">
+<table class="table">
     @foreach (var ps in Model.PlayerScores)
     {
-        <div class="row">
-            <div class="col-3">@ps.Name</div>
-            <div class="col-3">@ps.Score</div>
-        </div>
+        <tr>
+            <td>
+                @ps.Name
+            </td>
+            <td>
+                @ps.Score
+            </td>
+        </tr>
     }
-</div>
-
+</table>

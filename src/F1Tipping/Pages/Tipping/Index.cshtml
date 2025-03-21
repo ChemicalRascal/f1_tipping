@@ -59,40 +59,39 @@
     </script>
 }
 
-<div id="eventList">
+<table id="eventList" class="table">
 @if (Model.EventTips.Any())
 {
-    <div class="row">
-        <div class="col">
-        </div>
-        <div class="col">
+    <tr>
+        <th></th>
+        <th>
             @Html.DisplayNameFor(m => m.EventTips[0].Deadline)
-        </div>
-        <div class="col">
+        </th>
+        <th>
             @Html.DisplayNameFor(m => m.EventTips[0].HasTips)
-        </div>
-        <div class="col">
+        </th>
+        <th>
             @Html.DisplayNameFor(m => m.EventTips[0].Score)
-        </div>
-    </div>
+        </th>
+    </tr>
 }
 
 @foreach (var e in Model.EventTips)
 {
-    <div class="row">
-        <div class="col">
+    <tr>
+        <td>
             <a asp-page="./Event" asp-route-id="@e.EventId">@e.Name</a>
-        </div>
-        <div class="col">
+        </td>
+        <td>
             <input name="deadlineValue" type="hidden" value="@(e.Deadline.ToUnixTimeSeconds()*1000)"/>
             <span name="deadlineDestination"></span>
-        </div>
-        <div class="col">
+        </td>
+        <td>
             @Html.DisplayFor(_ => e.HasTips)
-        </div>
-        <div class="col">
+        </td>
+        <td>
             @Html.DisplayFor(_ => e.Score)
-        </div>
-    </div>
+        </td>
+    </tr>
 }
-</div>
+</table>
