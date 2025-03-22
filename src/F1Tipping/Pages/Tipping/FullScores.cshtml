@@ -12,7 +12,7 @@
             <th colspan="2">@(e.Name)</th>
             @foreach (var p in Model.Players)
             {
-                <th colspan="2">@(p.Name)</th>
+                <th class="@(e.Results.Any()?"border-bottom-0":"")" colspan="2">@(p.Name)</th>
             }
         </tr>
         @foreach (var r in e.Results.OrderBy(r => r.Type))
@@ -33,19 +33,23 @@
                 </td>
                 @foreach (var p in Model.Players)
                 {
+                    var finalPlayer = Model.Players.Last() == p;
+
                     if (Model.Reports.TryGetValue((p.Id, e.Id), out var report)
                         && report.ScoredTips.TryGetValue(r.Type, out var scoredTip))
                     {
-                        <td>
+                        <td class="border-start border-top @(scoredTip.Score!=0m?"table-success border-success":"")">
                             @(scoredTip.Tip.Selection.ShortDisplayName)
                         </td>
-                        <td>
+                        <td class="border-top @(!finalPlayer?"border-end":"") @(scoredTip.Score!=0m?"table-success border-success":"")">
                             @(scoredTip.Score)
                         </td>
                     }
                     else
                     {
-                        <td colspan="2">No tip.</td>
+                        <td class="border-start border-top @(!finalPlayer?"border-end":"")" colspan="2">
+                            No tip.
+                        </td>
                     }
                 }
             </tr>
