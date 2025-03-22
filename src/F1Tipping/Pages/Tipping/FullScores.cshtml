@@ -38,16 +38,17 @@
                     if (Model.Reports.TryGetValue((p.Id, e.Id), out var report)
                         && report.ScoredTips.TryGetValue(r.Type, out var scoredTip))
                     {
-                        <td class="border-start border-top @(scoredTip.Score!=0m?"table-success border-success":"")">
+                        // Getting borders right is such a pain in the ass.
+                        <td class="border-start border-top @(scoredTip.Score!=0m?"table-success border-success":"border-bottom-0")">
                             @(scoredTip.Tip.Selection.ShortDisplayName)
                         </td>
-                        <td class="border-top @(!finalPlayer?"border-end":"") @(scoredTip.Score!=0m?"table-success border-success":"")">
+                        <td class="border-top @(scoredTip.Score!=0m?$"table-success border-success{(!finalPlayer?" border-end":"")}":"border-bottom-0")">
                             @(scoredTip.Score)
                         </td>
                     }
                     else
                     {
-                        <td class="border-start border-top @(!finalPlayer?"border-end":"")" colspan="2">
+                        <td class="border-start border-top border-bottom-0 @(!finalPlayer?"border-end":"")" colspan="2">
                             No tip.
                         </td>
                     }
@@ -60,14 +61,14 @@
             {
                 if (Model.Reports.TryGetValue((p.Id, e.Id), out var report))
                 {
-                    <td></td>
-                    <td>
+                    <td class="border-top"></td>
+                    <td class="border-top">
                         @(report.EventScore)
                     </td>
                 }
                 else
                 {
-                    <td colspan="2"></td>
+                    <td class="border-top" colspan="2"></td>
                 }
             }
         </tr>
