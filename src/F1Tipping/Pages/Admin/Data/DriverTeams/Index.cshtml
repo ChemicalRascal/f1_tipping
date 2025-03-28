@@ -2,7 +2,7 @@
 @model IndexModel
 
 @{
-    ViewData["Title"] = "Drivers Index";
+    ViewData["Title"] = "Driver Teams Index";
 }
 
 <h1>Index</h1>
@@ -16,6 +16,12 @@
             <th>
                 @Html.DisplayNameFor(model => model.Driver[0].DisplayName)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Driver[0].ListOrder)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Driver[0].Status)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -24,6 +30,12 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.DisplayName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ListOrder)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
                 <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |

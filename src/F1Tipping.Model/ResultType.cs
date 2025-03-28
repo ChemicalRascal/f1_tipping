@@ -94,13 +94,13 @@ namespace F1Tipping.Model
         {
             return result switch
             {
-                ResultType.PolePosition => [typeof(Driver)],
-                ResultType.FirstPlace => [typeof(Driver)],
-                ResultType.SecondPlace => [typeof(Driver)],
-                ResultType.ThirdPlace => [typeof(Driver)],
-                ResultType.FastestLap => [typeof(Driver)],
-                ResultType.FirstDnf => [typeof(Driver)],
-                ResultType.DriversChampionship => [typeof(Driver)],
+                ResultType.PolePosition => [typeof(DriverTeam)],
+                ResultType.FirstPlace => [typeof(DriverTeam)],
+                ResultType.SecondPlace => [typeof(DriverTeam)],
+                ResultType.ThirdPlace => [typeof(DriverTeam)],
+                ResultType.FastestLap => [typeof(DriverTeam)],
+                ResultType.FirstDnf => [typeof(DriverTeam)],
+                ResultType.DriversChampionship => [typeof(DriverTeam)],
                 ResultType.ConstructorsChampionship => [typeof(Team)],
                 _ => throw new NotImplementedException(),
             };

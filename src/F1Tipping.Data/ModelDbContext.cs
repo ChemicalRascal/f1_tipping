@@ -13,9 +13,10 @@ namespace F1Tipping.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<Season> Seasons { get; set; }
         public DbSet<Race> Races { get; set; }
+        public DbSet<Driver> Drivers { get; set; }
         public DbSet<RacingEntity> RacingEntities { get; set; }
         public DbSet<Team> Teams { get; set; }
-        public DbSet<Driver> Drivers { get; set; }
+        public DbSet<DriverTeam> DriverTeams { get; set; }
         public DbSet<Result> Results { get; set; }
         public DbSet<Round> Rounds { get; set; }
         public DbSet<Player> Players { get; set; }
@@ -49,8 +50,10 @@ namespace F1Tipping.Data
             builder.Entity<Tip>().HasOne(tip => tip.Selection);
             builder.Entity<Tip>().Navigation(tip => tip.Selection).AutoInclude();
 
-            builder.Entity<Driver>().HasOne(driver => driver.Team);
-            builder.Entity<Driver>().Navigation(driver => driver.Team).AutoInclude();
+            builder.Entity<DriverTeam>().HasOne(driver => driver.Driver);
+            builder.Entity<DriverTeam>().Navigation(driver => driver.Driver).AutoInclude();
+            builder.Entity<DriverTeam>().HasOne(driver => driver.Team);
+            builder.Entity<DriverTeam>().Navigation(driver => driver.Team).AutoInclude();
 
             builder.Entity<Result>().HasOne(result => result.Event);
             builder.Entity<Result>().HasKey(nameof(Result.Event)+"Id", nameof(Result.Type));

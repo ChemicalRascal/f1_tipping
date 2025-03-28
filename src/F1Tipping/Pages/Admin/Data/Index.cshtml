@@ -6,10 +6,11 @@
 
 @using F1Tipping.Model
 
-<a asp-page="Results/Index" class="row">Rounds</a>
+<a asp-page="Results/Index" class="row">Results</a>
 <a asp-page="Rounds/Index" class="row">Rounds</a>
 <a asp-page="Teams/Index" class="row">Teams</a>
 <a asp-page="Drivers/Index" class="row">Drivers</a>
+<a asp-page="DriverTeams/Index" class="row">DriverTeams</a>
 
 @if (!Model.Events.Any())
 {

@@ -21,13 +21,10 @@ namespace F1Tipping.Pages.Admin.Data.Drivers
         public EditModel(ModelDbContext context)
         {
             _context = context;
-
-            TeamsSL = new SelectList(Array.Empty<object>());
         }
 
         [BindProperty]
         public Driver Driver { get; set; } = default!;
-        public SelectList TeamsSL { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(Guid? id)
         {
@@ -43,9 +40,6 @@ namespace F1Tipping.Pages.Admin.Data.Drivers
             }
             Driver = driver;
 
-            TeamsSL = new SelectList(await _context.Teams.ToListAsync(),
-                nameof(Team.Id), nameof(Team.Name), Driver.Team.Id);
-
             return Page();
         }
 
@@ -53,15 +47,8 @@ namespace F1Tipping.Pages.Admin.Data.Drivers
         // For more information, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (ModelState["Driver.Team.Id"]?.ValidationState == ModelValidationState.Valid)
-            {
-                ModelState.Remove<EditModel>(m => m.Driver.Team.Name);
-            }
-
             if (!ModelState.IsValid)
             {
-                TeamsSL = new SelectList(await _context.Teams.ToListAsync(),
-                    nameof(Team.Id), nameof(Team.Name));
                 return Page();
             }
 

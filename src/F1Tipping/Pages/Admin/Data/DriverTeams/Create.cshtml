@@ -1,0 +1,50 @@
+﻿@page
+@model CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Driver-Team Association</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="DriverTeam.Id" />
+            <div class="form-group">
+                <label asp-for="DriverTeam.Driver" class="control-label"></label>
+                <select name="DriverTeam.Driver.Id" asp-items="@Model.DriversSL"></select>
+                <span asp-validation-for="DriverTeam.Driver.Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DriverTeam.Team" class="control-label"></label>
+                <select name="DriverTeam.Team.Id" asp-items="@Model.TeamsSL"></select>
+                <span asp-validation-for="DriverTeam.Team.Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DriverTeam.ListOrder" class="control-label"></label>
+                <input asp-for="DriverTeam.ListOrder" class="form-control" />
+                <span asp-validation-for="DriverTeam.ListOrder" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DriverTeam.Status" class="control-label"></label>
+                <select name="DriverTeam.Status" asp-items="@Model.StatusSL"></select>
+                <span asp-validation-for="DriverTeam.ListOrder" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -5,7 +5,7 @@ using F1Tipping.Model;
 using Microsoft.AspNetCore.Authorization;
 using F1Tipping.Pages.PageModels;
 
-namespace F1Tipping.Pages.Admin.Data.Drivers
+namespace F1Tipping.Pages.Admin.Data.DriverTeams
 {
     public class IndexModel : AdminPageModel
     {
@@ -16,11 +16,13 @@ namespace F1Tipping.Pages.Admin.Data.Drivers
             _context = context;
         }
 
-        public IList<Driver> Driver { get; set; } = default!;
+        public IList<DriverTeam> Driver { get; set; } = default!;
 
         public async Task OnGetAsync()
         {
-            Driver = (await _context.Drivers.ToListAsync())
+            Driver = (await _context.DriverTeams.ToListAsync())
+                .OrderBy(d => d.Team.ListOrder)
+                .ThenBy(d => d.ListOrder)
                 .ToList();
         }
     }

@@ -123,7 +123,7 @@ namespace F1Tipping.Pages.Tipping
                 {
                     resolvedCandidates[set].AddRange(
                         (await _modelDb.RacingEntities.ToListAsync())
-                        .Where(re => re.GetType() == reType)
+                        .Where(re => re.GetType() == reType && re.IsSelectable)
                         .OrderBy(re => re.GetListOrder())
                         .Select(re => new SelectListItem(re.DisplayName, re.Id.ToString())));
                 }

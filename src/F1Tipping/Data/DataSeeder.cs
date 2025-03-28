@@ -31,9 +31,9 @@ namespace F1Tipping.Data
             {
                 _modelDb.Add(team);
             }
-            foreach (var driver in Drivers2025)
+            foreach (var driverTeam in DriverTeams2025)
             {
-                _modelDb.Add(driver);
+                _modelDb.Add(driverTeam);
             }
 
             await _modelDb.SaveChangesAsync();
@@ -190,13 +190,17 @@ namespace F1Tipping.Data
             .Select(dn => dn.teamname).Distinct()
             .ToDictionary(tn => tn, tn => new Team() { Name = tn });
 
-        private static IEnumerable<Driver> Drivers2025 = DriverNames2025
-            .Select(dn => new Driver() {
-                FirstName = dn.first,
-                LastName = dn.last,
-                Nationality = dn.nationality,
-                Number = dn.number,
+        private static IEnumerable<DriverTeam> DriverTeams2025 = DriverNames2025
+            .Select(dn => new DriverTeam {
+                Driver = new()
+                {
+                    FirstName = dn.first,
+                    LastName = dn.last,
+                    Nationality = dn.nationality,
+                    Number = dn.number,
+                },
                 Team = Teams2025[dn.teamname],
+                Status = AssociationStatus.Active,
             });
     }
 }
