@@ -16,4 +16,4 @@ Deploying to your local instance:
 
 Upscript for prod:
 
-`dotnet ef migrations script InitModelDatabase MakeTipDeadlinesFixed --no-build -p F1Tipping.Postgres -s F1Tipping -c F1Tipping.Data.ModelDbContext -- --provider Postgres >> ../sql_migrations/"$(date +"%Y_%m_%d_%H%M%S").MakeTipDeadlinesFixed.ModelDb.sql"`
+`dotnet ef migrations script InitModelDatabase MakeTipDeadlinesFixed -o ../sql_migrations/"$(date +"%Y_%m_%d_%H%M%S").MakeTipDeadlinesFixed.ModelDb.sql" --no-build -p F1Tipping.Postgres -s F1Tipping -c F1Tipping.Data.ModelDbContext -- --provider Postgres`
