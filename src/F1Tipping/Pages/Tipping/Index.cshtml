@@ -60,38 +60,68 @@
 }
 
 <table id="eventList" class="table">
-@if (Model.EventTips.Any())
-{
-    <tr>
-        <th></th>
-        <th>
-            @Html.DisplayNameFor(m => m.EventTips[0].Deadline)
-        </th>
-        <th>
-            @Html.DisplayNameFor(m => m.EventTips[0].HasTips)
-        </th>
-        <th>
-            @Html.DisplayNameFor(m => m.EventTips[0].Score)
-        </th>
-    </tr>
-}
+    @if (Model.EventTips.Any())
+    {
+        <tr>
+            <th></th>
+            <th>
+                @Html.DisplayNameFor(m => m.EventTips[0].Deadline)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.EventTips[0].HasTips)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.EventTips[0].Score)
+            </th>
+        </tr>
+    }
 
-@foreach (var e in Model.EventTips)
-{
-    <tr>
-        <td>
-            <a asp-page="./Event" asp-route-id="@e.EventId">@e.Name</a>
-        </td>
-        <td>
-            <input name="deadlineValue" type="hidden" value="@(e.Deadline.ToUnixTimeSeconds()*1000)"/>
-            <span name="deadlineDestination"></span>
-        </td>
-        <td>
-            @Html.DisplayFor(_ => e.HasTips)
-        </td>
-        <td>
-            @Html.DisplayFor(_ => e.Score)
-        </td>
-    </tr>
-}
+    @foreach (var e in Model.EventTips)
+    {
+        var hasTippingPlayersLine = e.PlayersWithTipsIn is not null || e.PlayersWithNoTips is not null;
+        var optionalUnderline = hasTippingPlayersLine ? "border-bottom-0" : string.Empty;
+        var forcedUnderline = hasTippingPlayersLine ? "border-bottom" : string.Empty;
+        <tr class="@optionalUnderline">
+            <td class="@optionalUnderline">
+                <a asp-page="./Event" asp-route-id="@e.EventId">@e.Name</a>
+            </td>
+            <td class="@forcedUnderline">
+                <input name="deadlineValue" type="hidden" value="@(e.Deadline.ToUnixTimeSeconds()*1000)"/>
+                <span name="deadlineDestination"></span>
+            </td>
+            <td class="@forcedUnderline">
+                @Html.DisplayFor(_ => e.HasTips)
+            </td>
+            <td class="@forcedUnderline">
+                @Html.DisplayFor(_ => e.Score)
+            </td>
+        </tr>
+
+        @if (hasTippingPlayersLine)
+        {
+            <tr>
+                <td></td>
+                <td colspan="3">
+                    <div class="row">
+                        <div class="col text-center text-success bg-success-subtle border-success">
+                            @Html.DisplayNameFor(m => m.EventTips[0].PlayersWithTipsIn)<br />
+                            @if (e.HasTips)
+                            {
+                                <b>You</b>@(e.PlayersWithTipsIn?.Any() ?? false ? ", " : string.Empty)
+                            }
+                            @(string.Join(", ", e.PlayersWithTipsIn ?? []))
+                        </div>
+                        <div class="col text-center text-danger bg-danger-subtle border-danger">
+                            @Html.DisplayNameFor(m => m.EventTips[0].PlayersWithNoTips)<br />
+                            @if (!e.HasTips)
+                            {
+                                <b>You</b>@(e.PlayersWithNoTips?.Any() ?? false ? ", " : string.Empty)
+                            }
+                            @(string.Join(", ", e.PlayersWithNoTips ?? []))
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+    }
 </table>
