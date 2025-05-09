@@ -1,0 +1,50 @@
+﻿@page
+@model CreateModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Driver</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Driver.Id" />
+            <div class="form-group">
+                <label asp-for="Driver.FirstName" class="control-label"></label>
+                <input asp-for="Driver.FirstName" class="form-control" />
+                <span asp-validation-for="Driver.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Driver.LastName" class="control-label"></label>
+                <input asp-for="Driver.LastName" class="form-control" />
+                <span asp-validation-for="Driver.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Driver.Nationality" class="control-label"></label>
+                <input asp-for="Driver.Nationality" class="form-control" />
+                <span asp-validation-for="Driver.Nationality" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Driver.Number" class="control-label"></label>
+                <input asp-for="Driver.Number" class="form-control" />
+                <span asp-validation-for="Driver.Number" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
