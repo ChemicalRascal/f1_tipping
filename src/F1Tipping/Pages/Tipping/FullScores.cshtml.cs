@@ -37,7 +37,7 @@ namespace F1Tipping.Pages.Tipping
 
             var players = (await _modelDb.Players
                 .Where(p => p.Status == PlayerStatus.Normal).ToListAsync())
-                .OrderBy(p => p == Player)
+                .OrderBy(p => p != Player)
                 .ThenBy(p => p.Details?.DisplayName ?? p.Details?.FirstName);
 
             var scoreboardEvents = (await _modelDb.Events

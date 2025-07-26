@@ -15,17 +15,23 @@ namespace F1Tipping.Tipping
             _modelDb = modelDb;
         }
 
-        public async Task<decimal> GetPlayerScoreAsync(Player player)
+        public async Task<(decimal completed, decimal provisional)> GetPlayerScoreAsync(Player player)
         {
-            var events = await _modelDb.Events.Where(e => e.Completed).ToListAsync();
-
-            var score = 0m;
-            foreach (var e in events)
+            var completeEvents = await _modelDb.Events.Where(e => e.Completed).ToListAsync();
+            var completedScore = 0m;
+            foreach (var e in completeEvents)
             {
-                score += (await GetReportAsync(player, e))?.EventScore ?? 0m;
+                completedScore += (await GetReportAsync(player, e))?.EventScore ?? 0m;
             }
 
-            return score;
+            var incompleteEvents = await _modelDb.Events.Where(e => !e.Completed).ToListAsync();
+            var provisionalScore = 0m;
+            foreach (var e in incompleteEvents)
+            {
+                provisionalScore += (await GetReportAsync(player, e))?.EventScore ?? 0m;
+            }
+
+            return (completedScore, provisionalScore);
         }
 
         public async Task<PlayerEventReport?> GetReportAsync(Player player, Event @event)

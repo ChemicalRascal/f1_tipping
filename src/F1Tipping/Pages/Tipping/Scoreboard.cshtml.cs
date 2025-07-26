@@ -39,13 +39,13 @@ namespace F1Tipping.Pages.Tipping
                 var score = await _tipScoring.GetPlayerScoreAsync(player);
                 PlayerScores.Add(new(
                     player!.Details!.DisplayName ?? player.Details!.FirstName,
-                    score));
+                    score.completed, score.provisional));
             }
 
-            PlayerScores = PlayerScores.OrderByDescending(ps => ps.Score).ToList();
+            PlayerScores = PlayerScores.OrderByDescending(ps => ps.CompleteScore).ToList();
             return Page();
         }
 
-        public record PlayerScoreView(string Name, decimal Score);
+        public record PlayerScoreView(string Name, decimal CompleteScore, decimal ProvisionalScore);
     }
 }
