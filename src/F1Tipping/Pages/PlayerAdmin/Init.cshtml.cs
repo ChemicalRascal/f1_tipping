@@ -10,10 +10,11 @@ namespace F1Tipping.Pages.PlayerAdmin
     public class InitModel : PlayerPageModel
     {
         public InitModel(
+            IConfiguration configuration,
             UserManager<IdentityUser<Guid>> userManager,
             AppDbContext appDb,
-            ModelDbContext modelDb)
-            : base(userManager, appDb, modelDb)
+            ModelDbContext modelDb
+            ) : base(configuration, userManager, appDb, modelDb)
         { }
 
         public class DetailsEditModel

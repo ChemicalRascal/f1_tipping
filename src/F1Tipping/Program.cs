@@ -1,14 +1,18 @@
+using CorePush.Firebase;
+using CorePush.Serialization;
 using F1Tipping.Data;
 using F1Tipping.PlayerData;
 using F1Tipping.Tipping;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace F1Tipping
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             var config = builder.Configuration;
@@ -75,7 +79,15 @@ namespace F1Tipping
             app.UseRouting();
             app.UseAuthorization();
 
-            app.MapStaticAssets();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                OnPrepareResponse = (ctx) =>
+                {
+                    ctx.Context.Response.Headers.Append("Service-Worker-Allowed", "/");
+                }
+            });
+
+            //app.MapStaticAssets();
             app.MapRazorPages()
                .WithStaticAssets();
 

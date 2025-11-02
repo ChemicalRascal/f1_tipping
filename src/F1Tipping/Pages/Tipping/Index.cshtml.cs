@@ -17,11 +17,12 @@ namespace F1Tipping.Pages.Tipping
         private TipScoringService _scoreService;
 
         public IndexModel(
+            IConfiguration configuration,
             UserManager<IdentityUser<Guid>> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb,
-            TipScoringService scoreService)
-            : base(userManager, appDb, modelDb)
+            TipScoringService scoreService
+            ) : base(configuration, userManager, appDb, modelDb)
         {
             _scoreService = scoreService;
             EventTips = new List<EventTipView>();

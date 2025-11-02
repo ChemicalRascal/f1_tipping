@@ -7,6 +7,7 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using F1Tipping.Common;
 using F1Tipping.Data;
+using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -14,16 +15,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 {
-    public class IndexModel : PageModel
+    public class IndexModel : BasePageModel
     {
         private readonly UserManager<IdentityUser<Guid>> _userManager;
         private readonly SignInManager<IdentityUser<Guid>> _signInManager;
         private readonly ModelDbContext _modelDb;
 
         public IndexModel(
+            IConfiguration configuration,
             UserManager<IdentityUser<Guid>> userManager,
             SignInManager<IdentityUser<Guid>> signInManager,
-            ModelDbContext modelDb)
+            ModelDbContext modelDb
+            ) : base(configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;

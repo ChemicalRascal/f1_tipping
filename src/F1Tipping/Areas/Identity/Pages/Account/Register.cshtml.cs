@@ -1,197 +1,167 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-#nullable disable
+﻿#nullable disable
 
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
 using F1Tipping.Data;
+using F1Tipping.Pages.PageModels;
 using F1Tipping.Platform;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 
-namespace F1Tipping.Areas.Identity.Pages.Account
+namespace F1Tipping.Areas.Identity.Pages.Account;
+
+public class RegisterModel : BasePageModel
 {
-    public class RegisterModel : PageModel
+    private readonly SignInManager<IdentityUser<Guid>> _signInManager;
+    private readonly UserManager<IdentityUser<Guid>> _userManager;
+    private readonly IUserStore<IdentityUser<Guid>> _userStore;
+    private readonly IUserEmailStore<IdentityUser<Guid>> _emailStore;
+    private readonly ILogger<RegisterModel> _logger;
+    private readonly IEmailSender _emailSender;
+    private readonly ModelDbContext _modelDb;
+    private readonly AppDbContext _appDb;
+
+    public RegisterModel(
+        IConfiguration configuration,
+        UserManager<IdentityUser<Guid>> userManager,
+        IUserStore<IdentityUser<Guid>> userStore,
+        SignInManager<IdentityUser<Guid>> signInManager,
+        ILogger<RegisterModel> logger,
+        IEmailSender emailSender,
+        ModelDbContext modelDb,
+        AppDbContext appDb
+        ) : base(configuration)
     {
-        private readonly SignInManager<IdentityUser<Guid>> _signInManager;
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
-        private readonly IUserStore<IdentityUser<Guid>> _userStore;
-        private readonly IUserEmailStore<IdentityUser<Guid>> _emailStore;
-        private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
-        private readonly ModelDbContext _modelDb;
-        private readonly AppDbContext _appDb;
+        _userManager = userManager;
+        _userStore = userStore;
+        _emailStore = GetEmailStore();
+        _signInManager = signInManager;
+        _logger = logger;
+        _emailSender = emailSender;
+        _modelDb = modelDb;
+        _appDb = appDb;
+    }
 
-        public RegisterModel(
-            UserManager<IdentityUser<Guid>> userManager,
-            IUserStore<IdentityUser<Guid>> userStore,
-            SignInManager<IdentityUser<Guid>> signInManager,
-            ILogger<RegisterModel> logger,
-            IEmailSender emailSender,
-            ModelDbContext modelDb,
-            AppDbContext appDb
-            )
+    [BindProperty]
+    public InputModel Input { get; set; }
+
+    public string ReturnUrl { get; set; }
+
+    public IList<AuthenticationScheme> ExternalLogins { get; set; }
+
+    public class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
+        [Required]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string Password { get; set; }
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; }
+    }
+
+
+    public async Task OnGetAsync(string returnUrl = null)
+    {
+        if (!(await SystemDataService.GetSystemSettingsAsync(_appDb)).RegistrationEnabled)
         {
-            _userManager = userManager;
-            _userStore = userStore;
-            _emailStore = GetEmailStore();
-            _signInManager = signInManager;
-            _logger = logger;
-            _emailSender = emailSender;
-            _modelDb = modelDb;
-            _appDb = appDb;
+            _logger.LogError("Attempted registration GET with registration disabled.");
+            throw new ApplicationException("Registration disabled.");
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [BindProperty]
-        public InputModel Input { get; set; }
+        ReturnUrl = returnUrl;
+        ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+    }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public string ReturnUrl { get; set; }
-
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public IList<AuthenticationScheme> ExternalLogins { get; set; }
-
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public class InputModel
+    public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+    {
+        if (!(await SystemDataService.GetSystemSettingsAsync(_appDb)).RegistrationEnabled)
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [EmailAddress]
-            [Display(Name = "Email")]
-            public string Email { get; set; }
-
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-            [DataType(DataType.Password)]
-            [Display(Name = "Password")]
-            public string Password { get; set; }
-
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-            public string ConfirmPassword { get; set; }
+            _logger.LogError("Attempted registration POST with registration disabled.");
+            throw new ApplicationException("Registration disabled.");
         }
 
-
-        public async Task OnGetAsync(string returnUrl = null)
+        returnUrl ??= Url.Content("~/");
+        ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+        if (ModelState.IsValid)
         {
-            if (!(await SystemDataService.GetSystemSettingsAsync(_appDb)).RegistrationEnabled)
+            var user = CreateUser();
+
+            await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+            await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+            var result = await _userManager.CreateAsync(user, Input.Password);
+
+            if (result.Succeeded)
             {
-                _logger.LogError("Attempted registration GET with registration disabled.");
-                throw new ApplicationException("Registration disabled.");
-            }
+                _logger.LogInformation("User created a new account with password.");
 
-            ReturnUrl = returnUrl;
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-        }
+                await _modelDb.CreatePlayerIfNeededAsync(user);
+                await _userManager.AddToRoleAsync(user, "Player");
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
-        {
-            if (!(await SystemDataService.GetSystemSettingsAsync(_appDb)).RegistrationEnabled)
-            {
-                _logger.LogError("Attempted registration POST with registration disabled.");
-                throw new ApplicationException("Registration disabled.");
-            }
+                var userId = await _userManager.GetUserIdAsync(user);
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                var callbackUrl = Url.Page(
+                    "/Account/ConfirmEmail",
+                    pageHandler: null,
+                    values: new { area = "Identity", userId, code, returnUrl },
+                    protocol: Request.Scheme);
 
-            returnUrl ??= Url.Content("~/");
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            if (ModelState.IsValid)
-            {
-                var user = CreateUser();
+                await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-                var result = await _userManager.CreateAsync(user, Input.Password);
-
-                if (result.Succeeded)
+                if (_userManager.Options.SignIn.RequireConfirmedAccount)
                 {
-                    _logger.LogInformation("User created a new account with password.");
-
-                    await _modelDb.CreatePlayerIfNeededAsync(user);
-                    await _userManager.AddToRoleAsync(user, "Player");
-
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId, code, returnUrl },
-                        protocol: Request.Scheme);
-
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
+                    return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl });
                 }
-                foreach (var error in result.Errors)
+                else
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return LocalRedirect(returnUrl);
                 }
             }
-
-            // If we got this far, something failed, redisplay form
-            return Page();
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
         }
 
-        private IdentityUser<Guid> CreateUser()
+        // If we got this far, something failed, redisplay form
+        return Page();
+    }
+
+    private IdentityUser<Guid> CreateUser()
+    {
+        try
         {
-            try
-            {
-                return Activator.CreateInstance<IdentityUser<Guid>>();
-            }
-            catch
-            {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser<Guid>)}'. " +
-                    $"Ensure that '{nameof(IdentityUser<Guid>)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
-            }
+            return Activator.CreateInstance<IdentityUser<Guid>>();
         }
-
-        private IUserEmailStore<IdentityUser<Guid>> GetEmailStore()
+        catch
         {
-            if (!_userManager.SupportsUserEmail)
-            {
-                throw new NotSupportedException("The default UI requires a user store with email support.");
-            }
-            return (IUserEmailStore<IdentityUser<Guid>>)_userStore;
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser<Guid>)}'. " +
+                $"Ensure that '{nameof(IdentityUser<Guid>)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
         }
+    }
+
+    private IUserEmailStore<IdentityUser<Guid>> GetEmailStore()
+    {
+        if (!_userManager.SupportsUserEmail)
+        {
+            throw new NotSupportedException("The default UI requires a user store with email support.");
+        }
+        return (IUserEmailStore<IdentityUser<Guid>>)_userStore;
     }
 }

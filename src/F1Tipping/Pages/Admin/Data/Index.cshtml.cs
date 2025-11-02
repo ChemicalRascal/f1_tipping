@@ -16,7 +16,8 @@ namespace F1Tipping.Pages.Admin.Data
         [BindProperty]
         public IDictionary<Guid, string[]> PlayersWithTips { get; set; } = default!;
 
-        public IndexModel(DataSeeder dataSeeder, ModelDbContext modelDb)
+        public IndexModel(IConfiguration configuration, DataSeeder dataSeeder, ModelDbContext modelDb)
+            : base(configuration)
         {
             _dataSeeder = dataSeeder;
             _modelDb = modelDb;

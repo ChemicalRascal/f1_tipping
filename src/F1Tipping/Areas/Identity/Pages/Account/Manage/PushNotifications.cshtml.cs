@@ -2,60 +2,62 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace F1Tipping.Areas.Identity.Pages.Account.Manage
+namespace F1Tipping.Areas.Identity.Pages.Account.Manage;
+
+public class PushNotificationsModel : BasePageModel
 {
-    public class PushNotificationsModel : PageModel
+    private readonly UserManager<IdentityUser<Guid>> _userManager;
+    private readonly ILogger<PushNotificationsModel> _logger;
+
+    public PushNotificationsModel(
+        IConfiguration configuration,
+        UserManager<IdentityUser<Guid>> userManager,
+        ILogger<PushNotificationsModel> logger
+        ) : base(configuration)
     {
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
-        private readonly ILogger<PushNotificationsModel> _logger;
+        _userManager = userManager;
+        _logger = logger;
+    }
 
-        public PushNotificationsModel(
-            UserManager<IdentityUser<Guid>> userManager,
-            ILogger<PushNotificationsModel> logger)
+    [BindProperty]
+    public InputModel Input { get; set; }
+
+    [TempData]
+    public string StatusMessage { get; set; }
+
+    public class InputModel
+    {
+    }
+
+    public async Task<IActionResult> OnGetAsync()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
         {
-            _userManager = userManager;
-            _logger = logger;
+            return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
         }
 
-        [BindProperty]
-        public InputModel Input { get; set; }
+        return Page();
+    }
 
-        [TempData]
-        public string StatusMessage { get; set; }
-
-        public class InputModel
+    public async Task<IActionResult> OnPostAsync()
+    {
+        if (!ModelState.IsValid)
         {
-        }
-
-        public async Task<IActionResult> OnGetAsync()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
-
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
-
-            return RedirectToPage();
+            return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
         }
+
+        return RedirectToPage();
     }
 }

@@ -1,12 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using F1Tipping.Pages.PageModels;
 
-namespace F1Tipping.Pages
+namespace F1Tipping.Pages;
+
+public class HeartbeatModel(IConfiguration configuration)
+    : BasePageModel(configuration)
 {
-    public class HeartbeatModel : PageModel
+    public void OnGet()
     {
-        public void OnGet()
-        {
-        }
     }
 }

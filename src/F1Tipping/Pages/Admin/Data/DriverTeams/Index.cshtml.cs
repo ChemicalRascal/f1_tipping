@@ -11,7 +11,8 @@ namespace F1Tipping.Pages.Admin.Data.DriverTeams
     {
         private readonly ModelDbContext _context;
 
-        public IndexModel(ModelDbContext context)
+        public IndexModel(IConfiguration configuration, ModelDbContext context)
+            : base(configuration)
         {
             _context = context;
         }

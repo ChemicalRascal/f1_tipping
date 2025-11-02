@@ -17,10 +17,12 @@ namespace F1Tipping.Pages.Admin.Users
         private readonly UserManager<IdentityUser<Guid>> _userManager;
 
         public IndexModel(
+            IConfiguration configuration,
             ILogger<IndexModel> logger,
             AppDbContext appDb,
             ModelDbContext modelDb,
-            UserManager<IdentityUser<Guid>> userManager)
+            UserManager<IdentityUser<Guid>> userManager
+            ) : base(configuration)
         {
             _logger = logger;
             _appDb = appDb;

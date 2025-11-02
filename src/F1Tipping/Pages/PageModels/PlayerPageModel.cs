@@ -11,7 +11,7 @@ using System.Security.Claims;
 namespace F1Tipping.Pages.PageModels
 {
     [Authorize(Roles = "Player")]
-    public abstract class PlayerPageModel : PageModel
+    public abstract class PlayerPageModel : BasePageModel
     {
         private UserManager<IdentityUser<Guid>> _userManager;
         private AppDbContext _appDb;
@@ -34,10 +34,11 @@ namespace F1Tipping.Pages.PageModels
         private Player? _player;
 
         protected PlayerPageModel(
+            IConfiguration configuration,
             UserManager<IdentityUser<Guid>> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb
-            )
+            ) : base(configuration)
         {
             _userManager = userManager;
             _appDb = appDb;

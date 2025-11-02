@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,16 +15,18 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 {
-    public class ExternalLoginsModel : PageModel
+    public class ExternalLoginsModel : BasePageModel
     {
         private readonly UserManager<IdentityUser<Guid>> _userManager;
         private readonly SignInManager<IdentityUser<Guid>> _signInManager;
         private readonly IUserStore<IdentityUser<Guid>> _userStore;
 
         public ExternalLoginsModel(
+            IConfiguration configuration,
             UserManager<IdentityUser<Guid>> userManager,
             SignInManager<IdentityUser<Guid>> signInManager,
-            IUserStore<IdentityUser<Guid>> userStore)
+            IUserStore<IdentityUser<Guid>> userStore
+            ) : base(configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;

@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace F1Tipping.Pages.PageModels
 {
     [Authorize(Roles = "Administrator")]
-    public abstract class AdminPageModel : PageModel
+    public abstract class AdminPageModel : BasePageModel
     {
+        protected AdminPageModel(IConfiguration configuration) : base(configuration)
+        {
+        }
     }
 }

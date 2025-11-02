@@ -1,36 +1,33 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-#nullable disable
+﻿#nullable disable
 
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
 
-namespace F1Tipping.Areas.Identity.Pages.Account
+namespace F1Tipping.Areas.Identity.Pages.Account;
+
+public class LogoutModel(
+    IConfiguration configuration,
+    SignInManager<IdentityUser<Guid>> signInManager,
+    ILogger<LogoutModel> logger
+    ) : BasePageModel(configuration)
 {
-    public class LogoutModel(SignInManager<IdentityUser<Guid>> signInManager, ILogger<LogoutModel> logger) : PageModel
-    {
-        private readonly SignInManager<IdentityUser<Guid>> _signInManager = signInManager;
-        private readonly ILogger<LogoutModel> _logger = logger;
+    private readonly SignInManager<IdentityUser<Guid>> _signInManager = signInManager;
+    private readonly ILogger<LogoutModel> _logger = logger;
 
-        public async Task<IActionResult> OnPost(string returnUrl = null)
+    public async Task<IActionResult> OnPost(string returnUrl = null)
+    {
+        await _signInManager.SignOutAsync();
+        _logger.LogInformation("User logged out.");
+        if (returnUrl != null)
         {
-            await _signInManager.SignOutAsync();
-            _logger.LogInformation("User logged out.");
-            if (returnUrl != null)
-            {
-                return LocalRedirect(returnUrl);
-            }
-            else
-            {
-                // This needs to be a redirect so that the browser performs a new
-                // request and the identity for the user gets updated.
-                return RedirectToPage();
-            }
+            return LocalRedirect(returnUrl);
+        }
+        else
+        {
+            // This needs to be a redirect so that the browser performs a new
+            // request and the identity for the user gets updated.
+            return RedirectToPage();
         }
     }
 }

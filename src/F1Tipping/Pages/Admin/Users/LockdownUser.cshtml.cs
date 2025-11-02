@@ -1,18 +1,21 @@
 using F1Tipping.Data;
+using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace F1Tipping.Pages.Admin.Users
 {
-    public class LockdownUserModel : PageModel
+    public class LockdownUserModel : BasePageModel
     {
         private readonly AppDbContext _context;
 
         [BindProperty]
         public UserView UserToLock { get; set; } = default!;
 
-        public LockdownUserModel(AppDbContext context)
+        public LockdownUserModel(
+            IConfiguration configuration,
+            AppDbContext context
+            ) : base(configuration)
         {
             _context = context;
         }

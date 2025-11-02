@@ -12,7 +12,11 @@ namespace F1Tipping.Pages.Admin.Users
         private readonly AppDbContext _appDb;
         private readonly UserManager<IdentityUser<Guid>> _userManager;
 
-        public EditModel(AppDbContext appDb, UserManager<IdentityUser<Guid>> userManager)
+        public EditModel(
+            IConfiguration configuration,
+            AppDbContext appDb,
+            UserManager<IdentityUser<Guid>> userManager
+            ) : base(configuration)
         {
             _appDb = appDb;
             _userManager = userManager;

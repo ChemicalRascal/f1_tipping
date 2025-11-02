@@ -13,11 +13,12 @@ namespace F1Tipping.Pages.Tipping
         private TipScoringService _tipScoring;
 
         public ScoreboardModel(
+            IConfiguration configuration,
             UserManager<IdentityUser<Guid>> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb,
-            TipScoringService tipScoring)
-            : base(userManager, appDb, modelDb)
+            TipScoringService tipScoring
+            ) : base(configuration, userManager, appDb, modelDb)
         {
             _tipScoring = tipScoring;
         }

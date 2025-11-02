@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -15,16 +16,18 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 {
-    public class EmailModel : PageModel
+    public class EmailModel : BasePageModel
     {
         private readonly UserManager<IdentityUser<Guid>> _userManager;
         private readonly SignInManager<IdentityUser<Guid>> _signInManager;
         private readonly IEmailSender _emailSender;
 
         public EmailModel(
+            IConfiguration configuration,
             UserManager<IdentityUser<Guid>> userManager,
             SignInManager<IdentityUser<Guid>> signInManager,
-            IEmailSender emailSender)
+            IEmailSender emailSender
+            ) : base(configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;

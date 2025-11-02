@@ -18,7 +18,8 @@ namespace F1Tipping.Pages.Admin.Data.Drivers
     {
         private readonly ModelDbContext _context;
 
-        public EditModel(ModelDbContext context)
+        public EditModel(IConfiguration configuration, ModelDbContext context)
+            : base(configuration)
         {
             _context = context;
         }

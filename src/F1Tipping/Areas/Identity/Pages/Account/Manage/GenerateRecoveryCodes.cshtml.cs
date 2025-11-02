@@ -5,6 +5,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,14 +13,16 @@ using Microsoft.Extensions.Logging;
 
 namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 {
-    public class GenerateRecoveryCodesModel : PageModel
+    public class GenerateRecoveryCodesModel : BasePageModel
     {
         private readonly UserManager<IdentityUser<Guid>> _userManager;
         private readonly ILogger<GenerateRecoveryCodesModel> _logger;
 
         public GenerateRecoveryCodesModel(
+            IConfiguration configuration,
             UserManager<IdentityUser<Guid>> userManager,
-            ILogger<GenerateRecoveryCodesModel> logger)
+            ILogger<GenerateRecoveryCodesModel> logger
+            ) : base(configuration)
         {
             _userManager = userManager;
             _logger = logger;

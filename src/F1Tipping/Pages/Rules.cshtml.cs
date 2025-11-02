@@ -1,20 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using F1Tipping.Pages.PageModels;
 
-namespace F1Tipping.Pages
+namespace F1Tipping.Pages;
+
+public class RulesModel : BasePageModel
 {
-    public class RulesModel : PageModel
+    private readonly ILogger<RulesModel> _logger;
+
+    public RulesModel(
+        IConfiguration configuration,
+        ILogger<RulesModel> logger
+        ) : base(configuration)
     {
-        private readonly ILogger<RulesModel> _logger;
-
-        public RulesModel(ILogger<RulesModel> logger)
-        {
-            _logger = logger;
-        }
-
-        public void OnGet()
-        {
-        }
+        _logger = logger;
     }
 
+    public void OnGet()
+    {
+    }
 }

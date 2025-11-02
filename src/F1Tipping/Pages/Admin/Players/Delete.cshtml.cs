@@ -15,7 +15,8 @@ namespace F1Tipping.Pages.Admin.Players
     {
         private readonly ModelDbContext _context;
 
-        public DeleteModel(ModelDbContext context)
+        public DeleteModel(IConfiguration configuration, ModelDbContext context)
+            : base(configuration)
         {
             _context = context;
         }

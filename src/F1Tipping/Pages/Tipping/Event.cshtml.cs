@@ -21,13 +21,13 @@ namespace F1Tipping.Pages.Tipping
         private TipScoringService _tipsScoring;
 
         public EventModel(
+            IConfiguration configuration,
             UserManager<IdentityUser<Guid>> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb,
             TipValidiationService tipsValidation,
             TipScoringService tipsScoring
-            )
-            : base(userManager, appDb, modelDb)
+            ) : base(configuration, userManager, appDb, modelDb)
         {
             _tipsValidation = tipsValidation;
             _tipsScoring = tipsScoring;

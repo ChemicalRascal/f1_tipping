@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,7 +17,7 @@ using Microsoft.Extensions.Logging;
 
 namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 {
-    public class EnableAuthenticatorModel : PageModel
+    public class EnableAuthenticatorModel : BasePageModel
     {
         private readonly UserManager<IdentityUser<Guid>> _userManager;
         private readonly ILogger<EnableAuthenticatorModel> _logger;
@@ -25,9 +26,11 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
 
         public EnableAuthenticatorModel(
+            IConfiguration configuration,
             UserManager<IdentityUser<Guid>> userManager,
             ILogger<EnableAuthenticatorModel> logger,
-            UrlEncoder urlEncoder)
+            UrlEncoder urlEncoder
+            ) : base(configuration)
         {
             _userManager = userManager;
             _logger = logger;

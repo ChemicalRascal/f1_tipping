@@ -21,9 +21,11 @@ namespace F1Tipping.Pages.Admin.ResultsReporting
         private UserManager<IdentityUser<Guid>> _userManager;
 
         public EventModel(
+            IConfiguration configuration,
             UserManager<IdentityUser<Guid>> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb)
+            : base(configuration)
         {
             _modelDb = modelDb;
             _appDb = appDb;

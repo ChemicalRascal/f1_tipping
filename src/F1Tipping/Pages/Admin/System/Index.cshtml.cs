@@ -12,9 +12,10 @@ namespace F1Tipping.Pages.Admin.System
         private readonly AppDbContext _appDb;
 
         public IndexModel(
+            IConfiguration configuration,
             ILogger<IndexModel> logger,
             AppDbContext appDb
-            )
+            ) : base(configuration)
         {
             _logger = logger;
             _appDb = appDb;

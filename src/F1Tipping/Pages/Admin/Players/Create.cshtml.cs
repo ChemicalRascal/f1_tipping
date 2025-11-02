@@ -9,7 +9,8 @@ namespace F1Tipping.Pages.Admin.Players
     {
         private readonly ModelDbContext _context;
 
-        public CreateModel(ModelDbContext context)
+        public CreateModel(IConfiguration configuration, ModelDbContext context)
+            : base(configuration)
         {
             _context = context;
         }
