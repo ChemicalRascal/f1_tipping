@@ -16,6 +16,7 @@ namespace F1Tipping.Pages
         private readonly ILogger<IndexModel> _logger;
         private ModelDbContext _modelDb;
         private UserManager<IdentityUser<Guid>> _userManager;
+        private IConfiguration _configuration;
 
         [BindProperty]
         public Type? MainViewComponent { get; set; } = default;
@@ -27,12 +28,15 @@ namespace F1Tipping.Pages
         public string WelcomeSubtitle { get; set; } = default!;
         [BindProperty]
         public DateTimeOffset NextEventDeadline { get; set; } = default!;
+        [BindProperty]
+        public string VapidPublicKey { get; set; } = default!;
 
-        public IndexModel(ILogger<IndexModel> logger, ModelDbContext modelDb, UserManager<IdentityUser<Guid>> userManager)
+        public IndexModel(ILogger<IndexModel> logger, ModelDbContext modelDb, UserManager<IdentityUser<Guid>> userManager, IConfiguration configuration)
         {
             _logger = logger;
             _modelDb = modelDb;
             _userManager = userManager;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> OnGet()
@@ -54,6 +58,8 @@ namespace F1Tipping.Pages
             {
                 WelcomeSubtitle = "Make an account, log in, tip some races!";
             }
+
+            VapidPublicKey = _configuration["VAPID:publicKey"];
 
             return Page();
         }

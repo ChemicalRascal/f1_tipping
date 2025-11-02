@@ -17,10 +17,37 @@ namespace F1Tipping.Data.ModelMigrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "9.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("F1Tipping.Model.Driver", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nationality")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Drivers");
+                });
 
             modelBuilder.Entity("F1Tipping.Model.Event", b =>
                 {
@@ -35,6 +62,9 @@ namespace F1Tipping.Data.ModelMigrations
                         .IsRequired()
                         .HasMaxLength(8)
                         .HasColumnType("nvarchar(8)");
+
+                    b.Property<DateTimeOffset>("TipsDeadline")
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -231,32 +261,24 @@ namespace F1Tipping.Data.ModelMigrations
                     b.HasDiscriminator().HasValue("Season");
                 });
 
-            modelBuilder.Entity("F1Tipping.Model.Driver", b =>
+            modelBuilder.Entity("F1Tipping.Model.DriverTeam", b =>
                 {
                     b.HasBaseType("F1Tipping.Model.RacingEntity");
 
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("DriverId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nationality")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Number")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("TeamId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.HasIndex("DriverId");
+
                     b.HasIndex("TeamId");
 
-                    b.HasDiscriminator().HasValue("Driver");
+                    b.HasDiscriminator().HasValue("DriverTeam");
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Team", b =>
@@ -386,13 +408,21 @@ namespace F1Tipping.Data.ModelMigrations
                     b.Navigation("Weekend");
                 });
 
-            modelBuilder.Entity("F1Tipping.Model.Driver", b =>
+            modelBuilder.Entity("F1Tipping.Model.DriverTeam", b =>
                 {
+                    b.HasOne("F1Tipping.Model.Driver", "Driver")
+                        .WithMany()
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("F1Tipping.Model.Team", "Team")
                         .WithMany()
                         .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Driver");
 
                     b.Navigation("Team");
                 });

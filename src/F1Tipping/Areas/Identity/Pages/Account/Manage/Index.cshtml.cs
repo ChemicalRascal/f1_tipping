@@ -40,9 +40,6 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
-            [Phone]
-            [Display(Name = "Phone number")]
-            public string? PhoneNumber { get; set; }
             [Display(Name = "First name")]
             public required string FirstName { get; set; }
             [Display(Name = "Last name")]
@@ -64,7 +61,6 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
             Username = userName;
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber,
                 FirstName = player?.Details?.FirstName ?? string.Empty,
                 LastName = player?.Details?.LastName,
                 DisplayName = player?.Details?.DisplayName,
@@ -98,16 +94,6 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
             }
 
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (Input!.PhoneNumber != phoneNumber)
-            {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
-                {
-                    StatusMessage = "Unexpected error when trying to set phone number.";
-                    return RedirectToPage();
-                }
-            }
-
             var player = await _modelDb.Players.Where(p => p.AuthUserId == user.Id).FirstOrDefaultAsync();
             if (player?.Details is null)
             {
