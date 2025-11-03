@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using F1Tipping.Controllers;
 
 namespace F1Tipping
 {
@@ -59,8 +60,6 @@ namespace F1Tipping
             }).AddRoles<IdentityRole<Guid>>()
               .AddEntityFrameworkStores<AppDbContext>();
 
-            builder.Services.AddRazorPages(options => { });
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -77,6 +76,8 @@ namespace F1Tipping
 
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.MapControllers();
+            app.MapRazorPages();
             app.UseAuthorization();
 
             app.UseStaticFiles(new StaticFileOptions
@@ -87,7 +88,6 @@ namespace F1Tipping
                 }
             });
 
-            //app.MapStaticAssets();
             app.MapRazorPages()
                .WithStaticAssets();
 

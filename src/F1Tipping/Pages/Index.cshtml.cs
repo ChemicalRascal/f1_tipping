@@ -11,9 +11,8 @@ namespace F1Tipping.Pages;
 public class IndexModel : BasePageModel
 {
     private readonly ILogger<IndexModel> _logger;
-    private ModelDbContext _modelDb;
-    private UserManager<IdentityUser<Guid>> _userManager;
-    private IConfiguration _configuration;
+    private readonly ModelDbContext _modelDb;
+    private readonly UserManager<IdentityUser<Guid>> _userManager;
 
     [BindProperty]
     public Type? MainViewComponent { get; set; } = default;
@@ -36,7 +35,6 @@ public class IndexModel : BasePageModel
         _logger = logger;
         _modelDb = modelDb;
         _userManager = userManager;
-        _configuration = configuration;
     }
 
     public async Task<IActionResult> OnGet()

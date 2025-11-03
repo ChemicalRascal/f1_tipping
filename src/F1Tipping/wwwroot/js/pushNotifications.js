@@ -2,6 +2,8 @@
 
 var PushNotificationState = "unknown";
 
+const pushApiPostUri = "api/PushSubscriptions";
+
 async function InitPushNotificationSub(permission) {
     // See note on https://notifications.spec.whatwg.org/#dom-notification-permission
     if (permission === null) {
@@ -19,10 +21,20 @@ async function InitPushNotificationSub(permission) {
     if (sub === null) {
         sub = await makeSubscription();
     }
-    console.log(sub);
-    console.log(sub.endpoint);
-    console.log("p256dh:", bufferToString(sub.getKey("p256dh")));
-    console.log("auth:  ", bufferToString(sub.getKey("auth")));
+
+    var aRes = $.ajax({
+        type: "POST",
+        url: pushApiPostUri,
+        data: JSON.stringify(
+        {
+            DeviceEndpoint: sub.endpoint,
+            PublicKey: bufferToString(sub.getKey("p256dh")),
+            AuthSecret: bufferToString(sub.getKey("auth")),
+        }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+    });
+    console.log(await aRes);
 };
 
 async function RequestPushPermission() {
