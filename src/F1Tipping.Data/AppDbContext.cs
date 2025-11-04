@@ -15,9 +15,15 @@ namespace F1Tipping.Data
             return (await SystemSettings.SingleOrDefaultAsync()) ?? new SystemSettings();
         }
 
-        public async Task<IEnumerable<PushSubscription>> GetPushSubscriptions(Guid UserId)
+        public async Task<IEnumerable<PushSubscription>> GetPushSubscriptions(Guid? userId)
         {
-            return Array.Empty<PushSubscription>();
+            if (userId is null)
+            {
+                return await UserPushNotificationSubscriptions.ToListAsync();
+            }
+
+            return await UserPushNotificationSubscriptions
+                .Where(ps => ps.User.Id == userId).ToListAsync();
         }
     }
 
