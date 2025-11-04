@@ -7,7 +7,7 @@ const pushApiPostUri = "api/PushSubscriptions";
 async function InitPushNotificationSub(permission) {
     // See note on https://notifications.spec.whatwg.org/#dom-notification-permission
     if (permission === null) {
-        const permission = (await navigator.permissions.query({ name: "notifications" })).state;
+        permission = (await navigator.permissions.query({ name: "notifications" })).state;
     }
     if (permission === "denied") {
         PushNotificationState = "denied";
