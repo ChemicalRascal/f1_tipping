@@ -1,8 +1,10 @@
-﻿window.addEventListener("serviceWorkerLoaded", InitPushNotificationSub);
+﻿window.addEventListener("serviceWorkerLoaded", async _ => InitPushNotificationSub(null));
 
-var PushNotificationState = "unknown";
+var ButtonDataset = document.querySelector(".notification-toggler").dataset;
+ButtonDataset.subState = "unknown";
 
 const pushApiPostUri = "api/PushSubscriptions";
+const pushApiValidateUrl = "api/PushSubscriptions/validate";
 
 async function InitPushNotificationSub(permission) {
     // See note on https://notifications.spec.whatwg.org/#dom-notification-permission
@@ -10,35 +12,36 @@ async function InitPushNotificationSub(permission) {
         permission = (await navigator.permissions.query({ name: "notifications" })).state;
     }
     if (permission === "denied") {
-        PushNotificationState = "permission_denied";
+        ButtonDataset.subState = "permission_denied";
         return;
     }
     if (permission !== "granted") {
-        PushNotificationState = "permission_pending";
+        ButtonDataset.subState = "permission_pending";
         return;
     }
 
-    var sub = await getSubscription() ?? await makeSubscription();
+    var subData = await _getSubscription() ?? await _makeSubscription();
 
-    try {
-        var result = await $.ajax({
-            type: "POST",
-            url: pushApiPostUri,
-            data: JSON.stringify(
-                {
-                    DeviceEndpoint: sub.endpoint,
-                    PublicKey: bufferToString(sub.getKey("p256dh")),
-                    AuthSecret: bufferToString(sub.getKey("auth")),
-                }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-        });
-        console.log("Push Notification subscription succeeded:", result.responseJSON.title, result.status);
-        PushNotificationState = "subscription_successful";
-    } catch (e) {
-        console.log("Push Notification subscription failed:", e.responseJSON.title, e.status);
-        PushNotificationState = "subscription_failed";
-        await removeSubscription();
+    if (subData.pushToServer) {
+        try {
+            var result = await $.ajax({
+                method: "POST",
+                url: pushApiPostUri,
+                data: JSON.stringify(
+                    {
+                        DeviceEndpoint: subData.sub.endpoint,
+                        PublicKey: _bufferToString(subData.sub.getKey("p256dh")),
+                        AuthSecret: _bufferToString(subData.sub.getKey("auth")),
+                    }),
+                contentType: "application/json; charset=utf-8",
+            });
+            ButtonDataset.subState = "subscription_successful";
+        } catch (e) {
+            ButtonDataset.subState = "subscription_failed";
+            await _removeSubscription();
+        }
+    } else {
+        ButtonDataset.subState = "subscription_successful";
     }
 };
 
@@ -47,21 +50,44 @@ async function RequestPushPermission() {
     await InitPushNotificationSub(requestResult);
 }
 
-async function getSubscription() {
+async function _getSubscription() {
     const registration = await navigator.serviceWorker.getRegistration();
-    return registration.pushManager.getSubscription();
+    const sub = await registration.pushManager.getSubscription();
+    if (sub === null) {
+        return sub;
+    }
+
+    if (!(await _validateSubscription(sub))) {
+        await _removeSubscription();
+        return null;
+    }
+
+    return { sub: sub, pushToServer: false, };
 }
 
-async function makeSubscription() {
+async function _validateSubscription(sub) {
+    var validationResult = await $.ajax({
+        method: "GET",
+        url: pushApiValidateUrl,
+        data: { endpoint: sub.endpoint, },
+    });
+    return validationResult;
+}
+
+async function _makeSubscription() {
     const registration = await navigator.serviceWorker.getRegistration();
-    return registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidPublicKey });
+    return {
+        sub: await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidPublicKey }),
+        pushToServer: true,
+    };
 }
 
-async function removeSubscription() {
-    return await registration.pushManager.removeSubscription();
+async function _removeSubscription() {
+    const registration = await navigator.serviceWorker.getRegistration();
+    (await registration.pushManager.getSubscription())?.unsubscribe();
 }
 
-function bufferToString(buffer) {
+function _bufferToString(buffer) {
     var binary = '';
     var bytes = new Uint8Array(buffer);
     var len = bytes.byteLength;

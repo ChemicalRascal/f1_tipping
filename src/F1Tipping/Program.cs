@@ -137,7 +137,7 @@ public class Program
                 {
                 }
             }
-            Thread.Sleep(60 * 1000);
+            Thread.Sleep(10 * 1000);
         }
     }
 

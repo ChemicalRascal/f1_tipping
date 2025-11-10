@@ -40,5 +40,7 @@ namespace F1Tipping.Data
         public required string DeviceEndpoint { get; set; }
         public required string PublicKey { get; set; }
         public required string AuthSecret { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime? LastCheck { get; set; }
     }
 }

@@ -27,7 +27,7 @@
                 </div>
                 @if (Context.User.Identity?.IsAuthenticated ?? false)
                 {
-                    <button class="notification-toggler" type="button" onclick="RequestPushPermission()">
+                    <button class="notification-toggler" data-sub-state="unknown" type="button" onclick="RequestPushPermission()">
                         <span class="notification-toggler-icon"></span>
                     </button>
                 }
