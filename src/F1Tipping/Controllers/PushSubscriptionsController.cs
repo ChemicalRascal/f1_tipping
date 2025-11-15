@@ -1,7 +1,8 @@
 ﻿using F1Tipping.Data;
+using F1Tipping.Platform;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using WebPush = Lib.Net.Http.WebPush;
 
 namespace F1Tipping.Controllers;
 
@@ -9,7 +10,8 @@ namespace F1Tipping.Controllers;
 [ApiController]
 public class PushSubscriptionsController(
     UserManager<IdentityUser<Guid>> userManager,
-    AppDbContext appDb
+    AppDbContext appDb,
+    PushNotificationsService pushNotifications
     ) : Controller
 {
     public class PushSubscriptionRequest
@@ -20,7 +22,8 @@ public class PushSubscriptionsController(
     }
 
     [HttpPost]
-    public async Task<ActionResult<PushSubscriptionRequest>> PostPushSubscription([FromBody] PushSubscriptionRequest request)
+    public async Task<ActionResult<PushSubscriptionRequest>>
+        PostPushSubscription([FromBody] PushSubscriptionRequest request)
     {
         // TODO: Refactor this into a base api controller class if a second api
         // controller is ndeeded. Or API-specific middleware?
@@ -30,7 +33,8 @@ public class PushSubscriptionsController(
             return Unauthorized();
         }
 
-        if ((await GetSubscriptionForEndpoint(user, request.DeviceEndpoint)) is not null)
+        if ((await pushNotifications.GetSubscriptionForEndpoint(
+            user, request.DeviceEndpoint)) is not null)
         {
             return Conflict("Endpoint subscription already exists.");
         }
@@ -51,7 +55,8 @@ public class PushSubscriptionsController(
     }
 
     [HttpDelete]
-    public async Task<ActionResult<PushSubscriptionRequest>> DeletePushSubscription([FromBody] PushSubscriptionRequest request)
+    public async Task<ActionResult<PushSubscriptionRequest>> DeletePushSubscription(
+        [FromBody] PushSubscriptionRequest request)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -59,7 +64,8 @@ public class PushSubscriptionsController(
             return Unauthorized();
         }
 
-        var sub = await GetSubscriptionForEndpoint(user, request.DeviceEndpoint);
+        var sub = await pushNotifications.GetSubscriptionForEndpoint(
+            user, request.DeviceEndpoint);
         if (sub is null)
         {
             // Is this an attack vector? The user has to be logged in, so I
@@ -90,8 +96,7 @@ public class PushSubscriptionsController(
             return Unauthorized();
         }
 
-        var sub = await GetSubscriptionForEndpoint(user, endpoint);
-
+        var sub = await pushNotifications.GetSubscriptionForEndpoint(user, endpoint);
         if (sub is null)
         {
             return Ok(false);
@@ -112,23 +117,22 @@ public class PushSubscriptionsController(
             return Unauthorized();
         }
 
-        return Ok(await UserHasSubscriptions(user));
+        return Ok(await pushNotifications.UserHasAnySubs(user));
     }
 
-    private async Task<PushSubscription?> GetSubscriptionForEndpoint(
-        IdentityUser<Guid> user,
-        string endpoint)
+    [HttpHead]
+    public async Task<ActionResult> HeadPushSubscription()
     {
-        return await appDb.UserPushNotificationSubscriptions
-            .FirstOrDefaultAsync(sub => 
-                sub.User.Id == user.Id
-                && sub.DeviceEndpoint == endpoint);
-    }
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
-    private async Task<bool> UserHasSubscriptions(
-        IdentityUser<Guid> user)
-    {
-        return await appDb.UserPushNotificationSubscriptions
-            .AnyAsync(sub => sub.User.Id == user.Id);
+        var pMessage = new WebPush.PushMessage("Debug Notification.");
+        pMessage.Urgency = WebPush.PushMessageUrgency.High;
+
+        await pushNotifications.SendNotificationToUser(user, pMessage);
+        return Ok();
     }
 }

@@ -2,8 +2,7 @@
 var ButtonDataset = document.querySelector(".notification-toggler").dataset;
 ButtonDataset.subState = "unknown";
 
-const pushApiPostUrl = "api/PushSubscriptions";
-const pushApiDeleteUrl = "api/PushSubscriptions";
+const pushApiMainUrl = "api/PushSubscriptions";
 const pushApiValidateUrl = "api/PushSubscriptions/validate";
 const pushApiCheckUrl = "api/PushSubscriptions/userHasSub";
 
@@ -138,7 +137,7 @@ async function _makeSubscriptionData() {
 async function _postSubscriptionToServer(sub) {
     return await $.ajax({
         method: "POST",
-        url: pushApiPostUrl,
+        url: pushApiMainUrl,
         data: JSON.stringify(
             {
                 DeviceEndpoint: sub.endpoint,
@@ -152,7 +151,7 @@ async function _postSubscriptionToServer(sub) {
 async function _purgeSubscriptionFromServer(sub) {
     return await $.ajax({
         method: "DELETE",
-        url: pushApiDeleteUrl,
+        url: pushApiMainUrl,
         data: JSON.stringify(
             {
                 DeviceEndpoint: sub.endpoint,
@@ -160,6 +159,13 @@ async function _purgeSubscriptionFromServer(sub) {
                 AuthSecret: _bufferToString(sub.getKey("auth")),
             }),
         contentType: "application/json; charset=utf-8",
+    });
+}
+
+async function _triggerDebugNotification() {
+    return await $.ajax({
+        method: "HEAD",
+        url: pushApiMainUrl,
     });
 }
 

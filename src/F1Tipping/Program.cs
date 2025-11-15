@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using F1Tipping.Controllers;
 using Lib.Net.Http.WebPush;
+using F1Tipping.Platform;
 
 namespace F1Tipping;
 
@@ -46,6 +47,7 @@ public class Program
         builder.Services.AddScoped<DataSeeder>();
         builder.Services.AddScoped<TipScoringService>();
         builder.Services.AddScoped<TipValidiationService>();
+        builder.Services.AddScoped<PushNotificationsService>();
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -97,48 +99,10 @@ public class Program
             using (var scope = app.Services.CreateScope())
             {
                 await SeedRolesAndUsers(scope, config);
-                await SpamNotifications(scope, config);
             }
         });
 
         app.Run();
-    }
-
-    private static async Task SpamNotifications(IServiceScope scope, ConfigurationManager config)
-    {
-        var appDb = scope.ServiceProvider.GetService<AppDbContext>();
-
-        var pushClient = new PushServiceClient();
-        pushClient.DefaultAuthentication = new(
-            config.GetValue<string>("Vapid:publicKey"),
-            config.GetValue<string>("Vapid:privateKey"))
-        {
-            Subject = config.GetValue<string>("Vapid:subject")
-        };
-
-        while (true)
-        {
-            var subs = await appDb!.GetPushSubscriptions(null);
-            foreach (var sub in subs)
-            {
-                var pSub = new Lib.Net.Http.WebPush.PushSubscription();
-                pSub.SetKey(PushEncryptionKeyName.P256DH, sub.PublicKey);
-                pSub.SetKey(PushEncryptionKeyName.Auth, sub.AuthSecret);
-                pSub.Endpoint = sub.DeviceEndpoint;
-
-                var pMessage = new PushMessage("Mate. Get your tips in.");
-                pMessage.Urgency = PushMessageUrgency.High;
-
-                try
-                {
-                    await pushClient.RequestPushMessageDeliveryAsync(pSub, pMessage);
-                }
-                catch (Exception ex)
-                {
-                }
-            }
-            Thread.Sleep(10 * 1000);
-        }
     }
 
     private static async Task SeedRolesAndUsers(
