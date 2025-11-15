@@ -419,7 +419,7 @@ namespace F1Tipping.Postgres.ModelMigrations
 
                             b1.HasKey("PlayerId");
 
-                            b1.ToTable("players");
+                            b1.ToTable("players", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PlayerId")
