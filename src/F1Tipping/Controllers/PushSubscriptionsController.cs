@@ -49,8 +49,8 @@ public class PushSubscriptionsController(
         };
 
         appDb.UserPushNotificationSubscriptions.Add(newPushSub);
-        await appDb.SaveChangesAsync();
 
+        await appDb.SaveChangesAsync();
         return Created();
     }
 
