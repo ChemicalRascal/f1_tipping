@@ -50,6 +50,37 @@ public class PushSubscriptionsController(
         return Created();
     }
 
+    [HttpDelete]
+    public async Task<ActionResult<PushSubscriptionRequest>> DeletePushSubscription([FromBody] PushSubscriptionRequest request)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var sub = await GetSubscriptionForEndpoint(user, request.DeviceEndpoint);
+        if (sub is null)
+        {
+            // Is this an attack vector? The user has to be logged in, so I
+            // seriously doubt it.
+            return NotFound();
+        }
+
+        if (sub.DeviceEndpoint != request.DeviceEndpoint
+            || sub.PublicKey != request.PublicKey
+            || sub.AuthSecret != request.AuthSecret)
+        {
+            // TODO: Add logging?
+            return NotFound();
+        }
+
+        appDb.UserPushNotificationSubscriptions.Remove(sub);
+        await appDb.SaveChangesAsync();
+
+        return Ok();
+    }
+
     [HttpGet("validate")]
     public async Task<ActionResult<bool>> EndpointIsRegistered(string endpoint)
     {
@@ -59,8 +90,6 @@ public class PushSubscriptionsController(
             return Unauthorized();
         }
 
-        //var sub = await appDb.UserPushNotificationSubscriptions
-        //    .FirstOrDefaultAsync(sub => sub.DeviceEndpoint == endpoint);
         var sub = await GetSubscriptionForEndpoint(user, endpoint);
 
         if (sub is null)
@@ -74,13 +103,32 @@ public class PushSubscriptionsController(
         return Ok(true);
     }
 
+    [HttpGet("userHasSub")]
+    public async Task<ActionResult<bool>> UserHasSub()
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        return Ok(await UserHasSubscriptions(user));
+    }
+
     private async Task<PushSubscription?> GetSubscriptionForEndpoint(
         IdentityUser<Guid> user,
         string endpoint)
     {
         return await appDb.UserPushNotificationSubscriptions
             .FirstOrDefaultAsync(sub => 
-            sub.User.Id == user.Id
-            && sub.DeviceEndpoint == endpoint);
+                sub.User.Id == user.Id
+                && sub.DeviceEndpoint == endpoint);
+    }
+
+    private async Task<bool> UserHasSubscriptions(
+        IdentityUser<Guid> user)
+    {
+        return await appDb.UserPushNotificationSubscriptions
+            .AnyAsync(sub => sub.User.Id == user.Id);
     }
 }

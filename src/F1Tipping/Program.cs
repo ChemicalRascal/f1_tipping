@@ -12,7 +12,7 @@ namespace F1Tipping;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         var config = builder.Configuration;
@@ -96,7 +96,7 @@ public class Program
         {
             using (var scope = app.Services.CreateScope())
             {
-                await SeedRolesAndUsers(scope);
+                await SeedRolesAndUsers(scope, config);
                 await SpamNotifications(scope, config);
             }
         });
@@ -118,7 +118,7 @@ public class Program
 
         while (true)
         {
-            var subs = await appDb.GetPushSubscriptions(null);
+            var subs = await appDb!.GetPushSubscriptions(null);
             foreach (var sub in subs)
             {
                 var pSub = new Lib.Net.Http.WebPush.PushSubscription();
@@ -141,7 +141,9 @@ public class Program
         }
     }
 
-    private static async Task SeedRolesAndUsers(IServiceScope scope)
+    private static async Task SeedRolesAndUsers(
+        IServiceScope scope,
+        ConfigurationManager config)
     {
         string[] roles = [ "Administrator", "Player", ];
         (string,string)[] coreAdmins = [ ("admin@denholm.dev", "adminpass") ];
