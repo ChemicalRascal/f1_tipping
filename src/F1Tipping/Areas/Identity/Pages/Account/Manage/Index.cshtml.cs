@@ -7,6 +7,7 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using F1Tipping.Common;
 using F1Tipping.Data;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +18,14 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 {
     public class IndexModel : BasePageModel
     {
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
-        private readonly SignInManager<IdentityUser<Guid>> _signInManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly ModelDbContext _modelDb;
 
         public IndexModel(
             IConfiguration configuration,
-            UserManager<IdentityUser<Guid>> userManager,
-            SignInManager<IdentityUser<Guid>> signInManager,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
             ModelDbContext modelDb
             ) : base(configuration)
         {
@@ -51,7 +52,7 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
             public string? DisplayName { get; set; }
         }
 
-        private async Task LoadAsync(IdentityUser<Guid> user)
+        private async Task LoadAsync(User user)
         {
             var userName = (await _userManager.GetUserNameAsync(user)) ?? string.Empty;
             var phoneNumber = (await _userManager.GetPhoneNumberAsync(user));
@@ -104,9 +105,9 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
             }
             else
             {
-                player.Details.FirstName = Input.FirstName.Trim();
-                player.Details.LastName = Input.LastName?.Trim().NullIfEmpty();
-                player.Details.DisplayName = Input.DisplayName?.Trim().NullIfEmpty();
+                player.Details.FirstName = Input!.FirstName.Trim();
+                player.Details.LastName = Input!.LastName?.Trim().NullIfEmpty();
+                player.Details.DisplayName = Input!.DisplayName?.Trim().NullIfEmpty();
                 _modelDb.Update(player);
                 await _modelDb.SaveChangesAsync();
             }

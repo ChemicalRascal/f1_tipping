@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using F1Tipping.Model.Tipping;
 using F1Tipping.Data;
+using F1Tipping.Data.AppModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using F1Tipping.PlayerData;
@@ -12,12 +13,12 @@ namespace F1Tipping.Pages.PlayerAdmin;
 public class IndexModel : BasePageModel
 {
     private readonly ModelDbContext _modelDb;
-    private readonly UserManager<IdentityUser<Guid>> _userManager;
+    private readonly UserManager<User> _userManager;
 
     public IndexModel(
         IConfiguration configuration,
         ModelDbContext modelDb,
-        UserManager<IdentityUser<Guid>> userManager
+        UserManager<User> userManager
         ) : base(configuration)
     {
         _modelDb = modelDb;

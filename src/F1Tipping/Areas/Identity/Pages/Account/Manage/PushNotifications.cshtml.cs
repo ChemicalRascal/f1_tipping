@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,12 +12,12 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage;
 
 public class PushNotificationsModel : BasePageModel
 {
-    private readonly UserManager<IdentityUser<Guid>> _userManager;
+    private readonly UserManager<User> _userManager;
     private readonly ILogger<PushNotificationsModel> _logger;
 
     public PushNotificationsModel(
         IConfiguration configuration,
-        UserManager<IdentityUser<Guid>> userManager,
+        UserManager<User> userManager,
         ILogger<PushNotificationsModel> logger
         ) : base(configuration)
     {

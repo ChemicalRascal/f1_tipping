@@ -1,4 +1,5 @@
 ﻿using F1Tipping.Data;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Platform;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,7 @@ namespace F1Tipping.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class PushSubscriptionsController(
-    UserManager<IdentityUser<Guid>> userManager,
+    UserManager<User> userManager,
     AppDbContext appDb,
     PushNotificationsService pushNotifications
     ) : Controller
@@ -48,6 +49,13 @@ public class PushSubscriptionsController(
             Created = DateTime.UtcNow,
         };
 
+        user.Settings.NotificationsSettings = new()
+        {
+            TipDeadlineStartOffset = new(),
+            NotifyForOldTips = true,
+            ScheduleType = NotificationsScheduleType.ExponentialDecay,
+        };
+
         appDb.UserPushNotificationSubscriptions.Add(newPushSub);
 
         await appDb.SaveChangesAsync();
@@ -82,6 +90,8 @@ public class PushSubscriptionsController(
         }
 
         appDb.UserPushNotificationSubscriptions.Remove(sub);
+        user.Settings.NotificationsSettings = null;
+
         await appDb.SaveChangesAsync();
 
         return Ok();

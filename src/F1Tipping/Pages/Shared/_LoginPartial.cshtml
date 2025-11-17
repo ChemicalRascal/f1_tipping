@@ -1,10 +1,11 @@
 ﻿@using F1Tipping.Data
+@using F1Tipping.Data.AppModel;
 @using F1Tipping.Model.Tipping
 @using F1Tipping.Platform
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore;
-@inject SignInManager<IdentityUser<Guid>> SignInManager
-@inject UserManager<IdentityUser<Guid>> UserManager
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
 @inject ModelDbContext ModelDb
 @inject AppDbContext AppDb
 

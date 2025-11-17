@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
 using F1Tipping.Data;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using F1Tipping.Platform;
 using Microsoft.AspNetCore.Authentication;
@@ -16,10 +17,10 @@ namespace F1Tipping.Areas.Identity.Pages.Account;
 
 public class RegisterModel : BasePageModel
 {
-    private readonly SignInManager<IdentityUser<Guid>> _signInManager;
-    private readonly UserManager<IdentityUser<Guid>> _userManager;
-    private readonly IUserStore<IdentityUser<Guid>> _userStore;
-    private readonly IUserEmailStore<IdentityUser<Guid>> _emailStore;
+    private readonly SignInManager<User> _signInManager;
+    private readonly UserManager<User> _userManager;
+    private readonly IUserStore<User> _userStore;
+    private readonly IUserEmailStore<User> _emailStore;
     private readonly ILogger<RegisterModel> _logger;
     private readonly IEmailSender _emailSender;
     private readonly ModelDbContext _modelDb;
@@ -27,9 +28,9 @@ public class RegisterModel : BasePageModel
 
     public RegisterModel(
         IConfiguration configuration,
-        UserManager<IdentityUser<Guid>> userManager,
-        IUserStore<IdentityUser<Guid>> userStore,
-        SignInManager<IdentityUser<Guid>> signInManager,
+        UserManager<User> userManager,
+        IUserStore<User> userStore,
+        SignInManager<User> signInManager,
         ILogger<RegisterModel> logger,
         IEmailSender emailSender,
         ModelDbContext modelDb,
@@ -142,26 +143,26 @@ public class RegisterModel : BasePageModel
         return Page();
     }
 
-    private IdentityUser<Guid> CreateUser()
+    private User CreateUser()
     {
         try
         {
-            return Activator.CreateInstance<IdentityUser<Guid>>();
+            return Activator.CreateInstance<User>();
         }
         catch
         {
-            throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser<Guid>)}'. " +
-                $"Ensure that '{nameof(IdentityUser<Guid>)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(User)}'. " +
+                $"Ensure that '{nameof(User)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                 $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
         }
     }
 
-    private IUserEmailStore<IdentityUser<Guid>> GetEmailStore()
+    private IUserEmailStore<User> GetEmailStore()
     {
         if (!_userManager.SupportsUserEmail)
         {
             throw new NotSupportedException("The default UI requires a user store with email support.");
         }
-        return (IUserEmailStore<IdentityUser<Guid>>)_userStore;
+        return (IUserEmailStore<User>)_userStore;
     }
 }

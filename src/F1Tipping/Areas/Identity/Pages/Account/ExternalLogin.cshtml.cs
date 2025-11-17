@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 
 namespace F1Tipping.Areas.Identity.Pages.Account;
@@ -20,18 +21,18 @@ namespace F1Tipping.Areas.Identity.Pages.Account;
 [AllowAnonymous]
 public class ExternalLoginModel : BasePageModel
 {
-    private readonly SignInManager<IdentityUser<Guid>> _signInManager;
-    private readonly UserManager<IdentityUser<Guid>> _userManager;
-    private readonly IUserStore<IdentityUser<Guid>> _userStore;
-    private readonly IUserEmailStore<IdentityUser<Guid>> _emailStore;
+    private readonly SignInManager<User> _signInManager;
+    private readonly UserManager<User> _userManager;
+    private readonly IUserStore<User> _userStore;
+    private readonly IUserEmailStore<User> _emailStore;
     private readonly IEmailSender _emailSender;
     private readonly ILogger<ExternalLoginModel> _logger;
 
     public ExternalLoginModel(
         IConfiguration configuration,
-        SignInManager<IdentityUser<Guid>> signInManager,
-        UserManager<IdentityUser<Guid>> userManager,
-        IUserStore<IdentityUser<Guid>> userStore,
+        SignInManager<User> signInManager,
+        UserManager<User> userManager,
+        IUserStore<User> userStore,
         ILogger<ExternalLoginModel> logger,
         IEmailSender emailSender
         ) : base(configuration)
@@ -172,26 +173,26 @@ public class ExternalLoginModel : BasePageModel
         return Page();
     }
 
-    private IdentityUser<Guid> CreateUser()
+    private User CreateUser()
     {
         try
         {
-            return Activator.CreateInstance<IdentityUser<Guid>>();
+            return Activator.CreateInstance<User>();
         }
         catch
         {
-            throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser<Guid>)}'. " +
-                $"Ensure that '{nameof(IdentityUser<Guid>)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(User)}'. " +
+                $"Ensure that '{nameof(User)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                 $"override the external login page in /Areas/Identity/Pages/Account/ExternalLogin.cshtml");
         }
     }
 
-    private IUserEmailStore<IdentityUser<Guid>> GetEmailStore()
+    private IUserEmailStore<User> GetEmailStore()
     {
         if (!_userManager.SupportsUserEmail)
         {
             throw new NotSupportedException("The default UI requires a user store with email support.");
         }
-        return (IUserEmailStore<IdentityUser<Guid>>)_userStore;
+        return (IUserEmailStore<User>)_userStore;
     }
 }

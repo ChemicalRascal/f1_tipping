@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 {
     public class EnableAuthenticatorModel : BasePageModel
     {
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<EnableAuthenticatorModel> _logger;
         private readonly UrlEncoder _urlEncoder;
 
@@ -27,7 +28,7 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 
         public EnableAuthenticatorModel(
             IConfiguration configuration,
-            UserManager<IdentityUser<Guid>> userManager,
+            UserManager<User> userManager,
             ILogger<EnableAuthenticatorModel> logger,
             UrlEncoder urlEncoder
             ) : base(configuration)
@@ -145,7 +146,7 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
             }
         }
 
-        private async Task LoadSharedKeyAndQrCodeUriAsync(IdentityUser<Guid> user)
+        private async Task LoadSharedKeyAndQrCodeUriAsync(User user)
         {
             // Load the authenticator key & QR code URI to display on the form
             var unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);

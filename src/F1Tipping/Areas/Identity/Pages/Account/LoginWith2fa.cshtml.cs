@@ -3,20 +3,21 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 
 namespace F1Tipping.Areas.Identity.Pages.Account
 {
     public class LoginWith2faModel : BasePageModel
     {
-        private readonly SignInManager<IdentityUser<Guid>> _signInManager;
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<LoginWith2faModel> _logger;
 
         public LoginWith2faModel(
             IConfiguration configuration,
-            SignInManager<IdentityUser<Guid>> signInManager,
-            UserManager<IdentityUser<Guid>> userManager,
+            SignInManager<User> signInManager,
+            UserManager<User> userManager,
             ILogger<LoginWith2faModel> logger
             ) : base(configuration)
         {

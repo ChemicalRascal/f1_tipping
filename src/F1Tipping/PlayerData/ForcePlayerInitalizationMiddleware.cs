@@ -1,4 +1,5 @@
 ﻿using F1Tipping.Data;
+using F1Tipping.Data.AppModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
@@ -22,7 +23,7 @@ namespace F1Tipping.PlayerData
         public async Task InvokeAsync(
             HttpContext context,
             ModelDbContext modelDb,
-            UserManager<IdentityUser<Guid>> userManager)
+            UserManager<User> userManager)
         {
             if (context.GetEndpoint()?.Metadata
                 ?.GetMetadata<PlayerMustBeInitalizedAttribute>() is not null

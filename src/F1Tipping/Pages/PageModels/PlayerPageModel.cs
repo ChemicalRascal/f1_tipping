@@ -1,5 +1,6 @@
 ﻿using AspNetCoreGeneratedDocument;
 using F1Tipping.Data;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Model.Tipping;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,7 +14,7 @@ namespace F1Tipping.Pages.PageModels
     [Authorize(Roles = "Player")]
     public abstract class PlayerPageModel : BasePageModel
     {
-        private UserManager<IdentityUser<Guid>> _userManager;
+        private UserManager<User> _userManager;
         private AppDbContext _appDb;
         protected ModelDbContext _modelDb;
 
@@ -21,7 +22,7 @@ namespace F1Tipping.Pages.PageModels
         // ensure that call is made after authentication in pipeline. Doing so
         // should allow us to just use normal properties here as well
         [BindProperty]
-        public IdentityUser<Guid>? AuthUser
+        public User? AuthUser
         { get { if (!_stateSet) { SetUserAsync(User).Wait(); }
                 return _authUser; } }
         [BindProperty]
@@ -30,12 +31,12 @@ namespace F1Tipping.Pages.PageModels
                 return _player; } }
 
         private bool _stateSet = false;
-        private IdentityUser<Guid>? _authUser;
+        private User? _authUser;
         private Player? _player;
 
         protected PlayerPageModel(
             IConfiguration configuration,
-            UserManager<IdentityUser<Guid>> userManager,
+            UserManager<User> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb
             ) : base(configuration)

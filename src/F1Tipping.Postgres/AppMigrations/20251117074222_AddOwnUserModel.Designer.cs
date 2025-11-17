@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace F1Tipping.Postgres.AppMigrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251115233346_AddUserExtraSettings")]
-    partial class AddUserExtraSettings
+    [Migration("20251117074222_AddOwnUserModel")]
+    partial class AddOwnUserModel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,145 +25,7 @@ namespace F1Tipping.Postgres.AppMigrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("F1Tipping.Data.PushSubscription", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AuthSecret")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("authsecret");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created");
-
-                    b.Property<string>("DeviceEndpoint")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("deviceendpoint");
-
-                    b.Property<DateTime?>("LastCheck")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("lastcheck");
-
-                    b.Property<string>("PublicKey")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("publickey");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("userid");
-
-                    b.HasKey("Id")
-                        .HasName("pk_userpushnotificationsubscriptions");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_userpushnotificationsubscriptions_userid");
-
-                    b.ToTable("userpushnotificationsubscriptions", (string)null);
-                });
-
-            modelBuilder.Entity("F1Tipping.Data.SystemSettings", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("RegistrationEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("registrationenabled");
-
-                    b.HasKey("Id")
-                        .HasName("pk_systemsettings");
-
-                    b.ToTable("systemsettings", (string)null);
-                });
-
-            modelBuilder.Entity("F1Tipping.Data.UserExtraSettings", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_userextrasettings");
-
-                    b.ToTable("userextrasettings", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text")
-                        .HasColumnName("concurrencystamp");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("normalizedname");
-
-                    b.HasKey("Id")
-                        .HasName("pk_aspnetroles");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
-
-                    b.ToTable("AspNetRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text")
-                        .HasColumnName("claimtype");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text")
-                        .HasColumnName("claimvalue");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("roleid");
-
-                    b.HasKey("Id")
-                        .HasName("pk_aspnetroleclaims");
-
-                    b.HasIndex("RoleId")
-                        .HasDatabaseName("ix_aspnetroleclaims_roleid");
-
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser<System.Guid>", b =>
+            modelBuilder.Entity("F1Tipping.Data.AppModel.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -242,6 +104,132 @@ namespace F1Tipping.Postgres.AppMigrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("F1Tipping.Data.PushSubscription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AuthSecret")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("authsecret");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<string>("DeviceEndpoint")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("deviceendpoint");
+
+                    b.Property<DateTime?>("LastCheck")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lastcheck");
+
+                    b.Property<string>("PublicKey")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("publickey");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("userid");
+
+                    b.HasKey("Id")
+                        .HasName("pk_userpushnotificationsubscriptions");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_userpushnotificationsubscriptions_userid");
+
+                    b.ToTable("userpushnotificationsubscriptions", (string)null);
+                });
+
+            modelBuilder.Entity("F1Tipping.Data.SystemSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("RegistrationEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("registrationenabled");
+
+                    b.HasKey("Id")
+                        .HasName("pk_systemsettings");
+
+                    b.ToTable("systemsettings", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text")
+                        .HasColumnName("concurrencystamp");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("normalizedname");
+
+                    b.HasKey("Id")
+                        .HasName("pk_aspnetroles");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text")
+                        .HasColumnName("claimtype");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text")
+                        .HasColumnName("claimvalue");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("roleid");
+
+                    b.HasKey("Id")
+                        .HasName("pk_aspnetroleclaims");
+
+                    b.HasIndex("RoleId")
+                        .HasDatabaseName("ix_aspnetroleclaims_roleid");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
@@ -348,55 +336,64 @@ namespace F1Tipping.Postgres.AppMigrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("F1Tipping.Data.AppModel.User", b =>
+                {
+                    b.OwnsOne("F1Tipping.Data.AppModel.UserSettings", "Settings", b1 =>
+                        {
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.HasKey("UserId");
+
+                            b1.ToTable("AspNetUsers");
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserId")
+                                .HasConstraintName("fk_aspnetusers_aspnetusers_id");
+
+                            b1.OwnsOne("F1Tipping.Data.AppModel.NotificationsSettings", "NotificationsSettings", b2 =>
+                                {
+                                    b2.Property<Guid>("UserSettingsUserId")
+                                        .HasColumnType("uuid")
+                                        .HasColumnName("id");
+
+                                    b2.Property<bool>("NotifyForOldTips")
+                                        .HasColumnType("boolean")
+                                        .HasColumnName("settings_notificationssettings_notifyforoldtips");
+
+                                    b2.Property<int>("ScheduleType")
+                                        .HasColumnType("integer")
+                                        .HasColumnName("settings_notificationssettings_scheduletype");
+
+                                    b2.Property<TimeSpan>("TipDeadlineStartOffset")
+                                        .HasColumnType("interval")
+                                        .HasColumnName("settings_notificationssettings_tipdeadlinestartoffset");
+
+                                    b2.HasKey("UserSettingsUserId");
+
+                                    b2.ToTable("AspNetUsers");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("UserSettingsUserId")
+                                        .HasConstraintName("fk_aspnetusers_aspnetusers_id");
+                                });
+
+                            b1.Navigation("NotificationsSettings");
+                        });
+
+                    b.Navigation("Settings")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("F1Tipping.Data.PushSubscription", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser<System.Guid>", "User")
+                    b.HasOne("F1Tipping.Data.AppModel.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_userpushnotificationsubscriptions_users_userid");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("F1Tipping.Data.UserExtraSettings", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser<System.Guid>", "User")
-                        .WithMany()
-                        .HasForeignKey("Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_userextrasettings_users_id");
-
-                    b.OwnsOne("F1Tipping.Data.NotificationsSettings", "NotificationsSettings", b1 =>
-                        {
-                            b1.Property<Guid>("UserExtraSettingsId")
-                                .HasColumnType("uuid")
-                                .HasColumnName("id");
-
-                            b1.Property<bool>("NotifyForOldTips")
-                                .HasColumnType("boolean")
-                                .HasColumnName("notificationssettings_notifyforoldtips");
-
-                            b1.Property<int>("ScheduleType")
-                                .HasColumnType("integer")
-                                .HasColumnName("notificationssettings_scheduletype");
-
-                            b1.Property<TimeSpan>("TipDeadlineStartOffset")
-                                .HasColumnType("interval")
-                                .HasColumnName("notificationssettings_tipdeadlinestartoffset");
-
-                            b1.HasKey("UserExtraSettingsId");
-
-                            b1.ToTable("userextrasettings");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserExtraSettingsId")
-                                .HasConstraintName("fk_userextrasettings_userextrasettings_id");
-                        });
-
-                    b.Navigation("NotificationsSettings");
 
                     b.Navigation("User");
                 });
@@ -413,7 +410,7 @@ namespace F1Tipping.Postgres.AppMigrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser<System.Guid>", null)
+                    b.HasOne("F1Tipping.Data.AppModel.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -423,7 +420,7 @@ namespace F1Tipping.Postgres.AppMigrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser<System.Guid>", null)
+                    b.HasOne("F1Tipping.Data.AppModel.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -440,7 +437,7 @@ namespace F1Tipping.Postgres.AppMigrations
                         .IsRequired()
                         .HasConstraintName("fk_aspnetuserroles_aspnetroles_roleid");
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser<System.Guid>", null)
+                    b.HasOne("F1Tipping.Data.AppModel.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -450,7 +447,7 @@ namespace F1Tipping.Postgres.AppMigrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser<System.Guid>", null)
+                    b.HasOne("F1Tipping.Data.AppModel.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using F1Tipping.Data;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,14 +15,14 @@ namespace F1Tipping.Pages.Admin.Users
         private readonly ILogger<IndexModel> _logger;
         private readonly AppDbContext _appDb;
         private readonly ModelDbContext _modelDb;
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
+        private readonly UserManager<User> _userManager;
 
         public IndexModel(
             IConfiguration configuration,
             ILogger<IndexModel> logger,
             AppDbContext appDb,
             ModelDbContext modelDb,
-            UserManager<IdentityUser<Guid>> userManager
+            UserManager<User> userManager
             ) : base(configuration)
         {
             _logger = logger;
@@ -48,7 +49,7 @@ namespace F1Tipping.Pages.Admin.Users
                 return new UserIndexEntry
                 {
                     User = u,
-                    Roles = roles.Join(
+                    Roles = roles.Select(r => r).Join(
                         userRoles.Where(ur => ur.UserId == u.Id),
                         role => role.Id,
                         userRole => userRole.RoleId,
@@ -161,7 +162,7 @@ namespace F1Tipping.Pages.Admin.Users
 
         public class UserIndexEntry
         {
-            public required IdentityUser<Guid> User { get; set; }
+            public required User User { get; set; }
             public IList<IdentityRole<Guid>> Roles { get; set; } = default!;
             public Guid? PlayerId { get; set; }
             [Display(Name="Player")]

@@ -5,6 +5,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,13 +15,13 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage;
 
 public class SetPasswordModel : BasePageModel
 {
-    private readonly UserManager<IdentityUser<Guid>> _userManager;
-    private readonly SignInManager<IdentityUser<Guid>> _signInManager;
+    private readonly UserManager<User> _userManager;
+    private readonly SignInManager<User> _signInManager;
 
     public SetPasswordModel(
         IConfiguration configuration,
-        UserManager<IdentityUser<Guid>> userManager,
-        SignInManager<IdentityUser<Guid>> signInManager
+        UserManager<User> userManager,
+        SignInManager<User> signInManager
         ) : base(configuration)
     {
         _userManager = userManager;

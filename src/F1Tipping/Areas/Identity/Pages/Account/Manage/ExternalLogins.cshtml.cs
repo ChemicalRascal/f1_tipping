@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -17,15 +18,15 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 {
     public class ExternalLoginsModel : BasePageModel
     {
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
-        private readonly SignInManager<IdentityUser<Guid>> _signInManager;
-        private readonly IUserStore<IdentityUser<Guid>> _userStore;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly IUserStore<User> _userStore;
 
         public ExternalLoginsModel(
             IConfiguration configuration,
-            UserManager<IdentityUser<Guid>> userManager,
-            SignInManager<IdentityUser<Guid>> signInManager,
-            IUserStore<IdentityUser<Guid>> userStore
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            IUserStore<User> userStore
             ) : base(configuration)
         {
             _userManager = userManager;
@@ -72,7 +73,7 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
                 .ToList();
 
             string passwordHash = null;
-            if (_userStore is IUserPasswordStore<IdentityUser<Guid>> userPasswordStore)
+            if (_userStore is IUserPasswordStore<User> userPasswordStore)
             {
                 passwordHash = await userPasswordStore.GetPasswordHashAsync(user, HttpContext.RequestAborted);
             }

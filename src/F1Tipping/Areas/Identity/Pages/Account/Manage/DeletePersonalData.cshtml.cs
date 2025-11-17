@@ -1,6 +1,7 @@
 ﻿#nullable disable
 
 using System.ComponentModel.DataAnnotations;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,14 +10,14 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 {
     public class DeletePersonalDataModel : BasePageModel
     {
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
-        private readonly SignInManager<IdentityUser<Guid>> _signInManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly ILogger<DeletePersonalDataModel> _logger;
 
         public DeletePersonalDataModel(
             IConfiguration configuration,
-            UserManager<IdentityUser<Guid>> userManager,
-            SignInManager<IdentityUser<Guid>> signInManager,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
             ILogger<DeletePersonalDataModel> logger
             ) : base(configuration)
         {

@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -18,14 +19,14 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 {
     public class EmailModel : BasePageModel
     {
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
-        private readonly SignInManager<IdentityUser<Guid>> _signInManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly IEmailSender _emailSender;
 
         public EmailModel(
             IConfiguration configuration,
-            UserManager<IdentityUser<Guid>> userManager,
-            SignInManager<IdentityUser<Guid>> signInManager,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
             IEmailSender emailSender
             ) : base(configuration)
         {
@@ -76,7 +77,7 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
             public string NewEmail { get; set; }
         }
 
-        private async Task LoadAsync(IdentityUser<Guid> user)
+        private async Task LoadAsync(User user)
         {
             var email = await _userManager.GetEmailAsync(user);
             Email = email;

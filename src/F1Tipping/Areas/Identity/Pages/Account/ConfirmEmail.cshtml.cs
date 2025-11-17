@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using F1Tipping.Pages.PageModels;
+using F1Tipping.Data.AppModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -8,11 +9,11 @@ namespace F1Tipping.Areas.Identity.Pages.Account;
 
 public class ConfirmEmailModel : BasePageModel
 {
-    private readonly UserManager<IdentityUser<Guid>> _userManager;
+    private readonly UserManager<User> _userManager;
 
     public ConfirmEmailModel(
         IConfiguration configuration,
-        UserManager<IdentityUser<Guid>> userManager
+        UserManager<User> userManager
         ) : base(configuration)
     {
         _userManager = userManager;

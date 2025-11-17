@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,14 +11,14 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage;
 
 public class TwoFactorAuthenticationModel : BasePageModel
 {
-    private readonly UserManager<IdentityUser<Guid>> _userManager;
-    private readonly SignInManager<IdentityUser<Guid>> _signInManager;
+    private readonly UserManager<User> _userManager;
+    private readonly SignInManager<User> _signInManager;
     private readonly ILogger<TwoFactorAuthenticationModel> _logger;
 
     public TwoFactorAuthenticationModel(
         IConfiguration configuration,
-        UserManager<IdentityUser<Guid>> userManager,
-        SignInManager<IdentityUser<Guid>> signInManager,
+        UserManager<User> userManager,
+        SignInManager<User> signInManager,
         ILogger<TwoFactorAuthenticationModel> logger
         ) : base(configuration)
     {

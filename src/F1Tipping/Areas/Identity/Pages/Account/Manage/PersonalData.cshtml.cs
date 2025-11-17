@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 using System;
 using System.Threading.Tasks;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +13,12 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 {
     public class PersonalDataModel : BasePageModel
     {
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<PersonalDataModel> _logger;
 
         public PersonalDataModel(
             IConfiguration configuration,
-            UserManager<IdentityUser<Guid>> userManager,
+            UserManager<User> userManager,
             ILogger<PersonalDataModel> logger
             ) : base(configuration)
         {

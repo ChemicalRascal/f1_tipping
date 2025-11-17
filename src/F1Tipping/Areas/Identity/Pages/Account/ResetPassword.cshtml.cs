@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Threading.Tasks;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,11 +16,11 @@ namespace F1Tipping.Areas.Identity.Pages.Account;
 
 public class ResetPasswordModel : BasePageModel
 {
-    private readonly UserManager<IdentityUser<Guid>> _userManager;
+    private readonly UserManager<User> _userManager;
 
     public ResetPasswordModel(
         IConfiguration configuration,
-        UserManager<IdentityUser<Guid>> userManager
+        UserManager<User> userManager
         ) : base(configuration)
     {
         _userManager = userManager;

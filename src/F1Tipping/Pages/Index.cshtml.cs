@@ -1,4 +1,5 @@
 using F1Tipping.Data;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using F1Tipping.PlayerData;
 using F1Tipping.Tipping;
@@ -12,7 +13,7 @@ public class IndexModel : BasePageModel
 {
     private readonly ILogger<IndexModel> _logger;
     private readonly ModelDbContext _modelDb;
-    private readonly UserManager<IdentityUser<Guid>> _userManager;
+    private readonly UserManager<User> _userManager;
 
     [BindProperty]
     public Type? MainViewComponent { get; set; } = default;
@@ -29,7 +30,7 @@ public class IndexModel : BasePageModel
         IConfiguration configuration,
         ILogger<IndexModel> logger,
         ModelDbContext modelDb,
-        UserManager<IdentityUser<Guid>> userManager
+        UserManager<User> userManager
         ) : base(configuration)
     {
         _logger = logger;
@@ -42,7 +43,7 @@ public class IndexModel : BasePageModel
         WelcomeTitle = "Welcome to the F1 Tipping Competition!";
         NextEventDeadline = await DeadlineService.GetNextDeadlineAsync(_modelDb);
 
-        IdentityUser<Guid>? dbUser = null;
+        User? dbUser = null;
         if (User is not null)
         {
             dbUser = await _userManager.GetUserAsync(User);

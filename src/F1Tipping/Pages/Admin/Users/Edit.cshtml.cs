@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using F1Tipping.Data;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using System.Net;
@@ -10,12 +11,12 @@ namespace F1Tipping.Pages.Admin.Users
     public class EditModel : AdminPageModel
     {
         private readonly AppDbContext _appDb;
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
+        private readonly UserManager<User> _userManager;
 
         public EditModel(
             IConfiguration configuration,
             AppDbContext appDb,
-            UserManager<IdentityUser<Guid>> userManager
+            UserManager<User> userManager
             ) : base(configuration)
         {
             _appDb = appDb;

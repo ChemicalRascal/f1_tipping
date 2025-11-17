@@ -1,4 +1,5 @@
 using F1Tipping.Data;
+using F1Tipping.Data.AppModel;
 using F1Tipping.PlayerData;
 using F1Tipping.Tipping;
 using Microsoft.AspNetCore.Identity;
@@ -51,7 +52,7 @@ public class Program
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-        builder.Services.AddDefaultIdentity<IdentityUser<Guid>>(options =>
+        builder.Services.AddDefaultIdentity<User>(options =>
         {
             options.SignIn.RequireConfirmedAccount = true;
             options.Password.RequireUppercase = false;
@@ -113,7 +114,7 @@ public class Program
         (string,string)[] coreAdmins = [ ("admin@denholm.dev", "adminpass") ];
 
         var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
-        var userManager = scope.ServiceProvider.GetService<UserManager<IdentityUser<Guid>>>();
+        var userManager = scope.ServiceProvider.GetService<UserManager<User>>();
 
         foreach (var role in roles)
         {
@@ -130,7 +131,7 @@ public class Program
             if (user is null)
             {
                 var userResult = await userManager.CreateAsync(
-                    new IdentityUser<Guid>(email)
+                    new User(email)
                     {
                         Email = email,
                         EmailConfirmed = true,

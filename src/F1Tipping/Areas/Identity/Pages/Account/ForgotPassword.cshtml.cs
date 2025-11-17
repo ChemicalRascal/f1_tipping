@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -19,12 +20,12 @@ namespace F1Tipping.Areas.Identity.Pages.Account
 {
     public class ForgotPasswordModel : BasePageModel
     {
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly IEmailSender _emailSender;
 
         public ForgotPasswordModel(
             IConfiguration configuration,
-            UserManager<IdentityUser<Guid>> userManager,
+            UserManager<User> userManager,
             IEmailSender emailSender
             ) : base(configuration)
         {

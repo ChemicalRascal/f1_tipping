@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using F1Tipping.Model.Tipping;
 using F1Tipping.Data;
+using F1Tipping.Data.AppModel;
 using Microsoft.EntityFrameworkCore;
 using F1Tipping.Model;
 using F1Tipping.Pages.PageModels;
@@ -16,11 +17,11 @@ namespace F1Tipping.Pages.Admin.ResultsReporting
     {
         private ModelDbContext _modelDb;
         private AppDbContext _appDb;
-        private UserManager<IdentityUser<Guid>> _userManager;
+        private UserManager<User> _userManager;
 
         public IndexModel(
             IConfiguration configuration,
-            UserManager<IdentityUser<Guid>> userManager,
+            UserManager<User> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb
             ) : base(configuration)

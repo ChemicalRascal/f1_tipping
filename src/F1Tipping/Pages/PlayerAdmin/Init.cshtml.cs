@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using F1Tipping.Data;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
-using F1Tipping.Data;
 using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
 
@@ -11,7 +12,7 @@ namespace F1Tipping.Pages.PlayerAdmin
     {
         public InitModel(
             IConfiguration configuration,
-            UserManager<IdentityUser<Guid>> userManager,
+            UserManager<User> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb
             ) : base(configuration, userManager, appDb, modelDb)

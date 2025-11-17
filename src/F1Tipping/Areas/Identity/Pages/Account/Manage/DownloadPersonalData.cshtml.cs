@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +19,12 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 {
     public class DownloadPersonalDataModel : BasePageModel
     {
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<DownloadPersonalDataModel> _logger;
 
         public DownloadPersonalDataModel(
             IConfiguration configuration,
-            UserManager<IdentityUser<Guid>> userManager,
+            UserManager<User> userManager,
             ILogger<DownloadPersonalDataModel> logger
             ) : base(configuration)
         {
@@ -48,7 +49,7 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage
 
             // Only include personal data for download
             var personalData = new Dictionary<string, string>();
-            var personalDataProps = typeof(IdentityUser<Guid>).GetProperties().Where(
+            var personalDataProps = typeof(User).GetProperties().Where(
                             prop => Attribute.IsDefined(prop, typeof(PersonalDataAttribute)));
             foreach (var p in personalDataProps)
             {

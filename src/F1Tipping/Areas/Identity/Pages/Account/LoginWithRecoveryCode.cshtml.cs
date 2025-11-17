@@ -1,6 +1,7 @@
 ﻿#nullable disable
 
 using System.ComponentModel.DataAnnotations;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,14 +10,14 @@ namespace F1Tipping.Areas.Identity.Pages.Account
 {
     public class LoginWithRecoveryCodeModel : BasePageModel
     {
-        private readonly SignInManager<IdentityUser<Guid>> _signInManager;
-        private readonly UserManager<IdentityUser<Guid>> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<LoginWithRecoveryCodeModel> _logger;
 
         public LoginWithRecoveryCodeModel(
             IConfiguration configuration,
-            SignInManager<IdentityUser<Guid>> signInManager,
-            UserManager<IdentityUser<Guid>> userManager,
+            SignInManager<User> signInManager,
+            UserManager<User> userManager,
             ILogger<LoginWithRecoveryCodeModel> logger
             ) : base(configuration)
         {

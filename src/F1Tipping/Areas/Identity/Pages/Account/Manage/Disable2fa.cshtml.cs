@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +13,12 @@ namespace F1Tipping.Areas.Identity.Pages.Account.Manage;
 
 public class Disable2faModel : BasePageModel
 {
-    private readonly UserManager<IdentityUser<Guid>> _userManager;
+    private readonly UserManager<User> _userManager;
     private readonly ILogger<Disable2faModel> _logger;
 
     public Disable2faModel(
         IConfiguration configuration,
-        UserManager<IdentityUser<Guid>> userManager,
+        UserManager<User> userManager,
         ILogger<Disable2faModel> logger
         ) : base(configuration)
     {

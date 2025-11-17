@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 using F1Tipping.Model;
 using F1Tipping.Common;
@@ -18,11 +19,11 @@ namespace F1Tipping.Pages.Admin.ResultsReporting
     {
         private ModelDbContext _modelDb;
         private AppDbContext _appDb;
-        private UserManager<IdentityUser<Guid>> _userManager;
+        private UserManager<User> _userManager;
 
         public EventModel(
             IConfiguration configuration,
-            UserManager<IdentityUser<Guid>> userManager,
+            UserManager<User> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb)
             : base(configuration)

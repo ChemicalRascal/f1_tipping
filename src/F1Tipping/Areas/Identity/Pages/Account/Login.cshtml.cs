@@ -14,18 +14,19 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Pages.PageModels;
 
 namespace F1Tipping.Areas.Identity.Pages.Account
 {
     public class LoginModel : BasePageModel
     {
-        private readonly SignInManager<IdentityUser<Guid>> _signInManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly ILogger<LoginModel> _logger;
 
         public LoginModel(
             IConfiguration configuration,
-            SignInManager<IdentityUser<Guid>> signInManager,
+            SignInManager<User> signInManager,
             ILogger<LoginModel> logger
             ) : base(configuration)
         {

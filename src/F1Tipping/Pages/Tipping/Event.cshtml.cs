@@ -1,5 +1,6 @@
 using F1Tipping.Common;
 using F1Tipping.Data;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Model;
 using F1Tipping.Model.Tipping;
 using F1Tipping.Pages.PageModels;
@@ -22,7 +23,7 @@ namespace F1Tipping.Pages.Tipping
 
         public EventModel(
             IConfiguration configuration,
-            UserManager<IdentityUser<Guid>> userManager,
+            UserManager<User> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb,
             TipValidiationService tipsValidation,

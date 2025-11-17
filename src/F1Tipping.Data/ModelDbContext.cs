@@ -1,7 +1,7 @@
 ﻿using F1Tipping.Common;
+using F1Tipping.Data.AppModel;
 using F1Tipping.Model;
 using F1Tipping.Model.Tipping;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Reflection;
@@ -76,7 +76,7 @@ namespace F1Tipping.Data
                 dbVal => new Year(dbVal)) { }
         }
 
-        public async Task<bool> CreatePlayerIfNeededAsync(IdentityUser<Guid> user)
+        public async Task<bool> CreatePlayerIfNeededAsync(User user)
         {
             if (await Players.SingleOrDefaultAsync(p => p.AuthUserId == user.Id) is null)
             {

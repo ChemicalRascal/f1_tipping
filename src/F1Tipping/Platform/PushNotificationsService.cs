@@ -1,5 +1,5 @@
 ﻿using F1Tipping.Data;
-using Microsoft.AspNetCore.Identity;
+using F1Tipping.Data.AppModel;
 using Microsoft.EntityFrameworkCore;
 using WebPush = Lib.Net.Http.WebPush;
 
@@ -18,7 +18,7 @@ public class PushNotificationsService(AppDbContext appDb, IConfiguration config)
     };
 
     public async Task SendNotificationToUser(
-        IdentityUser<Guid> user, WebPush.PushMessage pMessage)
+        User user, WebPush.PushMessage pMessage)
     {
         if (user is null)
         {
@@ -31,7 +31,7 @@ public class PushNotificationsService(AppDbContext appDb, IConfiguration config)
         }
     }
 
-    public async Task<bool> UserHasAnySubs(IdentityUser<Guid> user)
+    public async Task<bool> UserHasAnySubs(User user)
     {
         if (user is null)
         {
@@ -42,7 +42,7 @@ public class PushNotificationsService(AppDbContext appDb, IConfiguration config)
     }
 
     public async Task<PushSubscription?> GetSubscriptionForEndpoint(
-        IdentityUser<Guid> user,
+        User user,
         string endpoint)
     {
         if (user is null)
@@ -54,7 +54,7 @@ public class PushNotificationsService(AppDbContext appDb, IConfiguration config)
             sub => sub.DeviceEndpoint == endpoint);
     }
 
-    private IQueryable<PushSubscription> PushSubscriptions(IdentityUser<Guid> user)
+    private IQueryable<PushSubscription> PushSubscriptions(User user)
     {
         return appDb.UserPushNotificationSubscriptions
             .Where(sub => sub.User.Id == user.Id);
