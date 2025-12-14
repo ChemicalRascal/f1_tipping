@@ -3,7 +3,7 @@ root = true
 
 # Guidelines
 [*]
-guidelines = 80
+guidelines = 120
 
 # C# files
 [*.cs]

@@ -5,9 +5,12 @@ using WebPush = Lib.Net.Http.WebPush;
 
 namespace F1Tipping.Platform;
 
-public class PushNotificationsService(AppDbContext appDb, IConfiguration config)
+public class PushNotificationsService(
+    AppDbContext appDb,
+    IConfiguration config,
+    ILogger<PushNotificationsService> logger)
 {
-    private WebPush.PushServiceClient client = new()
+    private readonly WebPush.PushServiceClient client = new()
     {
         DefaultAuthentication = new(
             config.GetValue<string>("Vapid:publicKey"),
@@ -17,38 +20,35 @@ public class PushNotificationsService(AppDbContext appDb, IConfiguration config)
         },
     };
 
-    public async Task SendNotificationToUser(
+    public IQueryable<User> GetUsersWithPushSubs()
+    {
+        return appDb.UserPushNotificationSubscriptions
+            .Select(x => x.User).Distinct();
+    }
+
+    public async Task SendNotificationToUserAsync(
         User user, WebPush.PushMessage pMessage)
     {
-        if (user is null)
-        {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
 
         foreach (var sub in PushSubscriptions(user))
         {
-            await SendNotification(sub, pMessage);
+            await SendNotificationAsync(sub, pMessage);
         }
     }
 
-    public async Task<bool> UserHasAnySubs(User user)
+    public async Task<bool> UserHasAnySubsAsync(User user)
     {
-        if (user is null)
-        {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
 
         return await PushSubscriptions(user).AnyAsync();
     }
 
-    public async Task<PushSubscription?> GetSubscriptionForEndpoint(
+    public async Task<PushSubscription?> GetSubscriptionForEndpointAsync(
         User user,
         string endpoint)
     {
-        if (user is null)
-        {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
 
         return await PushSubscriptions(user).FirstOrDefaultAsync(
             sub => sub.DeviceEndpoint == endpoint);
@@ -60,7 +60,9 @@ public class PushNotificationsService(AppDbContext appDb, IConfiguration config)
             .Where(sub => sub.User.Id == user.Id);
     }
 
-    private async Task SendNotification(PushSubscription sub, WebPush.PushMessage pMessage)
+    private async Task SendNotificationAsync(
+        PushSubscription sub,
+        WebPush.PushMessage pMessage)
     {
         var pSub = new WebPush.PushSubscription();
         pSub.SetKey(WebPush.PushEncryptionKeyName.P256DH, sub.PublicKey);
@@ -71,9 +73,13 @@ public class PushNotificationsService(AppDbContext appDb, IConfiguration config)
         {
             await client.RequestPushMessageDeliveryAsync(pSub, pMessage);
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            // TODO: Do logging here!
+            // TODO: Validate that these logs go somewhere useful
+            if (logger?.IsEnabled(LogLevel.Error) ?? false)
+            {
+                logger.LogError(e, "Exception on sub ID: {}", sub.Id);
+            }
         }
     }
 }

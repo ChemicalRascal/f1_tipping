@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using F1Tipping.Controllers;
 using Lib.Net.Http.WebPush;
 using F1Tipping.Platform;
+using Quartz;
+using F1Tipping.Jobs;
 
 namespace F1Tipping;
 
@@ -21,7 +23,7 @@ public class Program
 
         // Database setup, dependent on --provider cli arg
         var provider = config.GetValue("provider", Provider.SqlServer.Name);
-        Action<DbContextOptionsBuilder> doDatabaseSetup = options =>
+        void doDatabaseSetup(DbContextOptionsBuilder options)
         {
             if (provider == Provider.SqlServer.Name)
             {
@@ -41,14 +43,25 @@ public class Program
             {
                 throw new NotImplementedException();
             }
-        };
+        }
         builder.Services.AddDbContext<AppDbContext>(doDatabaseSetup);
         builder.Services.AddDbContext<ModelDbContext>(doDatabaseSetup);
 
         builder.Services.AddScoped<DataSeeder>();
+        builder.Services.AddScoped<RoundDataService>();
+        builder.Services.AddScoped<RoundOrchestrationService>();
         builder.Services.AddScoped<TipScoringService>();
         builder.Services.AddScoped<TipValidiationService>();
         builder.Services.AddScoped<PushNotificationsService>();
+        builder.Services.AddScoped<NotificationScheduleService>();
+
+        builder.Services.AddQuartz(q =>
+        {
+            q.RegisterCronJobs();
+        });
+
+        builder.Services.AddHostedService<JobScheduleService>();
+        builder.Services.AddHostedService<RoundOrchestrationServiceStarter>();
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -99,6 +112,7 @@ public class Program
         {
             using (var scope = app.Services.CreateScope())
             {
+                // Make this an IHostedService
                 await SeedRolesAndUsers(scope, config);
             }
         });
@@ -148,7 +162,7 @@ public class Program
             }
         }
 
-        void throwOnFailure(IdentityResult? result)
+        static void throwOnFailure(IdentityResult? result)
         {
             if ((!result?.Succeeded) ?? true)
             {

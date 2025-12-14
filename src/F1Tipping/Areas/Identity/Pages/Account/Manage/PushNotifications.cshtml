@@ -5,17 +5,134 @@
     ViewData["ActivePage"] = ManageNavPages.PushNotifications;
 }
 
+@using F1Tipping.Common;
+@using F1Tipping.Data.AppModel;
+
 <h3>@ViewData["Title"]</h3>
-<partial name="_StatusMessage" for="StatusMessage" />
 <div class="row">
     <div class="col-md-6">
-        <form id="change-password-form" method="post">
+        <partial name="_StatusMessage" for="StatusMessage" />
+        @if (Model.Input.NotificationsEnabled)
+        {
+            <form id="push-notification-disable-form" method="post">
+                <input asp-for="Input.NotificationsEnabled" value="false" type="hidden" />
+                <button type="submit" class="w-100 btn btn-lg btn-danger">Disable Notifications</button>
+            </form>
+        }
+        <form id="push-notification-settings-form" method="post">
+            <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+            <input asp-for="Input.NotificationsEnabled" value="true" type="hidden" />
+            <div class="row">
+                <div class="form-floating mb-3 col-6">
+                    <input asp-for="Input.TipDeadlineStartOffset" type="text" class="form-control" />
+                    <label asp-for="Input.TipDeadlineStartOffset" class="form-label"></label>
+                    <span asp-validation-for="Input.TipDeadlineStartOffset" class="text-danger" />
+                    @*TODO: RE-IMPLEMENT THE SLIDERS*@
+                    @*<input type="range" class="own-form-range" id="DeadlineSlider" name="DeadlineSlider" list="timevalues" /> <datalist id="timevalues" class="tick-labels"> <option />
+                        @{
+                            //Hackiest goddamn hunka junk bullshit
+                            var val = 1;
+                            foreach (var opt in (List<PushNotificationsModel.TimeOption>?)ViewData["StartOptions"] ?? [])
+                            {
+                                if (opt.IsDefault)
+                                {
+                                    <option value="@(val++)" label="@(opt.Label)" data-time="@(opt.Time)" data-default />
+                                }
+                                <option value="@(val++)" label="@(opt.Label)" data-time="@(opt.Time)" />
+                            }
+                        }
+                        <option />
+                    </datalist>*@
+                </div>
+                <div class="form-floating mb-3 col-md-6">
+                    <input asp-for="Input.MinimumTimeBetweenNotifications" type="text" class="form-control" />
+                    <label asp-for="Input.MinimumTimeBetweenNotifications" class="form-label"></label>
+                    <span asp-validation-for="Input.MinimumTimeBetweenNotifications" class="text-danger" />
+                </div>
+            </div>
+            <div class="form-floating mb-3">
+                <select
+                    asp-for="Input.ScheduleType"
+                    class="form-control"
+                    asp-items="@(new SelectList(NotificationsScheduleType.ToSelectList(), "Value", "Text"))">
+                </select>
+                <label asp-for="Input.ScheduleType" class="form-label"></label>
+                <span asp-validation-for="Input.ScheduleType" class="text-danger"></span>
+                @* Self-hiding help text goes here *@
+            </div>
+            <div class="form-check mb-3">
+                <input asp-for="Input.NotifyForOldTips" type="checkbox" class="form-control form-check-input" placeholder="Notify if your tips are old?" />
+                <label asp-for="Input.NotifyForOldTips" class="form-label"></label>
+                <span asp-validation-for="Input.NotifyForOldTips" class="text-danger"></span>
+            </div>
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Do A Thing</button>
+            <button type="submit" class="w-100 btn btn-lg btn-primary">
+                @(Model.Input.NotificationsEnabled ? "Update Settings" : "Enable Notifications")
+            </button>
         </form>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        SetOffset = (value) =>
+        {
+            const time = GetTimeForValue(value);
+            if (time !== undefined)
+            {
+                offsetInput.value = time;
+            }
+        };
+
+        GetTimeForValue = (value) =>
+        {
+            const opt = sliderOpts.find((o, _, _1) => o.value === value);
+
+            if (opt !== undefined)
+            {
+                return opt.dataset["time"];
+            }
+            return undefined;
+        }
+
+        SetSlider = (time) => {
+            // TODO
+            slider.value = 0;
+        };
+        GetValueForTime = (time) => {
+            // TODO
+            return 0;
+        };
+
+        const offsetInput = document.getElementById("Input_TipDeadlineStartOffset");
+        const slider = document.getElementById("DeadlineSlider");
+        const sliderOpts = Array.from(document.getElementById("timevalues").children);
+        const sliderValues = sliderOpts.map(opt => opt.value)
+                                        .filter(val => val !== "")
+                                        .map(val => Number(val));
+        const definedTimes = sliderOpts.map(opt => opt.dataset["time"]);
+
+        slider.min = sliderValues.reduce((min, val) => min > val ? val : min) - 1;
+        slider.max = sliderValues.reduce((max, val) => max < val ? val : max) + 1;
+        slider.onchange = (_ => {
+            slider.value = slider.value > slider.max - 1 ? slider.max - 1 : slider.value;
+            slider.value = slider.value < slider.min + 1 ? slider.min + 1 : slider.value;
+            SetOffset(slider.value)
+        });
+
+        offsetInput.onchange = (_ => {
+            SetSlider(offsetInput.value);
+        });
+
+        if (offsetInput.value === "")
+        {
+            slider.value = sliderOpts.find(opt => "default" in opt.dataset).value;
+        }
+        else
+        {
+            // TODO: Parse .NET TimeSpan
+            slider.value = 0;
+        }
+    </script>
 }

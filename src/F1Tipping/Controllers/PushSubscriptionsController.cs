@@ -34,7 +34,7 @@ public class PushSubscriptionsController(
             return Unauthorized();
         }
 
-        if ((await pushNotifications.GetSubscriptionForEndpoint(
+        if ((await pushNotifications.GetSubscriptionForEndpointAsync(
             user, request.DeviceEndpoint)) is not null)
         {
             return Conflict("Endpoint subscription already exists.");
@@ -72,7 +72,7 @@ public class PushSubscriptionsController(
             return Unauthorized();
         }
 
-        var sub = await pushNotifications.GetSubscriptionForEndpoint(
+        var sub = await pushNotifications.GetSubscriptionForEndpointAsync(
             user, request.DeviceEndpoint);
         if (sub is null)
         {
@@ -106,7 +106,7 @@ public class PushSubscriptionsController(
             return Unauthorized();
         }
 
-        var sub = await pushNotifications.GetSubscriptionForEndpoint(user, endpoint);
+        var sub = await pushNotifications.GetSubscriptionForEndpointAsync(user, endpoint);
         if (sub is null)
         {
             return Ok(false);
@@ -127,7 +127,7 @@ public class PushSubscriptionsController(
             return Unauthorized();
         }
 
-        return Ok(await pushNotifications.UserHasAnySubs(user));
+        return Ok(await pushNotifications.UserHasAnySubsAsync(user));
     }
 
     [HttpHead]
@@ -142,7 +142,7 @@ public class PushSubscriptionsController(
         var pMessage = new WebPush.PushMessage("Debug Notification.");
         pMessage.Urgency = WebPush.PushMessageUrgency.High;
 
-        await pushNotifications.SendNotificationToUser(user, pMessage);
+        await pushNotifications.SendNotificationToUserAsync(user, pMessage);
         return Ok();
     }
 }

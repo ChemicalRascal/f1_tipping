@@ -3,7 +3,7 @@
 
  if ('serviceWorker' in navigator) {
     window.addEventListener("load", async () => {
-        await navigator.serviceWorker.register("js/serviceWorker.js", { scope: "/" });
+        await navigator.serviceWorker.register("/js/serviceWorker.js", { scope: "/" });
         window.dispatchEvent(new Event("serviceWorkerLoaded"));
     });
 }

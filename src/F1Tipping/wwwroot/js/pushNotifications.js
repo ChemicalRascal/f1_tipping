@@ -2,9 +2,9 @@
 var ButtonDataset = document.querySelector(".notification-toggler").dataset;
 ButtonDataset.subState = "unknown";
 
-const pushApiMainUrl = "api/PushSubscriptions";
-const pushApiValidateUrl = "api/PushSubscriptions/validate";
-const pushApiCheckUrl = "api/PushSubscriptions/userHasSub";
+const pushApiMainUrl = "/api/PushSubscriptions";
+const pushApiValidateUrl = "/api/PushSubscriptions/validate";
+const pushApiCheckUrl = "/api/PushSubscriptions/userHasSub";
 
 var serverExpectsSubscription = false;
 
