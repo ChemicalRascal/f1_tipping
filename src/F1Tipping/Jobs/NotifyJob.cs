@@ -71,6 +71,7 @@ public partial class NotifyJob : ISelfSchedulingJob
             .ToDictionaryAsync(u => u.Id, u => u);
         var validDates = scheduleService
             .GetNextNotificationDates(users.Values)
+            .Where(kvp => kvp.Value.HasValue)
             .Select(kvp => kvp.Value!.Value);
 
         if (validDates.Any())

@@ -1,4 +1,4 @@
-﻿@if (Context.User.IsInRole("Administrator"))
+﻿@if (Context.User.IsInRole(F1Tipping.Data.AppModel.Role.Administrator))
 {
     <li class="nav-item">
         <a class="nav-link text-danger" asp-area="" asp-page="/Admin/Players/Index">Players</a>

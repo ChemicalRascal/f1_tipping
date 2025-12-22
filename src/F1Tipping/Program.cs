@@ -62,6 +62,7 @@ public class Program
 
         builder.Services.AddHostedService<JobScheduleService>();
         builder.Services.AddHostedService<RoundOrchestrationServiceStarter>();
+        builder.Services.AddHostedService<UserDataSeedingService>();
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -108,66 +109,6 @@ public class Program
 
         app.UseForcePlayerInitialization();
 
-        _ = Task.Run(async () =>
-        {
-            using (var scope = app.Services.CreateScope())
-            {
-                // Make this an IHostedService
-                await SeedRolesAndUsers(scope, config);
-            }
-        });
-
         app.Run();
-    }
-
-    private static async Task SeedRolesAndUsers(
-        IServiceScope scope,
-        ConfigurationManager config)
-    {
-        string[] roles = [ "Administrator", "Player", ];
-        (string,string)[] coreAdmins = [ ("admin@denholm.dev", "adminpass") ];
-
-        var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
-        var userManager = scope.ServiceProvider.GetService<UserManager<User>>();
-
-        foreach (var role in roles)
-        {
-            if (!await roleManager!.RoleExistsAsync(role))
-            {
-                var roleResult = await roleManager.CreateAsync(new IdentityRole<Guid>(role));
-                throwOnFailure(roleResult);
-            }
-        }
-
-        foreach (var (email, pass) in coreAdmins)
-        {
-            var user = await userManager!.FindByEmailAsync(email);
-            if (user is null)
-            {
-                var userResult = await userManager.CreateAsync(
-                    new User(email)
-                    {
-                        Email = email,
-                        EmailConfirmed = true,
-                    }, pass);
-                throwOnFailure(userResult);
-                user = await userManager.FindByEmailAsync(email);
-            }
-
-            var userRoles = await userManager!.GetRolesAsync(user!);
-            if (!userRoles.Contains("Administrator"))
-            {
-                var roleAssignment = await userManager.AddToRoleAsync(user!, "Administrator");
-                throwOnFailure(roleAssignment);
-            }
-        }
-
-        static void throwOnFailure(IdentityResult? result)
-        {
-            if ((!result?.Succeeded) ?? true)
-            {
-                throw new ApplicationException($"Couldn't seed data! {result}");
-            }
-        }
     }
 }
