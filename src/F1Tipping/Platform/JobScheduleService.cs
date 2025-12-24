@@ -12,14 +12,6 @@ public partial class JobScheduleService(
     {
         yield break;
     }
-}
-
-public partial class JobScheduleService : IHostedService
-{
-    async Task IHostedService.StartAsync(CancellationToken cancellationToken)
-    {
-        await TriggerChecksForAppStartSelfSchedulingJobsAsync(cancellationToken);
-    }
 
     public async Task TriggerChecksForAppStartSelfSchedulingJobsAsync(
         CancellationToken cancellationToken = default)
@@ -46,6 +38,14 @@ public partial class JobScheduleService : IHostedService
                 await jobInstance.TriggerSchedulingCheckAsync(jobContext);
             }
         }
+    }
+}
+
+public partial class JobScheduleService : IHostedService
+{
+    async Task IHostedService.StartAsync(CancellationToken cancellationToken)
+    {
+        await TriggerChecksForAppStartSelfSchedulingJobsAsync(cancellationToken);
     }
 
     Task IHostedService.StopAsync(CancellationToken cancellationToken)

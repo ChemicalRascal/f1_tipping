@@ -1,6 +1,7 @@
 appsettings.json
 sql_migrations/
 *fbase*.json
+driverData.csv
 
 # User-specific files
 *.rsuser
@@ -8,6 +9,7 @@ sql_migrations/
 *.user
 *.userosscache
 *.sln.docstates
+*.swp
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

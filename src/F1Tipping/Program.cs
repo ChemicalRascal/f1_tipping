@@ -1,16 +1,12 @@
+using F1Tipping.Common;
 using F1Tipping.Data;
 using F1Tipping.Data.AppModel;
 using F1Tipping.PlayerData;
 using F1Tipping.Tipping;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using F1Tipping.Controllers;
-using Lib.Net.Http.WebPush;
 using F1Tipping.Platform;
 using Quartz;
-using F1Tipping.Jobs;
 
 namespace F1Tipping;
 
@@ -20,6 +16,7 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         var config = builder.Configuration;
+        config.AddDetectedCommandLine(args);
 
         // Database setup, dependent on --provider cli arg
         var provider = config.GetValue("provider", Provider.SqlServer.Name);
@@ -63,6 +60,7 @@ public class Program
         builder.Services.AddHostedService<JobScheduleService>();
         builder.Services.AddHostedService<RoundOrchestrationServiceStarter>();
         builder.Services.AddHostedService<UserDataSeedingService>();
+        builder.Services.AddHostedService<TippingDataSeedingService>();
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
