@@ -4,7 +4,7 @@ namespace F1Tipping.Model;
 
 public abstract class Event
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; }
     public bool Completed { get; set; } = false;
     public DateTimeOffset TipsDeadline { get; set; }
     public abstract float OrderKey { get; }
@@ -13,7 +13,7 @@ public abstract class Event
 
 public class Race : Event, IEventWithResults
 {
-    private static ResultType[] results = [
+    private static readonly ResultType[] results = [
         ResultType.FirstPlace,
         ResultType.SecondPlace,
         ResultType.ThirdPlace,
@@ -22,7 +22,7 @@ public class Race : Event, IEventWithResults
         ResultType.FastestLap,
     ];
 
-    public RaceType Type { get; set; } = RaceType.NotSet;
+    public required RaceType Type { get; set; } = RaceType.NotSet;
     public required Round Weekend { get; set; }
     public required DateTimeOffset RaceStart { get; set; }
     public required DateTimeOffset QualificationStart { get; set; }
@@ -48,13 +48,13 @@ public class Race : Event, IEventWithResults
 
 public class Season : Event, IEventWithResults
 {
-    private static ResultType[] results = [
+    private static readonly ResultType[] results = [
         ResultType.DriversChampionship,
         ResultType.ConstructorsChampionship,
     ];
 
     public Year Year { get; set; }
-    public List<Round> Rounds { get; set; } = [];
+    public virtual ICollection<Round> Rounds { get; set; } = [];
 
     public override float OrderKey => -1f;
     public override string EventName => $"{Year} Season";

@@ -14,16 +14,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace F1Tipping.Pages.Admin.Data.Drivers
 {
-    public class CreateModel : AdminPageModel
+    public class CreateModel(IConfiguration configuration, ModelDbContext context) : AdminPageModel(configuration)
     {
-        private readonly ModelDbContext _context;
-
-        public CreateModel(IConfiguration configuration, ModelDbContext context)
-            : base(configuration)
-        {
-            _context = context;
-        }
-
         [BindProperty]
         public Driver Driver { get; set; } = default!;
 
@@ -35,6 +27,7 @@ namespace F1Tipping.Pages.Admin.Data.Drivers
                 LastName = string.Empty,
                 Nationality = string.Empty,
                 Number = string.Empty,
+                Status = EntityStatus.NotSet,
             };
 
             return Page();
@@ -49,11 +42,11 @@ namespace F1Tipping.Pages.Admin.Data.Drivers
                 return Page();
             }
 
-            _context.Attach(Driver).State = EntityState.Added;
+            context.Attach(Driver).State = EntityState.Added;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -72,7 +65,7 @@ namespace F1Tipping.Pages.Admin.Data.Drivers
 
         private bool DriverExists(Guid id)
         {
-            return _context.Drivers.Any(e => e.Id == id);
+            return context.Drivers.Any(e => e.Id == id);
         }
     }
 }

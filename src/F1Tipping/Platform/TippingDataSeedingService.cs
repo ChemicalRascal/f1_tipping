@@ -8,23 +8,20 @@ public partial class TippingDataSeedingService(
 {
     private const string SEED_PATH_CONFIG_KEY = "SeedPath";
 
-    public Task ReadSeedFile()
+    public async Task ReadSeedFile()
     {
         var filepath = configuration.GetValue<string>(SEED_PATH_CONFIG_KEY);
         if (filepath is null)
         {
-            return Task.CompletedTask;
+            return;
         }
 
-        var fileReader = new DataFileReader();
-        var data = fileReader.ReadFile(filepath);
-
+        var data = DataFileReader.ReadFile(filepath);
         using (var scope = serviceProvider.CreateScope())
         {
-            // Consume data object
+            var persister = ActivatorUtilities.CreateInstance<DtoPersister>(scope.ServiceProvider);
+            await persister.PersistDataSetAsync(data);
         }
-
-        return Task.CompletedTask;
     }
 }
 
@@ -36,8 +33,8 @@ public partial class TippingDataSeedingService : IDefineCliArgs
 
 public partial class TippingDataSeedingService : IHostedService
 {
-    Task IHostedService.StartAsync(CancellationToken cancellationToken)
-        => ReadSeedFile();
+    async Task IHostedService.StartAsync(CancellationToken cancellationToken)
+        => await ReadSeedFile();
 
     Task IHostedService.StopAsync(CancellationToken cancellationToken)
         => Task.CompletedTask;

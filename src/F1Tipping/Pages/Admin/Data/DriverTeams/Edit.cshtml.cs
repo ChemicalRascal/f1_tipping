@@ -52,15 +52,15 @@ namespace F1Tipping.Pages.Admin.Data.DriverTeams
             return Page();
         }
 
-        private async Task BuildSelectLists(AssociationStatus selectedStatus)
+        private async Task BuildSelectLists(EntityStatus selectedStatus)
         {
             TeamsSL = new SelectList(await _context.Teams.ToListAsync(),
                 nameof(Team.Id), nameof(Team.Name), DriverTeam.Team.Id);
             DriversSL = new SelectList(await _context.Drivers.ToListAsync(),
                 nameof(Driver.Id), nameof(Driver.DisplayName), DriverTeam.Driver.Id);
 
-            StatusSL = new SelectList(Enum.GetValues<AssociationStatus>()
-                .Cast<AssociationStatus>()
+            StatusSL = new SelectList(Enum.GetValues<EntityStatus>()
+                .Cast<EntityStatus>()
                 .Select(v => new SelectListItem
                 {
                     Text = v.ToString(),
@@ -87,7 +87,7 @@ namespace F1Tipping.Pages.Admin.Data.DriverTeams
 
             if (!ModelState.IsValid)
             {
-                await BuildSelectLists(AssociationStatus.NotSet);
+                await BuildSelectLists(EntityStatus.NotSet);
                 return Page();
             }
 

@@ -35,20 +35,40 @@ namespace F1Tipping.Data
                 }
             }
 
+            // TODO: Clean all this up, figure out lazy loading
+
             builder.Entity<Player>().OwnsOne(player => player.Details);
             builder.Entity<Player>().Navigation(player => player.Details).AutoInclude();
-            builder.Entity<Season>().HasMany(season => season.Rounds);
-            builder.Entity<Season>().Navigation(season => season.Rounds).EnableLazyLoading();
+
+            builder.Entity<Season>(b =>
+            {
+                b.HasMany(s => s.Rounds).WithOne(r => r.Season);
+                b.Navigation(s => s.Rounds);
+            });
+
             builder.Entity<Round>().HasOne(round => round.Season);
             builder.Entity<Round>().Navigation(round => round.Season).AutoInclude();
             builder.Entity<Round>().HasMany(round => round.Events).WithOne(race => race.Weekend);
             builder.Entity<Round>().Navigation(round => round.Events).AutoInclude();
+
             builder.Entity<Race>().Navigation(race => race.Weekend).AutoInclude();
 
             builder.Entity<Tip>().HasOne(tip => tip.Target);
             builder.Entity<Tip>().Navigation(tip => tip.Target).AutoInclude();
             builder.Entity<Tip>().HasOne(tip => tip.Selection);
             builder.Entity<Tip>().Navigation(tip => tip.Selection).AutoInclude();
+
+            builder.Entity<Team>(b =>
+            {
+                b.HasMany(team => team.DriverTeams).WithOne(dt => dt.Team);
+                b.Navigation(team => team.DriverTeams).AutoInclude();
+            });
+
+            builder.Entity<DriverTeam>(b =>
+            {
+                b.Navigation(dt => dt.Driver).AutoInclude();
+                b.Navigation(dt => dt.Team).AutoInclude();
+            });
 
             builder.Entity<DriverTeam>().HasOne(driver => driver.Driver);
             builder.Entity<DriverTeam>().Navigation(driver => driver.Driver).AutoInclude();

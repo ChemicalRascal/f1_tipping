@@ -1,7 +1,7 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.Configuration.Attributes;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using F1Tipping.Common;
 
 namespace F1Tipping.Platform;
 
@@ -21,22 +21,26 @@ public partial class TippingDataSeedingService
         [Index(5)] bool Active);
 
     private record Team(
-        [Index(0)] string TeamName,
+        [Index(0)] string Name,
         [Index(1)] bool Active);
 
     private record Season(
-        [Index(0)] int Year);
+        [Index(0)] int Year,
+        [Index(1)] bool Persist);
 
     private record Round(
         [Index(0)] int Year,
         [Index(1)] int Index,
-        [Index(2)] string Title,
-        [Index(3)] DateTimeOffset QualiStart);
+        [Index(2)] string? Title,
+        [Index(3)] DateTimeOffset? RoundStart,
+        [Index(4)] DateTimeOffset? QualiStart,
+        [Index(5)] DateTimeOffset? RaceStart);
 
     private record SprintRace(
-        [Index(0)] string Year,
+        [Index(0)] int Year,
         [Index(1)] int RoundIndex,
-        [Index(2)] DateTimeOffset QualiStart);
+        [Index(2)] DateTimeOffset? QualiStart,
+        [Index(3)] DateTimeOffset? RaceStart);
 
     private class DataSet
     {
@@ -63,9 +67,9 @@ public partial class TippingDataSeedingService
             })();
     }
 
-    private class DataFileReader
+    private static class DataFileReader
     {
-        public DataSet ReadFile(string filename)
+        public static DataSet ReadFile(string filename)
         {
             var config = new CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)
             {
@@ -101,31 +105,27 @@ public partial class TippingDataSeedingService
             return data;
         }
 
-        private (Type, int) ParseBlockRecord(CsvReader csv)
+        private static (Type, int) ParseBlockRecord(CsvReader csv)
         {
             var rec = csv.GetRecord<BlockRecord>();
 
-            switch (rec.BlockRecordType)
+            return rec.BlockRecordType switch
             {
-                case "Header":
-                    return (rec.RecordCount != 0
-                        ? rec.BlockContents switch
-                        {
-                            "Driver" => typeof(Driver),
-                            "Team" => typeof(Team),
-                            "Season" => typeof(Season),
-                            "Round" => typeof(Round),
-                            "SprintRace" => typeof(SprintRace),
-                            _ => throw new NotSupportedException($"Block type of {rec.BlockContents} not supported."),
-                        } : typeof(BlockRecord)
-                        , rec.RecordCount);
-
-                case "Footer":
-                    return (typeof(BlockRecord), 0);
-
-                default:
-                    throw new NotSupportedException($"BlockRecordType of {rec.BlockRecordType} not supported.");
-            }
+                "Header" => (rec.RecordCount != 0
+                    ? rec.BlockContents switch
+                    {
+                        "Driver" => typeof(Driver),
+                        "Team" => typeof(Team),
+                        "Season" => typeof(Season),
+                        "Round" => typeof(Round),
+                        "SprintRace" => typeof(SprintRace),
+                        _ => throw new NotSupportedException($"Block type of {rec.BlockContents} not supported."),
+                    }
+                    : typeof(BlockRecord)
+                    , rec.RecordCount),
+                "Footer" => (typeof(BlockRecord), 0),
+                _ => throw new NotSupportedException($"BlockRecordType of {rec.BlockRecordType} not supported."),
+            };
         }
     }
 }

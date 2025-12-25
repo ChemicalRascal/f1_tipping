@@ -188,7 +188,11 @@ namespace F1Tipping.Data
 
         private static IDictionary<string, Team> Teams2025 = DriverNames2025
             .Select(dn => dn.teamname).Distinct()
-            .ToDictionary(tn => tn, tn => new Team() { Name = tn });
+            .ToDictionary(tn => tn, tn => new Team()
+            {
+                Name = tn,
+                Status = EntityStatus.NotSet,
+            });
 
         private static IEnumerable<DriverTeam> DriverTeams2025 = DriverNames2025
             .Select(dn => new DriverTeam {
@@ -198,9 +202,10 @@ namespace F1Tipping.Data
                     LastName = dn.last,
                     Nationality = dn.nationality,
                     Number = dn.number,
+                    Status = EntityStatus.NotSet,
                 },
                 Team = Teams2025[dn.teamname],
-                Status = AssociationStatus.Active,
+                Status = EntityStatus.Active,
             });
     }
 }

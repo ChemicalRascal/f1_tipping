@@ -1,0 +1,71 @@
+Header,Driver,20
+Oscar,Piastri,Australia,81,McLaren,true
+Lando,Norris,United Kingdom,4,McLaren,true
+Charles,Leclerc,Monaco,16,Ferrari,true
+Lewis,Hamilton,United Kingdom,44,Ferrari,true
+Max,Verstappen,Netherlands,1,Red Bull Racing,true
+Liam,Lawson,New Zealand,30,Red Bull Racing,true
+George,Russell,United Kingdom,63,Mercedes,true
+Andrea Kimi,Antonelli,Italy,12,Mercedes,true
+Lance,Stroll,Canada,18,Aston Martin,true
+Fernando,Alonso,Spain,14,Aston Martin,true
+Pierre,Gasly,France,10,Alpine,true
+Jack,Doohan,Australia,7,Alpine,true
+Isack,Hadjar,France,6,Racing Bulls,true
+Yuki,Tsunoda,Japan,22,Racing Bulls,true
+Esteban,Ocon,France,31,Haas,true
+Oliver,Bearman,United Kingdom,87,Haas,true
+Alexander,Albon,Thailand,23,Williams,true
+Carlos,Sainz,Spain,55,Williams,true
+Nico,Hulkenberg,Germany,27,Kick Sauber,true
+Gabriel,Bortoleto,Brazil,5,Kick Sauber,true
+Footer,Driver,0
+Header,Team,10
+Kick Sauber,true
+McLaren,true
+Mercedes,true
+Ferrari,true
+Red Bull Racing,true
+Racing Bulls,true
+Aston Martin,true
+Alpine,true
+Haas,true
+Williams,true
+Footer,Team,0
+Header,Season,1
+2025,true
+Footer,Season,0
+Header,Round,24
+2025,1,Australia,2025-03-14T01:30,2025-03-15T05:00:00,2025-03-16T04:00:00
+2025,2,China,2025-03-21T03:30,2025-03-22T07:00:00,2025-03-23T07:00:00
+2025,3,Japan,2025-04-04T02:30,2025-04-05T06:00:00,2025-04-06T05:00:00
+2025,4,Bahrain,2025-04-11T11:30,2025-04-12T16:00:00,2025-04-13T15:00:00
+2025,5,Saudi Arabia,2025-04-18T13:30,2025-04-19T17:00:00,2025-04-20T17:00:00
+2025,6,Miami,2025-05-02T16:30,2025-05-03T20:00:00,2025-05-04T20:00:00
+2025,7,Emilia-Romagna,2025-05-16T11:30,2025-05-17T14:00:00,2025-05-18T13:00:00
+2025,8,Monaco,2025-05-23T11:30,2025-05-24T14:00:00,2025-05-25T13:00:00
+2025,9,Spain,2025-05-30T11:30,2025-05-31T14:00:00,2025-06-01T13:00:00
+2025,10,Canada,2025-06-13T17:30,2025-06-14T20:00:00,2025-06-15T18:00:00
+2025,11,Austria,2025-06-27T11:30,2025-06-28T14:00:00,2025-06-29T13:00:00
+2025,12,Great Britain,2025-07-04T11:30,2025-07-05T14:00:00,2025-07-06T14:00:00
+2025,13,Belgium,2025-07-25T10:30,2025-07-26T14:00:00,2025-07-27T13:00:00
+2025,14,Hungary,2025-08-01T11:30,2025-08-02T14:00:00,2025-08-03T13:00:00
+2025,15,Netherlands,2025-08-29T10:30,2025-08-30T13:00:00,2025-08-31T13:00:00
+2025,16,Italy,2025-09-05T11:30,2025-09-06T14:00:00,2025-09-07T13:00:00
+2025,17,Azerbaijan,2025-09-19T08:30,2025-09-20T12:00:00,2025-09-21T11:00:00
+2025,18,Singapore,2025-10-03T09:30,2025-10-04T13:00:00,2025-10-05T12:00:00
+2025,19,United States,2025-10-17T17:30,2025-10-18T21:00:00,2025-10-19T19:00:00
+2025,20,Mexico,2025-10-24T18:30,2025-10-25T21:00:00,2025-10-26T20:00:00
+2025,21,Brazil,2025-11-07T14:30,2025-11-08T18:00:00,2025-11-09T17:00:00
+2025,22,Las Vegas,2025-11-21T00:30,2025-11-22T04:00:00,2025-11-23T04:00:00
+2025,23,Qatar,2025-11-28T13:30,2025-11-29T18:00:00,2025-11-30T16:00:00
+2025,24,Abu Dhabi,2025-12-05T09:30,2025-12-06T14:00:00,2025-12-07T13:00:00
+Footer,Round,0
+Header,SprintRace,6
+2025,2,2025-03-21T07:30:00,2025-03-22T03:00:00
+2025,6,2025-05-02T20:30:00,2025-05-03T16:00:00
+2025,13,2025-07-25T14:30:00,2025-07-26T10:00:00
+2025,19,2025-10-17T21:30:00,2025-10-18T17:00:00
+2025,21,2025-11-07T18:30:00,2025-11-08T14:00:00
+2025,23,2025-11-28T17:30:00,2025-11-29T14:00:00
+Footer,SprintRace,0

@@ -41,13 +41,13 @@ namespace F1Tipping.Pages.Admin.Data.DriverTeams
             DriversSL = new SelectList(await _context.Drivers.ToListAsync(),
                 nameof(Driver.Id), nameof(Driver.DisplayName));
 
-            StatusSL = new SelectList(Enum.GetValues<AssociationStatus>()
-                .Cast<AssociationStatus>()
+            StatusSL = new SelectList(Enum.GetValues<EntityStatus>()
+                .Cast<EntityStatus>()
                 .Select(v => new SelectListItem
                 {
                     Text = v.ToString(),
                     Value = ((int)v).ToString(),
-                }), "Value", "Text", ((int)AssociationStatus.NotSet).ToString());
+                }), "Value", "Text", ((int)EntityStatus.NotSet).ToString());
         }
 
         public async Task<IActionResult> OnPostAsync()

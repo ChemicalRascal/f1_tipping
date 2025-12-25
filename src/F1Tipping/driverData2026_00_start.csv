@@ -1,0 +1,51 @@
+Header,Driver,24
+Oscar,Piastri,Australia,81,McLaren,true
+Lando,Norris,United Kingdom,1,McLaren,true
+Charles,Leclerc,Monaco,16,Ferrari,true
+Lewis,Hamilton,United Kingdom,44,Ferrari,true
+Max,Verstappen,Netherlands,3,Red Bull Racing,true
+Isack,Hadjar,France,6,Red Bull Racing,true
+George,Russell,United Kingdom,63,Mercedes,true
+Andrea Kimi,Antonelli,Italy,12,Mercedes,true
+Lance,Stroll,Canada,18,Aston Martin,true
+Fernando,Alonso,Spain,14,Aston Martin,true
+Pierre,Gasly,France,10,Alpine,true
+Jack,Doohan,Australia,7,Alpine,true
+Liam,Lawson,New Zealand,30,Racing Bulls,true
+Arvid,Lindblad,United Kingdom,41,Racing Bulls,true
+Esteban,Ocon,France,31,Haas,true
+Oliver,Bearman,United Kingdom,87,Haas,true
+Alexander,Albon,Thailand,23,Williams,true
+Carlos,Sainz,Spain,55,Williams,true
+Nico,Hulkenberg,Germany,27,Audi,true
+Gabriel,Bortoleto,Brazil,5,Audi,true
+Valtteri,Bottas,Finland,77,Cadillac,true
+Sergio,Pérez,Mexico,11,Cadillac,true
+Yuki,Tsunoda,Japan,22,,false
+Jack,Doohan,Australia,7,,false
+Footer,Driver,0
+Header,Team,12
+Kick Sauber,false
+McLaren,true
+Mercedes,true
+Ferrari,true
+Red Bull Racing,true
+Racing Bulls,true
+Aston Martin,true
+Alpine,true
+Haas,true
+Williams,true
+Audi,true
+Cadillac,true
+Footer,Team,0
+Header,Season,1
+2026,true
+Footer,Season,0
+Header,Round,2
+2026,1,Debug Round,2026-01-01T01:00,2026-01-01T01:30
+2026,2,Debug Round,2026-01-01T01:00,2026-01-01T01:30
+Footer,Round,0
+Header,SprintRace,2
+2026,1,2026-01-01T00:00,2026-01-01T00:30
+2026,2,2026-01-01T00:00,2026-01-01T00:30
+Footer,SprintRace,0

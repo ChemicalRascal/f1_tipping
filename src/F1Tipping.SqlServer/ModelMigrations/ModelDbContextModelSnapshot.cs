@@ -17,7 +17,7 @@ namespace F1Tipping.Data.ModelMigrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasAnnotation("ProductVersion", "10.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -43,6 +43,9 @@ namespace F1Tipping.Data.ModelMigrations
                     b.Property<string>("Number")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -87,6 +90,9 @@ namespace F1Tipping.Data.ModelMigrations
                         .HasColumnType("nvarchar(13)");
 
                     b.Property<int?>("ListOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -268,9 +274,6 @@ namespace F1Tipping.Data.ModelMigrations
                     b.Property<Guid>("DriverId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("TeamId")
                         .HasColumnType("uniqueidentifier");
 
@@ -411,13 +414,13 @@ namespace F1Tipping.Data.ModelMigrations
             modelBuilder.Entity("F1Tipping.Model.DriverTeam", b =>
                 {
                     b.HasOne("F1Tipping.Model.Driver", "Driver")
-                        .WithMany()
+                        .WithMany("DriverTeams")
                         .HasForeignKey("DriverId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("F1Tipping.Model.Team", "Team")
-                        .WithMany()
+                        .WithMany("DriverTeams")
                         .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -425,6 +428,11 @@ namespace F1Tipping.Data.ModelMigrations
                     b.Navigation("Driver");
 
                     b.Navigation("Team");
+                });
+
+            modelBuilder.Entity("F1Tipping.Model.Driver", b =>
+                {
+                    b.Navigation("DriverTeams");
                 });
 
             modelBuilder.Entity("F1Tipping.Model.Round", b =>
@@ -435,6 +443,11 @@ namespace F1Tipping.Data.ModelMigrations
             modelBuilder.Entity("F1Tipping.Model.Season", b =>
                 {
                     b.Navigation("Rounds");
+                });
+
+            modelBuilder.Entity("F1Tipping.Model.Team", b =>
+                {
+                    b.Navigation("DriverTeams");
                 });
 #pragma warning restore 612, 618
         }
