@@ -27,7 +27,7 @@
     },
     "https Postgres": {
       "commandName": "Project",
-      "commandLineArgs": "--provider Postgres --seed-path driverData2025_00_start.csv",
+      "commandLineArgs": "--provider Postgres",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
