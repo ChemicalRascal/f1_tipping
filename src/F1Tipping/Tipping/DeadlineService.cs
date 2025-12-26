@@ -5,9 +5,9 @@ namespace F1Tipping.Tipping
 {
     public static class DeadlineService
     {
-        public static readonly TimeSpan CACHE_LENGTH = new TimeSpan(days: 1, 0, 0, 0);
+        public static readonly TimeSpan CACHE_LENGTH = new(days: 1, 0, 0, 0);
 
-        private static CachedDeadline _deadline = new(DateTimeOffset.MinValue, null);
+        private static readonly CachedDeadline _deadline = new(DateTimeOffset.MinValue, null);
         private static readonly SemaphoreSlim settingsSemaphore = new(1, 1);
 
         public static async Task<DateTimeOffset> GetNextDeadlineAsync(ModelDbContext modelDb)

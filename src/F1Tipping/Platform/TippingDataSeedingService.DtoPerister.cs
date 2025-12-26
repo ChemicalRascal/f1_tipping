@@ -1,6 +1,7 @@
 ﻿using F1Tipping.Common;
 using F1Tipping.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
 namespace F1Tipping.Platform;
 
@@ -32,6 +33,15 @@ public partial class TippingDataSeedingService
             }
         }
 
+        private static DateTimeOffset Earliest(params DateTimeOffset[] dateTimes)
+        {
+            if (dateTimes.Length <= 0)
+            {
+                throw new ArgumentException($"{nameof(dateTimes)} must be provided");
+            }
+            return dateTimes.Aggregate(DateTimeOffset.MaxValue, (a, b) => (a < b ? a : b));
+        }
+
         private async Task PersistSeasonsAsync(IEnumerable<Season> seasons)
         {
             var dbSeasons = await modelDb.Seasons.ToListAsync();
@@ -51,6 +61,7 @@ public partial class TippingDataSeedingService
                     await modelDb.Seasons.AddAsync(new Model.Season()
                     {
                         Year = new(season.Year),
+                        TipsDeadline = DateTimeOffset.MaxValue.UtcDateTime,
                     });
                 }
             }
@@ -100,29 +111,33 @@ public partial class TippingDataSeedingService
                     }
                 }
 
-                var mainRace = dbRound!.Events
+                var dbMainRace = dbRound!.Events
                     .SingleOrDefault(r => r.Type == Model.RaceType.Main);
-                
+                var dbSprint = dbRound!.Events
+                    .SingleOrDefault(r => r.Type == Model.RaceType.Sprint);
+                var sprintRaceTipDeadline = dbSprint?.TipsDeadline ?? DateTimeOffset.MaxValue.UtcDateTime;
+
                 if (round.QualiStart is null || round.RaceStart is null)
                 {
-                    if (mainRace is not null)
+                    if (dbMainRace is not null)
                     {
-                        dbRound.Events.Remove(mainRace);
+                        dbRound.Events.Remove(dbMainRace);
                         continue;
                     }
                 }
                 else
                 {
-                    if (mainRace is null)
+                    if (dbMainRace is null)
                     {
-                        mainRace = new()
+                        dbMainRace = new()
                         {
                             Weekend = dbRound,
                             Type = Model.RaceType.Main,
                             QualificationStart = round.QualiStart.Value.UtcDateTime,
                             RaceStart = round.RaceStart.Value.UtcDateTime,
+                            TipsDeadline = Earliest(round.QualiStart.Value, sprintRaceTipDeadline).UtcDateTime,
                         };
-                        dbRound.Events.Add(mainRace);
+                        dbRound.Events.Add(dbMainRace);
 
                         if (dbRound.Id != default)
                         {
@@ -130,8 +145,20 @@ public partial class TippingDataSeedingService
                         }
                     }
                     {
-                        mainRace.QualificationStart = round.QualiStart.Value.UtcDateTime;
-                        mainRace.RaceStart = round.RaceStart.Value.UtcDateTime;
+                        dbMainRace.QualificationStart = round.QualiStart.Value.UtcDateTime;
+                        dbMainRace.RaceStart = round.RaceStart.Value.UtcDateTime;
+                        dbMainRace.TipsDeadline = Earliest(round.QualiStart.Value, sprintRaceTipDeadline).UtcDateTime;
+                    }
+
+                    if (dbSeason.TipsDeadline > dbMainRace.TipsDeadline)
+                    {
+                        dbSeason.TipsDeadline = Earliest(dbSeason.TipsDeadline, dbMainRace.TipsDeadline);
+                        modelDb.Update(dbSeason);
+                    }
+                    if (dbSprint is not null)
+                    {
+                        dbSprint.TipsDeadline = Earliest(dbMainRace.TipsDeadline, dbSprint.TipsDeadline);
+                        modelDb.Update(dbSprint);
                     }
                 }
             }
@@ -152,8 +179,10 @@ public partial class TippingDataSeedingService
                     .SingleOrDefault(r => r.Index == sprint.RoundIndex)
                     ?? throw new ApplicationException($"Can't persist Sprint with Round Index {sprint.RoundIndex}");
 
-                var dbSprint = dbRound.Events
-                    .SingleOrDefault(r => r.Type == Model.RaceType.Sprint);
+                var dbSprint = dbRound.Events.SingleOrDefault(r => r.Type == Model.RaceType.Sprint);
+                var dbMainRace = dbRound!.Events.SingleOrDefault(r => r.Type == Model.RaceType.Main);
+                var mainRaceTipDeadline = dbMainRace?.TipsDeadline ?? DateTimeOffset.MaxValue.UtcDateTime;
+
                 if (sprint.QualiStart is null || sprint.RaceStart is null)
                 {
                     if (dbSprint is not null)
@@ -170,8 +199,9 @@ public partial class TippingDataSeedingService
                         {
                             Weekend = dbRound,
                             Type = Model.RaceType.Sprint,
-                            QualificationStart = sprint.QualiStart!.Value.UtcDateTime,
-                            RaceStart = sprint.RaceStart!.Value.UtcDateTime,
+                            QualificationStart = sprint.QualiStart.Value.UtcDateTime,
+                            RaceStart = sprint.RaceStart.Value.UtcDateTime,
+                            TipsDeadline = Earliest(sprint.QualiStart.Value, mainRaceTipDeadline).UtcDateTime,
                         };
                         dbRound.Events.Add(dbSprint);
                         modelDb.Update(dbRound);
@@ -180,7 +210,19 @@ public partial class TippingDataSeedingService
                     {
                         dbSprint.QualificationStart = sprint.QualiStart!.Value.UtcDateTime;
                         dbSprint.RaceStart = sprint.RaceStart!.Value.UtcDateTime;
+                        dbSprint.TipsDeadline = Earliest(sprint.QualiStart.Value, mainRaceTipDeadline).UtcDateTime;
                         modelDb.Update(dbSprint);
+                    }
+
+                    if (dbSeason.TipsDeadline > dbSprint!.TipsDeadline)
+                    {
+                        dbSeason.TipsDeadline = Earliest(dbSeason.TipsDeadline, dbSprint.TipsDeadline);
+                        modelDb.Update(dbSeason);
+                    }
+                    if (dbMainRace is not null)
+                    {
+                        dbMainRace.TipsDeadline = Earliest(dbMainRace.TipsDeadline, dbSprint.TipsDeadline);
+                        modelDb.Update(dbMainRace);
                     }
                 }
             }

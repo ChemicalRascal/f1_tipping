@@ -6,7 +6,7 @@ public abstract class Event
 {
     public Guid Id { get; set; }
     public bool Completed { get; set; } = false;
-    public DateTimeOffset TipsDeadline { get; set; }
+    public required DateTimeOffset TipsDeadline { get; set; }
     public abstract float OrderKey { get; }
     public abstract string EventName { get; }
 }

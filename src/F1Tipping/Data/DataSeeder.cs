@@ -39,7 +39,7 @@ namespace F1Tipping.Data
             await _modelDb.SaveChangesAsync();
         }
 
-        private static Season Season2025 = new() { Year = new(2025) };
+        private static Season Season2025 = new() { Year = new(2025), TipsDeadline = new() };
 
         private static List<Round> Rounds2025 = [
             new() { Season = Season2025, Index = 1, Title="Australia",      StartDate = new(2025, 03, 14, 01, 30, 00, TimeZoneInfo.Utc.BaseUtcOffset), Events = [] },
@@ -149,6 +149,7 @@ namespace F1Tipping.Data
                                     .OrderByDescending(qualiStart => qualiStart).First(),
                 Weekend = Rounds2025.Where(round => round.StartDate < raceStart)
                                     .OrderByDescending(round => round.StartDate).First(),
+                TipsDeadline = new(),
             });
 
         private static IEnumerable<Race> SprintRaces2025 = SprintRaceStartTimes2025.Select(raceStart =>
@@ -160,6 +161,7 @@ namespace F1Tipping.Data
                                     .OrderByDescending(qualiStart => qualiStart).First(),
                 Weekend = Rounds2025.Where(round => round.StartDate < raceStart)
                                     .OrderByDescending(round => round.StartDate).First(),
+                TipsDeadline = new(),
             });
 
         private static List<(string first, string last, string nationality,

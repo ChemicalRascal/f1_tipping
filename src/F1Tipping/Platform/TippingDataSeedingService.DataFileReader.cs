@@ -34,13 +34,15 @@ public partial class TippingDataSeedingService
         [Index(2)] string? Title,
         [Index(3)] DateTimeOffset? RoundStart,
         [Index(4)] DateTimeOffset? QualiStart,
-        [Index(5)] DateTimeOffset? RaceStart);
+        [Index(5)] DateTimeOffset? RaceStart,
+        [Index(6)] DateTimeOffset? RaceEnd);
 
     private record SprintRace(
         [Index(0)] int Year,
         [Index(1)] int RoundIndex,
         [Index(2)] DateTimeOffset? QualiStart,
-        [Index(3)] DateTimeOffset? RaceStart);
+        [Index(3)] DateTimeOffset? RaceStart,
+        [Index(4)] DateTimeOffset? RaceEnd);
 
     private class DataSet
     {
@@ -74,7 +76,6 @@ public partial class TippingDataSeedingService
             var config = new CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)
             {
                 HasHeaderRecord = false,
-
             };
 
             var data = new DataSet();

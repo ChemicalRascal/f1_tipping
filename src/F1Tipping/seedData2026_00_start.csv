@@ -1,4 +1,4 @@
-Header,Driver,24
+Header,Driver,23
 Oscar,Piastri,Australia,81,McLaren,true
 Lando,Norris,United Kingdom,1,McLaren,true
 Charles,Leclerc,Monaco,16,Ferrari,true
@@ -22,7 +22,6 @@ Gabriel,Bortoleto,Brazil,5,Audi,true
 Valtteri,Bottas,Finland,77,Cadillac,true
 Sergio,Pérez,Mexico,11,Cadillac,true
 Yuki,Tsunoda,Japan,22,,false
-Jack,Doohan,Australia,7,,false
 Footer,Driver,0
 Header,Team,12
 Kick Sauber,false
@@ -42,10 +41,8 @@ Header,Season,1
 2026,true
 Footer,Season,0
 Header,Round,2
-2026,1,Debug Round,2026-01-01T01:00,2026-01-01T01:30
-2026,2,Debug Round,2026-01-01T01:00,2026-01-01T01:30
+2026,1,Debug Round,2026-01-01T01:00,2026-01-01T01:00,2026-01-01T01:30
 Footer,Round,0
 Header,SprintRace,2
 2026,1,2026-01-01T00:00,2026-01-01T00:30
-2026,2,2026-01-01T00:00,2026-01-01T00:30
 Footer,SprintRace,0
