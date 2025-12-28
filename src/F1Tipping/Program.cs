@@ -45,7 +45,7 @@ public class Program
         builder.Services.AddDbContext<ModelDbContext>(doDatabaseSetup);
 
         builder.Services.AddScoped<DataSeeder>();
-        builder.Services.AddScoped<RoundDataService>();
+        builder.Services.AddScoped<CurrentDataService>();
         builder.Services.AddScoped<RoundOrchestrationService>();
         builder.Services.AddScoped<TipScoringService>();
         builder.Services.AddScoped<TipValidiationService>();

@@ -7,5 +7,6 @@ public class Round
     public required int Index { get; set; }
     public required string Title { get; set; }
     public required DateTimeOffset StartDate { get; set; }
+    public required DateTimeOffset EndDate { get; set; }
     public required IList<Race> Events { get; set; }
 }

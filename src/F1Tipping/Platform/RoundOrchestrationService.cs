@@ -6,14 +6,14 @@ namespace F1Tipping.Platform;
 
 public class RoundOrchestrationService(
     AppDbContext appDb,
-    RoundDataService roundData,
+    CurrentDataService roundData,
     NotificationScheduleService notificationScheduleService)
 {
     public async Task SetupNotificationsForRound(CancellationToken cancellationToken = default)
     {
         var globalData = await appDb.GetGlobalTemporalDataAsync();
         var lastNotifiedRound = globalData.LastNotifiedRoundId;
-        var upcomingRound = (await roundData.GetSemanticNextRoundAsync())?.Id;
+        var upcomingRound = (await roundData.GetNextRoundAsync())?.Id;
 
         if (upcomingRound is not null && lastNotifiedRound != upcomingRound)
         {

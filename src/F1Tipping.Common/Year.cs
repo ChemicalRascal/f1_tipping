@@ -1,7 +1,8 @@
 ﻿namespace F1Tipping.Common;
 
 public readonly struct Year
-    : IEquatable<Year>, IEquatable<DateTime>, IEquatable<int>
+    : IEquatable<Year>, IEquatable<DateTime>, IEquatable<int>,
+    IComparable<Year>, IComparable<DateTime>, IComparable<int>
 {
     /// <summary>
     /// 
@@ -35,6 +36,10 @@ public readonly struct Year
     public bool Equals(DateTime other) => _value == other.Year;
     public bool Equals(int other) => _value == other;
 
+    public int CompareTo(Year other) => _value.CompareTo(other._value);
+    public int CompareTo(DateTime other) => _value.CompareTo(other.Year);
+    public int CompareTo(int other) => _value.CompareTo(other);
+
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj))
@@ -58,9 +63,26 @@ public readonly struct Year
 
     public static bool operator ==(Year left, Year right)
         => left.Equals(right);
-
     public static bool operator !=(Year left, Year right)
         => !left.Equals(right);
+
+    public static bool operator <(Year left, DateTime right)
+        => left.CompareTo(right) < 0;
+    public static bool operator >(Year left, DateTime right)
+        => left.CompareTo(right) > 0;
+    public static bool operator ==(Year left, DateTime right)
+        => left.CompareTo(right) == 0;
+    public static bool operator !=(Year left, DateTime right)
+        => left.CompareTo(right) != 0;
+
+    public static bool operator <(Year left, DateTimeOffset right)
+        => left.CompareTo(right.UtcDateTime) < 0;
+    public static bool operator >(Year left, DateTimeOffset right)
+        => left.CompareTo(right.UtcDateTime) > 0;
+    public static bool operator ==(Year left, DateTimeOffset right)
+        => left.CompareTo(right.UtcDateTime) == 0;
+    public static bool operator !=(Year left, DateTimeOffset right)
+        => left.CompareTo(right.UtcDateTime) != 0;
 
     public override string ToString() => _value.ToString();
 

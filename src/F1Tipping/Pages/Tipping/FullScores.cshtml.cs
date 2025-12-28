@@ -7,106 +7,103 @@ using F1Tipping.Model;
 using F1Tipping.Model.Tipping;
 using F1Tipping.Tipping;
 using Microsoft.EntityFrameworkCore;
+using F1Tipping.Platform;
 
-namespace F1Tipping.Pages.Tipping
+namespace F1Tipping.Pages.Tipping;
+
+public class FullScoresModel(
+    IConfiguration configuration,
+    UserManager<User> userManager,
+    AppDbContext appDb,
+    ModelDbContext modelDb,
+    TipScoringService tipScoring,
+    CurrentDataService roundData
+        ) : PlayerPageModel(configuration, userManager, appDb, modelDb)
 {
-    public class FullScoresModel : PlayerPageModel
-    {
-        private const int DISPLAY_NAME_LEN = 7;
-        private TipScoringService _tipScoring;
+    private const int DISPLAY_NAME_LEN = 7;
 
-        public FullScoresModel(
-            IConfiguration configuration,
-            UserManager<User> userManager,
-            AppDbContext appDb,
-            ModelDbContext modelDb,
-            TipScoringService tipScoring
-            ) : base(configuration, userManager, appDb, modelDb)
+    [BindProperty]
+    public Dictionary<(Guid Player, Guid Event), TipScoringService.PlayerEventReport> Reports { get; set; } = new();
+    [BindProperty]
+    public List<PlayerView> Players { get; set; } = new();
+    [BindProperty]
+    public List<EventView> Events { get; set; } = new();
+
+    public async Task<IActionResult> OnGet(string? year = null)
+    {
+        var eventCutoff = DateTimeOffset.UtcNow;
+
+        var currentSeason = await roundData.GetKindCurrentSeasonAsync();
+
+        var players = (await _modelDb.Players
+            .Where(p => p.Status == PlayerStatus.Normal).ToListAsync())
+            .OrderBy(p => p != Player)
+            .ThenBy(p => p.Details?.DisplayName ?? p.Details?.FirstName);
+
+        var scoreboardEvents = (await _modelDb.Events
+            .Where(e => e.TipsDeadline < eventCutoff).ToListAsync())
+            .OrderBy(e => e.OrderKey);
+
+        var results = (await (
+            from r in _modelDb.Results
+            join eId in scoreboardEvents.Select(e => e.Id) on r.Event.Id equals eId
+            select r).ToListAsync()).ToLookup(r => r.Event.Id);
+
+        var tips = (await (
+                from t in _modelDb.Tips
+                join eId in scoreboardEvents.Select(e => e.Id) on t.Target.Event.Id equals eId
+                group t by new { eId, t.Tipper.Id, t.Target.Type }
+            ).ToListAsync())
+            .Select(tipList => tipList.MaxBy(t => t.SubmittedAt)!)
+            .ToLookup(t => (t.Tipper.Id, t.Target.Event.Id));
+
+        foreach (var p in players)
         {
-            _tipScoring = tipScoring;
+            Players.Add(new(p.Id, GetPlayerName(p)));
         }
 
-        [BindProperty]
-        public Dictionary<(Guid Player, Guid Event), TipScoringService.PlayerEventReport> Reports { get; set; } = new();
-        [BindProperty]
-        public List<PlayerView> Players { get; set; } = new();
-        [BindProperty]
-        public List<EventView> Events { get; set; } = new();
-
-        public async Task<IActionResult> OnGet()
+        foreach (var e in scoreboardEvents)
         {
-            var eventCutoff = DateTimeOffset.UtcNow;
-
-            var players = (await _modelDb.Players
-                .Where(p => p.Status == PlayerStatus.Normal).ToListAsync())
-                .OrderBy(p => p != Player)
-                .ThenBy(p => p.Details?.DisplayName ?? p.Details?.FirstName);
-
-            var scoreboardEvents = (await _modelDb.Events
-                .Where(e => e.TipsDeadline < eventCutoff).ToListAsync())
-                .OrderBy(e => e.OrderKey);
-
-            var results = (await (
-                from r in _modelDb.Results
-                join eId in scoreboardEvents.Select(e => e.Id) on r.Event.Id equals eId
-                select r).ToListAsync()).ToLookup(r => r.Event.Id);
-
-            var tips = (await (
-                    from t in _modelDb.Tips
-                    join eId in scoreboardEvents.Select(e => e.Id) on t.Target.Event.Id equals eId
-                    group t by new { eId, t.Tipper.Id, t.Target.Type }
-                ).ToListAsync())
-                .Select(tipList => tipList.MaxBy(t => t.SubmittedAt)!)
-                .ToLookup(t => (t.Tipper.Id, t.Target.Event.Id));
+            var eventResults = results[e.Id].OrderBy(r => r.Type).ToList();
+            Events.Add(new(e.Id, e.EventName, eventResults));
 
             foreach (var p in players)
             {
-                Players.Add(new(p.Id, GetPlayerName(p)));
-            }
-
-            foreach (var e in scoreboardEvents)
-            {
-                var eventResults = results[e.Id].OrderBy(r => r.Type).ToList();
-                Events.Add(new(e.Id, e.EventName, eventResults));
-
-                foreach (var p in players)
+                var playerEventTips = tips[(p.Id, e.Id)].ToList();
+                var report = tipScoring.GetReport(e, playerEventTips);
+                if (report is not null && report.ScoredTips.Count > 0)
                 {
-                    var playerEventTips = tips[(p.Id, e.Id)].ToList();
-                    var report = _tipScoring.GetReport(e, playerEventTips);
-                    if (report is not null && report.ScoredTips.Count > 0)
-                    {
-                        Reports[(p.Id, e.Id)] = report;
-                    }
+                    Reports[(p.Id, e.Id)] = report;
                 }
             }
-
-            return Page();
         }
 
-        private string GetPlayerName(Player playerToDisplay)
+        return Page();
+    }
+
+    private string GetPlayerName(Player playerToDisplay)
+    {
+        string? displayName = null;
+        if (playerToDisplay.Id == Player!.Id)
         {
-            string? displayName = null;
-            if (playerToDisplay.Id == Player!.Id)
+            displayName = playerToDisplay.Details?.FirstName;
+        }
+        else
+        {
+            displayName = playerToDisplay.Details?.DisplayName;
+            if (displayName is not null && displayName.Length > DISPLAY_NAME_LEN)
             {
-                displayName = playerToDisplay.Details?.FirstName;
+                displayName = $"{displayName[..DISPLAY_NAME_LEN]}(...)";
             }
             else
             {
-                displayName = playerToDisplay.Details?.DisplayName;
-                if (displayName is not null && displayName.Length > DISPLAY_NAME_LEN)
-                {
-                    displayName = $"{displayName[..DISPLAY_NAME_LEN]}(...)";
-                }
-                else
-                {
-                    displayName = playerToDisplay.Details?.FirstName;
-                }
+                displayName = playerToDisplay.Details?.FirstName;
             }
-
-            return displayName ?? "Unknown Player";
         }
 
-        public record PlayerView(Guid Id, string Name);
-        public record EventView(Guid Id, string Name, List<Result> Results);
+        return displayName ?? "Unknown Player";
     }
+
+    public record PlayerView(Guid Id, string Name);
+    public record EventView(Guid Id, string Name, List<Result> Results);
 }

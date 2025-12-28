@@ -25,6 +25,7 @@ public class Race : Event, IEventWithResults
     public required RaceType Type { get; set; } = RaceType.NotSet;
     public required Round Weekend { get; set; }
     public required DateTimeOffset RaceStart { get; set; }
+    public required DateTimeOffset RaceEnd { get; set; }
     public required DateTimeOffset QualificationStart { get; set; }
 
     public override float OrderKey => Weekend.Index

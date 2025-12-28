@@ -9,6 +9,9 @@ public partial class TippingDataSeedingService
 {
     private class DtoPersister(ModelDbContext modelDb)
     {
+        private readonly TimeSpan FALLBACK_ROUND_LENGTH = TimeSpan.FromDays(4);
+        private readonly TimeSpan FALLBACK_RACE_LENGTH = TimeSpan.FromHours(3);
+
         public async Task PersistDataSetAsync(DataSet data)
         {
             await using var dataSetTransaction = await modelDb.Database.BeginTransactionAsync();
@@ -99,6 +102,8 @@ public partial class TippingDataSeedingService
                             Index = round.Index,
                             Title = round.Title,
                             StartDate = round.RoundStart.Value.UtcDateTime,
+                            EndDate = round.RaceEnd?.UtcDateTime
+                                   ?? round.RoundStart.Value.UtcDateTime + FALLBACK_ROUND_LENGTH,
                             Events = [],
                         };
                         dbSeason.Rounds.Add(dbRound);
@@ -135,6 +140,8 @@ public partial class TippingDataSeedingService
                             Type = Model.RaceType.Main,
                             QualificationStart = round.QualiStart.Value.UtcDateTime,
                             RaceStart = round.RaceStart.Value.UtcDateTime,
+                            RaceEnd = round.RaceEnd?.UtcDateTime
+                                   ?? round.RaceStart.Value.UtcDateTime + FALLBACK_RACE_LENGTH,
                             TipsDeadline = Earliest(round.QualiStart.Value, sprintRaceTipDeadline).UtcDateTime,
                         };
                         dbRound.Events.Add(dbMainRace);
@@ -147,6 +154,8 @@ public partial class TippingDataSeedingService
                     {
                         dbMainRace.QualificationStart = round.QualiStart.Value.UtcDateTime;
                         dbMainRace.RaceStart = round.RaceStart.Value.UtcDateTime;
+                        dbMainRace.RaceEnd = round.RaceEnd?.UtcDateTime
+                                          ?? round.RaceStart.Value.UtcDateTime + FALLBACK_RACE_LENGTH;
                         dbMainRace.TipsDeadline = Earliest(round.QualiStart.Value, sprintRaceTipDeadline).UtcDateTime;
                     }
 
@@ -201,6 +210,8 @@ public partial class TippingDataSeedingService
                             Type = Model.RaceType.Sprint,
                             QualificationStart = sprint.QualiStart.Value.UtcDateTime,
                             RaceStart = sprint.RaceStart.Value.UtcDateTime,
+                            RaceEnd = sprint.RaceEnd?.UtcDateTime
+                                   ?? sprint.RaceStart.Value.UtcDateTime + FALLBACK_RACE_LENGTH,
                             TipsDeadline = Earliest(sprint.QualiStart.Value, mainRaceTipDeadline).UtcDateTime,
                         };
                         dbRound.Events.Add(dbSprint);
@@ -210,6 +221,8 @@ public partial class TippingDataSeedingService
                     {
                         dbSprint.QualificationStart = sprint.QualiStart!.Value.UtcDateTime;
                         dbSprint.RaceStart = sprint.RaceStart!.Value.UtcDateTime;
+                        dbSprint.RaceEnd = sprint.RaceEnd?.UtcDateTime
+                                        ?? sprint.RaceStart.Value.UtcDateTime + FALLBACK_RACE_LENGTH;
                         dbSprint.TipsDeadline = Earliest(sprint.QualiStart.Value, mainRaceTipDeadline).UtcDateTime;
                         modelDb.Update(dbSprint);
                     }

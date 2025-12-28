@@ -8,7 +8,7 @@ namespace F1Tipping.Platform;
 
 public class NotificationScheduleService(
     AppDbContext appDb,
-    RoundDataService roundData,
+    CurrentDataService roundData,
     PushNotificationsService pushService)
 {
     private async Task<User> GetUserAsync(Guid userId)
@@ -55,7 +55,7 @@ public class NotificationScheduleService(
 
         var round = roundId is not null
             ? await roundData.GetRoundByIdAsync(roundId.Value)
-            : await roundData.GetSemanticNextRoundAsync();
+            : await roundData.GetNextRoundAsync();
 
         if (round is null)
         {
