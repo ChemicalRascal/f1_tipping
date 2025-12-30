@@ -36,10 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\Shared\Components\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\F1Tipping.Common\F1Tipping.Common.csproj" />
     <ProjectReference Include="..\F1Tipping.Postgres\F1Tipping.Postgres.csproj" />
     <ProjectReference Include="..\F1Tipping.SqlServer\F1Tipping.SqlServer.csproj" />

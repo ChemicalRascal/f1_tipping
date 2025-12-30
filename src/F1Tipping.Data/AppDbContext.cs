@@ -22,11 +22,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             b.OwnsOne(u => u.Settings, b =>
             {
                 b.WithOwner();
-                b.OwnsOne(s => s.NotificationsSettings, b =>
-                {
-                    b.WithOwner();
-                });
+                b.OwnsOne(s => s.NotificationsSettings, b => b.WithOwner());
                 b.Navigation(s => s.NotificationsSettings)
+                    .IsRequired(false).AutoInclude();
+
+                b.OwnsOne(s => s.SystemSettings, b => b.WithOwner());
+                b.Navigation(s => s.SystemSettings)
                     .IsRequired(false).AutoInclude();
             });
             b.Navigation(u => u.Settings)

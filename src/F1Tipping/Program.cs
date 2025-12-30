@@ -19,6 +19,7 @@ public class Program
         config.AddDetectedCommandLine(args);
 
         // Database setup, dependent on --provider cli arg
+        // TODO: Move this to an extension and the new arg definition system.
         var provider = config.GetValue("provider", Provider.SqlServer.Name);
         void doDatabaseSetup(DbContextOptionsBuilder options)
         {
@@ -52,10 +53,7 @@ public class Program
         builder.Services.AddScoped<PushNotificationsService>();
         builder.Services.AddScoped<NotificationScheduleService>();
 
-        builder.Services.AddQuartz(q =>
-        {
-            q.RegisterCronJobs();
-        });
+        builder.Services.AddQuartz(q => q.RegisterCronJobs());
 
         builder.Services.AddHostedService<JobScheduleService>();
         builder.Services.AddHostedService<RoundOrchestrationServiceStarter>();

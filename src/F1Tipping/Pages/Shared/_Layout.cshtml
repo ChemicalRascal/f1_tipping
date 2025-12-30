@@ -27,7 +27,7 @@
                 </div>
                 @if (Context.User.Identity?.IsAuthenticated ?? false)
                 {
-
+                    <vc:season-selector></vc:season-selector>
                     <button class="notification-toggler" data-sub-state="unknown" type="button" onclick="ProgressNotificationState()">
                         <span class="notification-toggler-icon">
                             <svg version="1.1" viewBox="0 0 500 500" width="100%" height="100%" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">

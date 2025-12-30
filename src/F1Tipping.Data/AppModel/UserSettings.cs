@@ -5,6 +5,7 @@ namespace F1Tipping.Data.AppModel;
 public class UserSettings
 {
     public NotificationsSettings? NotificationsSettings { get; set; }
+    public SystemSettings? SystemSettings { get; set; }
 }
 
 public enum NotificationsScheduleType
@@ -23,4 +24,9 @@ public class NotificationsSettings
     public TimeSpan MinimumTimeBetweenNotifications { get; set; }
     public bool NotifyForOldTips { get; set; }
     public NotificationsScheduleType ScheduleType { get; set; }
+}
+
+public class SystemSettings
+{
+    public Guid SelectedSeason { get; set; }
 }

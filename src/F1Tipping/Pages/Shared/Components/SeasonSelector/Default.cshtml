@@ -1,0 +1,16 @@
+﻿@page
+@using F1Tipping.Pages.Shared.Components
+@model SelectList
+@{
+}
+
+<div class="form-group">
+    @if (ViewData?.Model is not null)
+    {
+        <select class="form-control" asp-items="@Model"></select>
+    }
+    else
+    {
+        <span>NULL VIEWDATA</span>
+    }
+</div>
