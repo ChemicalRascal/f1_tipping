@@ -170,6 +170,10 @@ namespace F1Tipping.Postgres.ModelMigrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<DateTimeOffset>("EndDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("enddate");
+
                     b.Property<int>("Index")
                         .HasColumnType("integer")
                         .HasColumnName("index");
@@ -297,6 +301,10 @@ namespace F1Tipping.Postgres.ModelMigrations
                     b.Property<DateTimeOffset>("QualificationStart")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("qualificationstart");
+
+                    b.Property<DateTimeOffset>("RaceEnd")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("raceend");
 
                     b.Property<DateTimeOffset>("RaceStart")
                         .HasColumnType("timestamp with time zone")

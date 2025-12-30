@@ -33,7 +33,7 @@ public class FullScoresModel(
     {
         var eventCutoff = DateTimeOffset.UtcNow;
 
-        var currentSeason = await roundData.GetKindCurrentSeasonAsync();
+        //var currentSeason = await roundData.GetCurrentSeasonAsync();
 
         var players = (await _modelDb.Players
             .Where(p => p.Status == PlayerStatus.Normal).ToListAsync())

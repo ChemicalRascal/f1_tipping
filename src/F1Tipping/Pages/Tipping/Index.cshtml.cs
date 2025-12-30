@@ -9,28 +9,21 @@ using Microsoft.AspNetCore.Identity;
 using F1Tipping.PlayerData;
 using F1Tipping.Tipping;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 namespace F1Tipping.Pages.Tipping
 {
     [PlayerMustBeInitalized]
-    public class IndexModel : PlayerPageModel
+    public class IndexModel(
+        IConfiguration configuration,
+        UserManager<User> userManager,
+        AppDbContext appDb,
+        ModelDbContext modelDb,
+        TipScoringService scoreService
+        ) : PlayerPageModel(configuration, userManager, appDb, modelDb)
     {
-        private TipScoringService _scoreService;
-
-        public IndexModel(
-            IConfiguration configuration,
-            UserManager<User> userManager,
-            AppDbContext appDb,
-            ModelDbContext modelDb,
-            TipScoringService scoreService
-            ) : base(configuration, userManager, appDb, modelDb)
-        {
-            _scoreService = scoreService;
-            EventTips = new List<EventTipView>();
-        }
-
         [BindProperty]
-        public IList<EventTipView> EventTips { get; set; } = default!;
+        public IList<EventTipView> EventTips { get; set; } = [];
 
         public async Task<IActionResult> OnGet()
         {
@@ -55,7 +48,7 @@ namespace F1Tipping.Pages.Tipping
 
             foreach (var e in events)
             {
-                var scoreReport = await _scoreService.GetReportAsync(Player!, e);
+                var scoreReport = await scoreService.GetReportAsync(Player!, e);
                 var tipList = e is IEventWithResults
                     ? await TipReportingService.GetTipsAsync(Player!, (e as IEventWithResults)!, _modelDb)
                     : Array.Empty<Tip>();
