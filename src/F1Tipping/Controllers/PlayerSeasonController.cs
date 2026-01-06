@@ -4,8 +4,6 @@ using F1Tipping.Platform;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
-using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,15 +14,18 @@ namespace F1Tipping.Controllers;
 public class PlayerSeasonController(
     UserManager<User> userManager,
     ModelDbContext modelDb,
+    AppDbContext appDb,
     CurrentDataService currentData
     ) : ControllerBase
 {
     private async Task<User> GetDbUser()
         => await userManager.GetUserAsync(User) ?? throw new ApplicationException($"Null user for {User.Identity}");
 
+    public record UpdateResponse(bool RequiresRefresh);
+
     // PUT api/<PlayerSeasonController>/<guid>
     [HttpPut("{seasonId}")]
-    public async Task Put(Guid seasonId)
+    public async Task<UpdateResponse> Put(Guid seasonId)
     {
         var user = await GetDbUser();
 
@@ -32,6 +33,11 @@ public class PlayerSeasonController(
         {
             // TODO: Logging
             seasonId = (await currentData.GetCurrentSeasonAsync()).Id;
+        }
+
+        if (user.Settings.SystemSettings?.SelectedSeason == seasonId)
+        {
+            return new(false);
         }
 
         if (user.Settings.SystemSettings is null)
@@ -42,8 +48,9 @@ public class PlayerSeasonController(
         {
             user.Settings.SystemSettings?.SelectedSeason = seasonId;
         }
-        modelDb.Update(user);
-        await modelDb.SaveChangesAsync();
+        appDb.Update(user);
+        await appDb.SaveChangesAsync();
+        return new(true);
     }
 
     // GET api/<PlayerSeasonController>

@@ -41,4 +41,8 @@
     <ProjectReference Include="..\F1Tipping.SqlServer\F1Tipping.SqlServer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\js\components\seasonSelector.js" />
+  </ItemGroup>
+
 </Project>

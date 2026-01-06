@@ -15,7 +15,7 @@ namespace F1Tipping.Pages.PlayerAdmin
             UserManager<User> userManager,
             AppDbContext appDb,
             ModelDbContext modelDb
-            ) : base(configuration, userManager, appDb, modelDb)
+            ) : base(configuration, userManager, modelDb)
         { }
 
         public class DetailsEditModel
@@ -59,7 +59,7 @@ namespace F1Tipping.Pages.PlayerAdmin
                 return BadRequest();
             }
 
-            if (await _modelDb.CreatePlayerIfNeededAsync(AuthUser!))
+            if (await ModelDb.CreatePlayerIfNeededAsync(AuthUser!))
             {
                 await SetUserAsync(User);
             }
@@ -75,8 +75,8 @@ namespace F1Tipping.Pages.PlayerAdmin
                             ? Details.DisplayName : null,
             };
             Player.Status = Model.Tipping.PlayerStatus.Normal;
-            _modelDb.Update(Player);
-            await _modelDb.SaveChangesAsync();
+            ModelDb.Update(Player);
+            await ModelDb.SaveChangesAsync();
 
             return Redirect("/");
         }

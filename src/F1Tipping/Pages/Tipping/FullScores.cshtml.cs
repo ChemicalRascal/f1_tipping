@@ -14,11 +14,10 @@ namespace F1Tipping.Pages.Tipping;
 public class FullScoresModel(
     IConfiguration configuration,
     UserManager<User> userManager,
-    AppDbContext appDb,
     ModelDbContext modelDb,
     TipScoringService tipScoring,
-    CurrentDataService roundData
-        ) : PlayerPageModel(configuration, userManager, appDb, modelDb)
+    CurrentDataService currentData
+    ) : PlayerPageModel(configuration, userManager, modelDb)
 {
     private const int DISPLAY_NAME_LEN = 7;
 
@@ -31,26 +30,26 @@ public class FullScoresModel(
 
     public async Task<IActionResult> OnGet(string? year = null)
     {
+        var selectedSeasonId = AuthUser!.Settings.SystemSettings?.SelectedSeason ?? (await currentData.GetCurrentSeasonAsync()).Id;
         var eventCutoff = DateTimeOffset.UtcNow;
 
-        //var currentSeason = await roundData.GetCurrentSeasonAsync();
-
-        var players = (await _modelDb.Players
+        var players = (await ModelDb.Players
             .Where(p => p.Status == PlayerStatus.Normal).ToListAsync())
             .OrderBy(p => p != Player)
             .ThenBy(p => p.Details?.DisplayName ?? p.Details?.FirstName);
 
-        var scoreboardEvents = (await _modelDb.Events
-            .Where(e => e.TipsDeadline < eventCutoff).ToListAsync())
+        var scoreboardEvents = Array.Empty<Event>()
+            .Concat(await ModelDb.Seasons.Where(s => s.TipsDeadline < eventCutoff && s.Id == selectedSeasonId).ToListAsync())
+            .Concat(await ModelDb.Races.Where(r => r.TipsDeadline < eventCutoff && r.Weekend.Season.Id == selectedSeasonId).ToListAsync())
             .OrderBy(e => e.OrderKey);
 
         var results = (await (
-            from r in _modelDb.Results
+            from r in ModelDb.Results
             join eId in scoreboardEvents.Select(e => e.Id) on r.Event.Id equals eId
             select r).ToListAsync()).ToLookup(r => r.Event.Id);
 
         var tips = (await (
-                from t in _modelDb.Tips
+                from t in ModelDb.Tips
                 join eId in scoreboardEvents.Select(e => e.Id) on t.Target.Event.Id equals eId
                 group t by new { eId, t.Tipper.Id, t.Target.Type }
             ).ToListAsync())

@@ -35,6 +35,7 @@ public class Race : Event, IEventWithResults
             RaceType.Main => 0.2f,
             _ => throw new NotImplementedException(),
         };
+
     public override string EventName =>
         $"{Weekend.Season.Year}, Round {Weekend.Index} - {
             Type switch {

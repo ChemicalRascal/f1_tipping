@@ -2,54 +2,52 @@
 using F1Tipping.Data.AppModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
 
-namespace F1Tipping.PlayerData
+namespace F1Tipping.PlayerData;
+
+[AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+public class PlayerMustBeInitalizedAttribute : Attribute {}
+
+public class ForcePlayerInitalizationMiddleware
 {
-    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
-    public class PlayerMustBeInitalizedAttribute : Attribute {}
+    private readonly RequestDelegate _next;
 
-    public class ForcePlayerInitalizationMiddleware
+    private const string INIT_PATH = "/PlayerAdmin/Init";
+
+    public ForcePlayerInitalizationMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
-
-        private const string INIT_PATH = "/PlayerAdmin/Init";
-
-        public ForcePlayerInitalizationMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
-
-        public async Task InvokeAsync(
-            HttpContext context,
-            ModelDbContext modelDb,
-            UserManager<User> userManager)
-        {
-            if (context.GetEndpoint()?.Metadata
-                ?.GetMetadata<PlayerMustBeInitalizedAttribute>() is not null
-                && (context.User.Identity?.IsAuthenticated ?? false)
-                && context.User.IsInRole("Player"))
-            {
-                var user = await userManager.GetUserAsync(context.User);
-                var player = await modelDb.Players.SingleOrDefaultAsync(
-                    p => p.AuthUserId == user!.Id);
-                if (player is null
-                    || player.Status == Model.Tipping.PlayerStatus.Uninitialized)
-                {
-                    context.Response.Redirect(INIT_PATH);
-                }
-            }
-
-            await _next(context);
-        }
+        _next = next;
     }
 
-    public static class ForcePlayerInitalizationMiddlewareExtensions
+    public async Task InvokeAsync(
+        HttpContext context,
+        ModelDbContext modelDb,
+        UserManager<User> userManager)
     {
-        public static IApplicationBuilder UseForcePlayerInitialization(
-            this IApplicationBuilder builder)
+        if (context.GetEndpoint()?.Metadata
+            ?.GetMetadata<PlayerMustBeInitalizedAttribute>() is not null
+            && (context.User.Identity?.IsAuthenticated ?? false)
+            && context.User.IsInRole("Player"))
         {
-            return builder.UseMiddleware<ForcePlayerInitalizationMiddleware>();
+            var user = await userManager.GetUserAsync(context.User);
+            var player = await modelDb.Players.SingleOrDefaultAsync(
+                p => p.AuthUserId == user!.Id);
+            if (player is null
+                || player.Status == Model.Tipping.PlayerStatus.Uninitialized)
+            {
+                context.Response.Redirect(INIT_PATH);
+            }
         }
+
+        await _next(context);
+    }
+}
+
+public static class ForcePlayerInitalizationMiddlewareExtensions
+{
+    public static IApplicationBuilder UseForcePlayerInitialization(
+        this IApplicationBuilder builder)
+    {
+        return builder.UseMiddleware<ForcePlayerInitalizationMiddleware>();
     }
 }

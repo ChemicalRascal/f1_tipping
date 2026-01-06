@@ -1,60 +1,49 @@
-﻿using AspNetCoreGeneratedDocument;
-using F1Tipping.Data;
+﻿using F1Tipping.Data;
 using F1Tipping.Data.AppModel;
 using F1Tipping.Model.Tipping;
+using F1Tipping.Platform;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
-namespace F1Tipping.Pages.PageModels
+namespace F1Tipping.Pages.PageModels;
+
+[Authorize(Roles = Role.Player)]
+public abstract class PlayerPageModel(
+    IConfiguration configuration,
+    UserManager<User> userManager,
+    ModelDbContext modelDb
+    ) : BasePageModel(configuration)
 {
-    [Authorize(Roles = "Player")]
-    public abstract class PlayerPageModel : BasePageModel
+    protected ModelDbContext ModelDb = modelDb;
+
+    // TODO: Rework SetUserAsync call into being part of middleware, to
+    // ensure that call is made after authentication in pipeline. Doing so
+    // should allow us to just use normal properties here as well
+    [BindProperty]
+    public User? AuthUser
+    { get { if (!_stateSet) { SetUserAsync(User).Wait(); }
+            return _authUser; } }
+
+    [BindProperty]
+    public Player? Player
+    { get { if (!_stateSet) { SetUserAsync(User).Wait(); }
+            return _player; } }
+
+    private bool _stateSet = false;
+    private User? _authUser;
+    private Player? _player;
+
+    protected async Task SetUserAsync(ClaimsPrincipal userClaim)
     {
-        private UserManager<User> _userManager;
-        private AppDbContext _appDb;
-        protected ModelDbContext _modelDb;
-
-        // TODO: Rework SetUserAsync call into being part of middleware, to
-        // ensure that call is made after authentication in pipeline. Doing so
-        // should allow us to just use normal properties here as well
-        [BindProperty]
-        public User? AuthUser
-        { get { if (!_stateSet) { SetUserAsync(User).Wait(); }
-                return _authUser; } }
-        [BindProperty]
-        public Player? Player
-        { get { if (!_stateSet) { SetUserAsync(User).Wait(); }
-                return _player; } }
-
-        private bool _stateSet = false;
-        private User? _authUser;
-        private Player? _player;
-
-        protected PlayerPageModel(
-            IConfiguration configuration,
-            UserManager<User> userManager,
-            AppDbContext appDb,
-            ModelDbContext modelDb
-            ) : base(configuration)
+        _authUser = await userManager.GetUserAsync(userClaim);
+        if (_authUser is not null)
         {
-            _userManager = userManager;
-            _appDb = appDb;
-            _modelDb = modelDb;
+            _player = await ModelDb.Players.SingleOrDefaultAsync(
+                p => p.AuthUserId == _authUser.Id);
         }
-
-        protected async Task SetUserAsync(ClaimsPrincipal userToSet)
-        {
-            _authUser = await _userManager.GetUserAsync(userToSet);
-            if (_authUser is not null)
-            {
-                _player = await _modelDb.Players.SingleOrDefaultAsync(
-                    p => p.AuthUserId == _authUser.Id);
-            }
-            _stateSet = true;
-        }
+        _stateSet = true;
     }
 }
