@@ -6,38 +6,38 @@ public enum ResultType
 {
     NotSet,
 
-    [Display(Name = "Driver's Championship")]
+    [Display(Name = "Driver's Championship", ShortName = "Driver")]
     [Scores(15)]
     DriversChampionship,
 
-    [Display(Name = "Constructor's Championship")]
+    [Display(Name = "Constructor's Championship", ShortName = "Team")]
     [Scores(15)]
     ConstructorsChampionship,
 
-    [Display(Name = "Pole Position")]
+    [Display(Name = "Pole Position", ShortName = "Pole")]
     [Scores(1)]
     PolePosition,
 
-    [Display(Name = "First Place")]
+    [Display(Name = "First Place", ShortName = "First")]
     [MustNotEqual(SecondPlace, ThirdPlace)]
     [Scores(2, 1, SecondPlace, ThirdPlace)]
     FirstPlace,
 
-    [Display(Name = "Second Place")]
+    [Display(Name = "Second Place", ShortName = "Second")]
     [MustNotEqual(FirstPlace, ThirdPlace)]
     [Scores(2, 1, FirstPlace, ThirdPlace)]
     SecondPlace,
 
-    [Display(Name = "Third Place")]
+    [Display(Name = "Third Place", ShortName = "Third")]
     [MustNotEqual(FirstPlace, SecondPlace)]
     [Scores(2, 1, FirstPlace, SecondPlace)]
     ThirdPlace,
 
-    [Display(Name = "Fastest Lap")]
+    [Display(Name = "Fastest Lap", ShortName = "Hotlap")]
     [Scores(1)]
     FastestLap,
 
-    [Display(Name = "First DNF")]
+    [Display(Name = "First DNF", ShortName = "DNF")]
     [Scores(3)]
     FirstDnf,
 }

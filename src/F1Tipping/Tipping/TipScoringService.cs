@@ -1,16 +1,50 @@
 ﻿using F1Tipping.Data;
 using F1Tipping.Model;
 using F1Tipping.Model.Tipping;
+using F1Tipping.Platform;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace F1Tipping.Tipping;
 
-public class TipScoringService(ModelDbContext modelDb)
+public class TipScoringService(
+    ModelDbContext modelDb,
+    CurrentDataService currentData
+    )
 {
-    public async Task<(decimal completed, decimal provisional)> GetPlayerScoreAsync(Player player, Guid seasonId)
+    public async Task<PlayerSeasonReport> GetPlayerScoreAsync(Player player, Guid seasonId)
     {
-        var completeEvents = Array.Empty<Event>()
+        var season = await modelDb.Seasons.Include(s => s.Rounds)
+            .SingleOrDefaultAsync(s => s.Id == seasonId)
+            ?? throw new ApplicationException($"Bad season ID: {seasonId}");
+        var seasonIsCurrent = (await currentData.GetCurrentSeasonAsync()).Id == seasonId;
+        var roundUpperLimit = int.MaxValue;
+        PlayerEventReport? currentMainRace = null;
+        PlayerEventReport? currentSprintRace = null;
+
+        if (seasonIsCurrent)
+        {
+            (currentMainRace, currentSprintRace, var currentRound)
+                = await GetCurrentRoundData(player, currentMainRace, currentSprintRace);
+
+            roundUpperLimit = currentRound?.Index
+                ?? (await currentData.GetNextRoundAsync())?.Index
+                ?? roundUpperLimit;
+        }
+
+        var oldRounds = season.Rounds.Where(r => r.Index < roundUpperLimit);
+        decimal? oldScore = null;
+        foreach (var e in oldRounds.SelectMany(r => r.Events))
+        {
+            oldScore ??= 0m;
+            oldScore += (await GetReportAsync(player, e))?.EventScore ?? 0m;
+        }
+
+        var seasonReport = await GetReportAsync(player, season);
+
+        return new(oldScore, currentSprintRace, currentMainRace, seasonReport);
+
+        /* var completeEvents = Array.Empty<Event>()
             .Concat(await modelDb.Seasons.Where(s => s.Completed && s.Id == seasonId).ToListAsync())
             .Concat(await modelDb.Races.Where(r => r.Completed && r.Weekend.Season.Id == seasonId).ToListAsync());
         var completedScore = 0m;
@@ -28,7 +62,39 @@ public class TipScoringService(ModelDbContext modelDb)
             provisionalScore += (await GetReportAsync(player, e))?.EventScore ?? 0m;
         }
 
-        return (completedScore, provisionalScore);
+        return (completedScore, provisionalScore); */
+    }
+
+    private async Task<(
+        PlayerEventReport? currentMainRace,
+        PlayerEventReport? currentSprintRace,
+        Round? currentRound)>
+        GetCurrentRoundData(Player player, PlayerEventReport? currentMainRace, PlayerEventReport? currentSprintRace)
+    {
+        var currentRound = await currentData.GetCurrentRoundAsync() ?? await currentData.GetPreviousRoundAsync();
+
+        if (currentRound is not null)
+        {
+            foreach (var roundEvent in currentRound.Events)
+            {
+                if (roundEvent is Race raceEvent)
+                {
+                    switch (raceEvent.Type)
+                    {
+                        case RaceType.Main:
+                            currentMainRace = await GetReportAsync(player, roundEvent);
+                            break;
+                        case RaceType.Sprint:
+                            currentSprintRace = await GetReportAsync(player, roundEvent);
+                            break;
+                        default:
+                            throw new NotImplementedException($"raceEvent.Type of {raceEvent.Type}");
+                    }
+                }
+            }
+        }
+
+        return (currentMainRace, currentSprintRace, currentRound);
     }
 
     public async Task<PlayerEventReport?> GetReportAsync(Player player, Event @event)
@@ -75,7 +141,7 @@ public class TipScoringService(ModelDbContext modelDb)
         return new PlayerEventReport() { ScoredTips = scoredTips.ToDictionary(st => st.Tip.Target.Type) };
     }
 
-    public PlayerEventReport? GetReport(Event @event, IList<Tip> playerTips)
+    public PlayerEventReport? GetReportFromTips(Event @event, IList<Tip> playerTips)
     {
         if (playerTips.IsNullOrEmpty())
         {
@@ -124,12 +190,27 @@ public class TipScoringService(ModelDbContext modelDb)
         return new PlayerEventReport() { ScoredTips = scoredTips.ToDictionary(st => st.Tip.Target.Type) };
     }
 
+    public record PlayerSeasonReport(
+        decimal? AllRoundsBedoreCurrent,
+        PlayerEventReport? CurrentRoundSprintRace,
+        PlayerEventReport? CurrentRoundMainRace,
+        PlayerEventReport? Championship)
+    {
+        public decimal SummedScore => (AllRoundsBedoreCurrent ?? 0m)
+            + (CurrentRoundSprintRace?.EventScore ?? 0m)
+            + (CurrentRoundMainRace?.EventScore ?? 0m)
+            + (Championship?.EventScore ?? 0m);
+    }
+
     public class PlayerEventReport
     {
-        public Dictionary<ResultType,ScoredTip> ScoredTips { get; set; } = new();
-        public decimal? EventScore { get => ScoredTips.Any()
+        public Dictionary<ResultType, ScoredTip> ScoredTips { get; set; } = [];
+        public decimal? EventScore
+        {
+            get => ScoredTips.Any()
                 ? ScoredTips.Values.Select(x => x.Score).Aggregate((x, y) => x + y)
-                : null; }
+                : null;
+        }
     }
 
     public class ScoredTip

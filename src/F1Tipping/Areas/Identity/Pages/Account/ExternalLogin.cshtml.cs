@@ -58,7 +58,7 @@ public class ExternalLoginModel : BasePageModel
     
     public IActionResult OnGet() => RedirectToPage("./Login");
 
-    public IActionResult OnPost(string provider, string returnUrl = null)
+    public IActionResult OnPost(string provider, string? returnUrl = null)
     {
         // Request a redirect to the external login provider.
         var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl });
@@ -66,7 +66,7 @@ public class ExternalLoginModel : BasePageModel
         return new ChallengeResult(provider, properties);
     }
 
-    public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
+    public async Task<IActionResult> OnGetCallbackAsync(string? returnUrl = null, string? remoteError = null)
     {
         returnUrl = returnUrl ?? Url.Content("~/");
         if (remoteError != null)
@@ -85,7 +85,7 @@ public class ExternalLoginModel : BasePageModel
         var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
         if (result.Succeeded)
         {
-            _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
+            _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity?.Name, info.LoginProvider);
             return LocalRedirect(returnUrl);
         }
         if (result.IsLockedOut)
@@ -96,19 +96,19 @@ public class ExternalLoginModel : BasePageModel
         {
             // If the user does not have an account, then ask the user to create an account.
             ReturnUrl = returnUrl;
-            ProviderDisplayName = info.ProviderDisplayName;
-            if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
+            ProviderDisplayName = info?.ProviderDisplayName ?? string.Empty;
+            if (info?.Principal.HasClaim(c => c.Type == ClaimTypes.Email) ?? false)
             {
                 Input = new InputModel
                 {
-                    Email = info.Principal.FindFirstValue(ClaimTypes.Email)
+                    Email = info.Principal.FindFirstValue(ClaimTypes.Email)!,
                 };
             }
             return Page();
         }
     }
 
-    public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
+    public async Task<IActionResult> OnPostConfirmationAsync(string? returnUrl = null)
     {
         returnUrl = returnUrl ?? Url.Content("~/");
         // Get the information about the user from the external login provider
@@ -144,7 +144,7 @@ public class ExternalLoginModel : BasePageModel
                         protocol: Request.Scheme);
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl ?? string.Empty)}'>clicking here</a>.");
 
                     // If account confirmation is required, we need to show the link if we don't have a real email sender
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
@@ -162,7 +162,7 @@ public class ExternalLoginModel : BasePageModel
             }
         }
 
-        ProviderDisplayName = info.ProviderDisplayName;
+        ProviderDisplayName = info.ProviderDisplayName ?? string.Empty;
         ReturnUrl = returnUrl;
         return Page();
     }

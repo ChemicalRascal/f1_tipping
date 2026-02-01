@@ -8,7 +8,6 @@ namespace F1Tipping.Pages.Admin.Data
 {
     public class IndexModel : AdminPageModel
     {
-        private DataSeeder _dataSeeder;
         private ModelDbContext _modelDb;
 
         [BindProperty]
@@ -16,10 +15,9 @@ namespace F1Tipping.Pages.Admin.Data
         [BindProperty]
         public IDictionary<Guid, string[]> PlayersWithTips { get; set; } = default!;
 
-        public IndexModel(IConfiguration configuration, DataSeeder dataSeeder, ModelDbContext modelDb)
+        public IndexModel(IConfiguration configuration, ModelDbContext modelDb)
             : base(configuration)
         {
-            _dataSeeder = dataSeeder;
             _modelDb = modelDb;
         }
 
@@ -34,12 +32,6 @@ namespace F1Tipping.Pages.Admin.Data
                  join t in tips on e equals t.Target.Event
                  group t.Tipper.Details?.FirstName ?? "??" by e.Id)
                  .ToDictionary(g => g.Key, g => g.Distinct().Order().ToArray());
-        }
-
-        public async Task OnGetSeedDataAsync()
-        {
-            await _dataSeeder.Seed2025SeasonAsync();
-            await OnGetAsync();
         }
     }
 }

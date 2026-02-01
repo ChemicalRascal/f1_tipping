@@ -113,6 +113,8 @@ public partial class TippingDataSeedingService
                     {
                         dbRound.Title = round.Title;
                         dbRound.StartDate = round.RoundStart.Value.UtcDateTime;
+                        dbRound.EndDate = round.RaceEnd?.UtcDateTime
+                                ?? round.RoundStart.Value.UtcDateTime + FALLBACK_RACE_LENGTH;
                     }
                 }
 
@@ -127,8 +129,9 @@ public partial class TippingDataSeedingService
                     if (dbMainRace is not null)
                     {
                         dbRound.Events.Remove(dbMainRace);
-                        continue;
                     }
+                    modelDb.Update(dbRound);
+                    continue;
                 }
                 else
                 {
@@ -151,12 +154,14 @@ public partial class TippingDataSeedingService
                             modelDb.Update(dbRound);
                         }
                     }
+                    else
                     {
                         dbMainRace.QualificationStart = round.QualiStart.Value.UtcDateTime;
                         dbMainRace.RaceStart = round.RaceStart.Value.UtcDateTime;
                         dbMainRace.RaceEnd = round.RaceEnd?.UtcDateTime
                                           ?? round.RaceStart.Value.UtcDateTime + FALLBACK_RACE_LENGTH;
                         dbMainRace.TipsDeadline = Earliest(round.QualiStart.Value, sprintRaceTipDeadline).UtcDateTime;
+                        modelDb.Update(dbMainRace);
                     }
 
                     if (dbSeason.TipsDeadline > dbMainRace.TipsDeadline)

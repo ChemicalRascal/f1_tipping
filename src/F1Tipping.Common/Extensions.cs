@@ -21,18 +21,23 @@ public static class Extensions
     {
         public string DisplayName()
         {
-            var displays = value.GetType().GetField(value.ToString())
-                !.GetCustomAttributes<DisplayAttribute>();
-            return displays.FirstOrDefault(d => !string.IsNullOrEmpty(d.Name))
-                ?.Name ?? value.ToString();
+            var displays = value.GetType().GetField(value.ToString())!.GetCustomAttributes<DisplayAttribute>();
+            return displays.FirstOrDefault(d => !string.IsNullOrEmpty(d.Name))?.Name
+                ?? value.ToString();
+        }
+
+        public string ShortName()
+        {
+            var displays = value.GetType().GetField(value.ToString())!.GetCustomAttributes<DisplayAttribute>();
+            return displays.FirstOrDefault(d => !string.IsNullOrEmpty(d.ShortName))?.ShortName
+                ?? value.ToString();
         }
 
         public string DisplayDescription()
         {
-            var displays = value.GetType().GetField(value.ToString())
-                !.GetCustomAttributes<DisplayAttribute>();
-            return displays.FirstOrDefault(d => !string.IsNullOrEmpty(d.Description))
-                ?.Description ?? value.ToString();
+            var displays = value.GetType().GetField(value.ToString())!.GetCustomAttributes<DisplayAttribute>();
+            return displays.FirstOrDefault(d => !string.IsNullOrEmpty(d.Description))?.Description
+                ?? value.ToString();
         }
     }
 }

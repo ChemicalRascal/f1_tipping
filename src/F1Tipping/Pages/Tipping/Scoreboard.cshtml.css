@@ -1,0 +1,29 @@
+﻿.scoreboard {
+    overflow-x: scroll;
+
+    th.multicol-header {
+        text-align: center;
+    }
+}
+
+.show-lg {
+    display: revert;
+}
+
+.show-md {
+    display: none;
+}
+
+@media (max-width: 767.98px) {
+    .scoreboard th {
+        font-size: 0.75em;
+    }
+
+    .show-lg {
+        display: none;
+    }
+
+    .show-md {
+        display: revert;
+    }
+}

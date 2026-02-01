@@ -69,7 +69,7 @@ public class FullScoresModel(
             foreach (var p in players)
             {
                 var playerEventTips = tips[(p.Id, e.Id)].ToList();
-                var report = tipScoring.GetReport(e, playerEventTips);
+                var report = tipScoring.GetReportFromTips(e, playerEventTips);
                 if (report is not null && report.ScoredTips.Count > 0)
                 {
                     Reports[(p.Id, e.Id)] = report;
