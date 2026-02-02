@@ -1,8 +1,15 @@
 ﻿.scoreboard {
-    overflow-x: scroll;
+    text-wrap: nowrap;
+    display: flex;
 
     th.multicol-header {
         text-align: center;
+    }
+    table {
+        width: revert;
+    }
+    .middle-table-wrapper {
+        overflow-x: scroll;
     }
 }
 
@@ -18,11 +25,9 @@
     .scoreboard th {
         font-size: 0.75em;
     }
-
     .show-lg {
         display: none;
     }
-
     .show-md {
         display: revert;
     }
