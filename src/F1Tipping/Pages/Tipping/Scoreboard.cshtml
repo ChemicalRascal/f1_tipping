@@ -110,9 +110,9 @@
                         var seasonCols = Model.Season?.Results.Count ?? 0;
                         if (!pinFirstColumn)
                         {
-                            // <th colspan=@($"{(Model.PreviousRoundTitle is not null ? 2 : 1)}")>
-                            //     @(Model.CurrentRoundTitle)
-                            // </th>
+                            <th colspan=@($"{(Model.PreviousRoundTitle is not null ? 2 : 1)}")>
+                                @(Model.CurrentRoundTitle)
+                            </th>
                         }
                         if (sprintCols != 0)
                         {
