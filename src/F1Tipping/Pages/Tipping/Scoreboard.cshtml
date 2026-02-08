@@ -65,7 +65,14 @@
             <thead>
                 <tr>
                     <th colspan=@($"{(Model.PreviousRoundTitle is not null ? 2 : 1)}")>
-                        @(Model.CurrentRoundTitle)
+                        @if (!string.IsNullOrEmpty(Model.CurrentRoundTitle))
+                        {
+                            @(Model.CurrentRoundTitle)
+                        }
+                        else
+                        {
+                            @:&nbsp;
+                        }
                     </th>
                 </tr>
                 <tr>
@@ -111,7 +118,14 @@
                         if (!pinFirstColumn)
                         {
                             <th colspan=@($"{(Model.PreviousRoundTitle is not null ? 2 : 1)}")>
-                                @(Model.CurrentRoundTitle)
+                                @if (!string.IsNullOrEmpty(Model.CurrentRoundTitle))
+                                {
+                                    @(Model.CurrentRoundTitle)
+                                }
+                                else
+                                {
+                                    @:&nbsp;
+                                }
                             </th>
                         }
                         if (sprintCols != 0)
