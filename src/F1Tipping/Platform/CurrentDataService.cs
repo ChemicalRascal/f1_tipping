@@ -20,12 +20,6 @@ public class CurrentDataService(ModelDbContext modelDb)
     {
         season ??= await GetCurrentSeasonAsync();
 
-        if (season.Year == 2025)
-        {
-            return modelDb.Rounds.First(r =>
-            r.Id == new Guid("019b5c94-9fcd-7465-84a2-538917d46c97"));
-        }
-
         var currentTime = DateTimeOffset.UtcNow;
         return await modelDb.Rounds.SingleOrDefaultAsync(
             r => r.Season == season
