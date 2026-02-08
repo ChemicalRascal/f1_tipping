@@ -6,7 +6,7 @@ namespace F1Tipping.Tipping
 {
     public class TipValidiationService
     {
-        public IDictionary<ResultType, string> GetErrors(IList<IThinTip> tips)
+        public IDictionary<ResultType, string> GetErrors(IEnumerable<IThinTip> tips)
         {
             var errors = new Dictionary<ResultType, string>();
 

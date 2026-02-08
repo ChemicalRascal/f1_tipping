@@ -27,18 +27,16 @@ public class IndexModel(
 
     public async Task<IActionResult> OnGet()
     {
-        var selectedSeasonId = AuthUser!.Settings.SystemSettings?.SelectedSeason ?? (await currentData.GetCurrentSeasonAsync()).Id;
+        var selectedSeason = AuthUser!.Settings.SystemSettings?.SelectedSeason is not null
+            ? await ModelDb.Seasons.FirstAsync(s => s.Id == AuthUser.Settings.SystemSettings.SelectedSeason)
+            : await currentData.GetCurrentSeasonAsync();
 
-        var events = Array.Empty<Event>()
-            .Concat(await ModelDb.Seasons.Where(s => s.Id == selectedSeasonId).ToListAsync())
-            .Concat(await ModelDb.Races.Where(r => r.Weekend.Season.Id == selectedSeasonId).ToListAsync())
-            .OrderBy(e => e.OrderKey);
+        IEnumerable<Event> events = [..await ModelDb.Races.Where(r => r.Weekend.Season.Id == selectedSeason.Id).ToListAsync(), selectedSeason];
+        events = events.OrderBy(e => e.OrderKey);
         var eventsToShowTipsFor = new List<Event>();
         var otherActivePlayers = new List<Player>();
 
-        var nextRound = ((Race?)events.FirstOrDefault(
-            e => e.TipsDeadline > DateTimeOffset.UtcNow && e is Race))?.Weekend;
-
+        var nextRound = await currentData.GetNextRoundAsync(selectedSeason);
         if (nextRound is not null)
         {
             eventsToShowTipsFor.AddRange(nextRound.Events.Where(e => e is IEventWithResults));
@@ -87,10 +85,11 @@ public class IndexModel(
 
             EventTips.Add(new EventTipView(
                 EventId: e.Id,
+                RoundId: e is Race r ? r.Weekend.Id : null,
                 Name: e switch
                 {
-                    Season s => $"{s.Year} Season",
-                    Race r => BuildRaceName(r),
+                    Season seasonEvent => $"{seasonEvent.Year} Season",
+                    Race raceEvent => BuildRaceName(raceEvent),
                     _ => throw new NotImplementedException(),
                 },
                 Deadline: e.TipsDeadline,
@@ -116,6 +115,7 @@ public class IndexModel(
 
     public record EventTipView(
         Guid EventId,
+        Guid? RoundId,
         string Name,
         DateTimeOffset Deadline,
         [property: Display(Name = "You Tipped")]

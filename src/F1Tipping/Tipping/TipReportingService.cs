@@ -5,18 +5,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace F1Tipping.Tipping
 {
-    public static class TipReportingService
+    public class TipReportingService(IDbContextFactory<ModelDbContext> modelDbContextFactory)
     {
         public static readonly TimeSpan CACHE_LENGTH = new TimeSpan(0, minutes: 30, 0);
-
         private static readonly Dictionary<(Guid PlayerId, Guid EventId), CachedTips> _tipsCache = [];
+
+        public async Task<IEnumerable<Tip>> GetTipsAsync(Player player, IEventWithResults @event)
+        {
+            using (var modelDb = await modelDbContextFactory.CreateDbContextAsync())
+            {
+                // TODO: Transition entire codebase away from static method
+                return await GetTipsAsync(player, @event, modelDb);
+            }
+        }
 
         public static async Task<IEnumerable<Tip>> GetTipsAsync(Player player, IEventWithResults @event, ModelDbContext modelDb)
         {
             if (_tipsCache.TryGetValue((player.Id, ((Event)@event).Id), out var tips)
                 && tips.Expiry > DateTimeOffset.UtcNow)
             {
-                return tips.Value ?? Array.Empty<Tip>();
+                return tips.Value ?? [];
             }
 
             tips = new CachedTips(DateTimeOffset.UtcNow + CACHE_LENGTH,
@@ -27,7 +35,7 @@ namespace F1Tipping.Tipping
                     .ToListAsync());
             _tipsCache[(player.Id, ((Event)@event).Id)] = tips;
 
-            return tips.Value ?? Array.Empty<Tip>();
+            return tips.Value ?? [];
         }
 
         public static void BustCache(Player player, Event @event)

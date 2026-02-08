@@ -83,7 +83,14 @@
         var forcedUnderline = hasTippingPlayersLine ? "border-bottom" : string.Empty;
         <tr class="@optionalUnderline">
             <td class="@optionalUnderline">
-                <a asp-page="./Event" asp-route-id="@e.EventId">@e.Name</a>
+                @if (e.RoundId is not null)
+                {
+                    <a asp-page="./Round" asp-route-id="@e.RoundId">@e.Name</a>
+                }
+                else
+                {
+                    <a asp-page="./Event" asp-route-id="@e.EventId">@e.Name</a>
+                }
             </td>
             <td class="@forcedUnderline">
                 <input name="deadlineValue" type="hidden" value="@(e.Deadline.ToUnixTimeSeconds()*1000)"/>

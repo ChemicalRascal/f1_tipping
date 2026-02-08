@@ -43,7 +43,9 @@ public class Program
             }
         }
         builder.Services.AddDbContext<AppDbContext>(doDatabaseSetup);
-        builder.Services.AddDbContext<ModelDbContext>(doDatabaseSetup);
+        builder.Services.AddDbContextFactory<ModelDbContext>(doDatabaseSetup);
+
+        builder.Services.AddSingleton<TipReportingService>();
 
         builder.Services.AddScoped<CurrentDataService>();
         builder.Services.AddScoped<RoundOrchestrationService>();

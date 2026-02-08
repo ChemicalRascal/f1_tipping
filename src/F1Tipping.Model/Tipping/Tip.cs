@@ -10,7 +10,7 @@ public class Tip : IThinTip
     public Guid? SubmittedBy_AuthUser { get; set; }
 
     public bool IsProxyTip => SubmittedBy_AuthUser is not null &&
-        Tipper.AuthUserId == SubmittedBy_AuthUser;
+        Tipper.AuthUserId != SubmittedBy_AuthUser;
 
     ResultType IThinTip.Type => Target.Type;
     Guid IThinTip.Selection => Selection.Id;

@@ -43,26 +43,6 @@ public class TipScoringService(
         var seasonReport = await GetReportAsync(player, season);
 
         return new(oldScore, currentSprintRace, currentMainRace, seasonReport);
-
-        /* var completeEvents = Array.Empty<Event>()
-            .Concat(await modelDb.Seasons.Where(s => s.Completed && s.Id == seasonId).ToListAsync())
-            .Concat(await modelDb.Races.Where(r => r.Completed && r.Weekend.Season.Id == seasonId).ToListAsync());
-        var completedScore = 0m;
-        foreach (var e in completeEvents)
-        {
-            completedScore += (await GetReportAsync(player, e))?.EventScore ?? 0m;
-        }
-
-        var incompleteEvents = Array.Empty<Event>()
-            .Concat(await modelDb.Seasons.Where(s => !s.Completed && s.Id == seasonId).ToListAsync())
-            .Concat(await modelDb.Races.Where(r => !r.Completed && r.Weekend.Season.Id == seasonId).ToListAsync());
-        var provisionalScore = 0m;
-        foreach (var e in incompleteEvents)
-        {
-            provisionalScore += (await GetReportAsync(player, e))?.EventScore ?? 0m;
-        }
-
-        return (completedScore, provisionalScore); */
     }
 
     private async Task<(
@@ -130,7 +110,8 @@ public class TipScoringService(
 
                 foreach (var altType in scorer.AlternateResults)
                 {
-                    if (tipMap[altType].Target.EntityInResult(tip.Selection))
+                    if (tipMap.TryGetValue(altType, out var val)
+                        && val.Target.EntityInResult(tip.Selection))
                     {
                         scoredTip.Score += scorer.AlternatePoints * eventScoreMult;
                     }

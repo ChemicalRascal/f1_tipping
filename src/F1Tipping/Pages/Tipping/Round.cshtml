@@ -1,0 +1,90 @@
+﻿@page
+@model F1Tipping.Pages.Tipping.RoundModel
+@{
+    ViewData["Title"] = "Tip A Round";
+}
+@using F1Tipping.Model
+
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+@using (Html.BeginForm(FormMethod.Post))
+{
+    @for (var i = 0; i < Model.Events.Count; i++)
+    {
+        if (i != 0)
+        {
+            <hr />
+        }
+
+        @Html.HiddenFor(m => m.Events[i].EventId)
+        <h1>
+            <a asp-page="./Event" asp-route-id="@Model.Events[i].EventId">
+                @Html.DisplayFor(m => m.Events[i].EventName)
+            </a>
+        </h1>
+        <div class="row">
+            <div class="col-3"></div>
+            <div class="col-3">Selections</div>
+            @if (Model.Events.Any(e => e.DisplayResults))
+            {
+                <div class="col-3">Results</div>
+                <div class="col-3">Points</div>
+            }
+        </div>
+        @for (var j = 0; j < Model.Events[i].Tips.Count; j++)
+        {
+            var tip = (RoundModel m, int i1, int j1) => m.Events[i].Tips[j];
+            <div class="row">
+                <div class="col-3">
+                    @Html.ValidationMessageFor(m => tip(m, i, j).TargetType)
+                    @Html.DisplayFor(m => tip(m, i, j).TargetType)
+                    @Html.HiddenFor(m => tip(m, i, j).TargetType)
+                </div>
+                <div class="col-3">
+                    @Html.ValidationMessageFor(m => tip(m, i, j).Selection)
+                    @(Html.DropDownListFor(m => tip(m, i, j).Selection,
+                            Model.Events[i].Candidates[
+                            ResultTypeHelper.RacingEntityTypes(tip(Model, i, j).TargetType)],
+                            "Select...",
+                            Model.Events[i].Lockout ? new { disabled = "disabled" } : new { }))
+                </div>
+                @if (Model.Events[i].DisplayResults)
+                {
+                    <div class="col-3">
+                        @if (Model.Events[i].ScoreMap?[tip(Model, i, j).TargetType].Tip.Target
+                                is MultiEntityResult meResult)
+                        {
+                            if (meResult.ResultHolders?.Any() ?? true)
+                            {
+                                foreach (var rh in meResult?.ResultHolders ?? [])
+                                {
+                                    @(rh.DisplayName)<br />
+                                }
+                            }
+                            else
+                            {
+                                <span>No @Html.DisplayFor(m => tip(m, i, j).TargetType) recorded.</span>
+                            }
+                        }
+                        else if (Model.Events[i].ScoreMap?[tip(Model, i, j).TargetType].Tip.Target
+                                is Result result)
+                        {
+                            if (result.ResultHolder is not null)
+                            {
+                                @(result.ResultHolder.DisplayName)
+                            }
+                            else
+                            {
+                                <span>No @Html.DisplayFor(m => tip(m, i, j).TargetType) recorded.</span>
+                            }
+                        }
+                    </div>
+                    <div class="col-3">
+                        @(Model.Events[i].ScoreMap?[tip(Model, i, j).TargetType].Score.ToString() ?? string.Empty)
+                    </div>
+                }
+            </div>
+        }
+    }
+    <input type="submit" value="Submit Tips" class="btn btn-primary"
+        @(Model.Events.All(e => e.Lockout) ? "disabled=\"disabled\"" : "") />
+}

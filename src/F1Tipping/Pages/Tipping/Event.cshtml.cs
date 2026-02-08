@@ -64,7 +64,7 @@ public class EventModel(
     private async Task RefreshTipStateAsync(Event eventToTip)
     {
         EventId = eventToTip.Id;
-        EventTitle = BuildEventName(eventToTip);
+        EventTitle = eventToTip.EventName;
 
         var results = ((IEventWithResults)eventToTip).GetResultTypes().Select(
             rt => new Result() { Event = eventToTip, Type = rt }).ToList();

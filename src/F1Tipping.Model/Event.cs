@@ -41,7 +41,7 @@ public class Race : Event, IEventWithResults
         $"{Weekend.Season.Year}, Round {Weekend.Index} - {ShortName}";
 
     public override string ShortName =>
-        $"{Weekend.Title} {
+        $"{Weekend.Title}: {
         Type switch
         {
             RaceType.Main => "Main Race",
