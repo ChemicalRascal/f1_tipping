@@ -3,6 +3,7 @@ using F1Tipping.Pages.PageModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace F1Tipping.Areas.Identity.Pages.Account.Manage;
@@ -49,8 +50,11 @@ public class PushNotificationsModel : BasePageModel
     public override void OnPageHandlerSelected(PageHandlerSelectedContext context)
     {
         base.OnPageHandlerSelected(context);
-        ViewData["StartOptions"] = StartOptions;
-        ViewData["MinGapOptions"] = MinGapOptions;
+
+        ViewData["StartList"] = new SelectList(StartOptions, "Time", "Label",
+            StartOptions.Single(t => t.IsDefault).Time.ToString());
+        ViewData["MinGapList"] = new SelectList(MinGapOptions, "Time", "Label",
+            MinGapOptions.Single(t => t.IsDefault).Time.ToString());
     }
 
     [BindProperty]

@@ -5,6 +5,7 @@
     ViewData["ActivePage"] = ManageNavPages.PushNotifications;
 }
 
+@using System.Collections;
 @using F1Tipping.Common;
 @using F1Tipping.Data.AppModel;
 
@@ -24,7 +25,11 @@
             <input asp-for="Input.NotificationsEnabled" value="true" type="hidden" />
             <div class="row">
                 <div class="form-floating mb-3 col-6">
-                    <input asp-for="Input.TipDeadlineStartOffset" type="text" class="form-control" />
+                    <select
+                        asp-for="Input.TipDeadlineStartOffset"
+                        class="form-control"
+                        asp-items="@((SelectList)ViewData["StartList"]!)">
+                    </select>
                     <label asp-for="Input.TipDeadlineStartOffset" class="form-label"></label>
                     <span asp-validation-for="Input.TipDeadlineStartOffset" class="text-danger" />
                     @*TODO: RE-IMPLEMENT THE SLIDERS*@
@@ -45,7 +50,11 @@
                     </datalist>*@
                 </div>
                 <div class="form-floating mb-3 col-md-6">
-                    <input asp-for="Input.MinimumTimeBetweenNotifications" type="text" class="form-control" />
+                    <select
+                        asp-for="Input.MinimumTimeBetweenNotifications"
+                        class="form-control"
+                        asp-items="@((SelectList)ViewData["MinGapList"]!)">
+                    </select>
                     <label asp-for="Input.MinimumTimeBetweenNotifications" class="form-label"></label>
                     <span asp-validation-for="Input.MinimumTimeBetweenNotifications" class="text-danger" />
                 </div>
