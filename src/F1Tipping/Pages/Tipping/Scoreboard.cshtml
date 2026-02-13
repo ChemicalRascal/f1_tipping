@@ -6,6 +6,9 @@
     // It's lazy but it'll do for now
     var pinFirstColumn = true;
     var pinLastColumn = true;
+
+    var detailedViewClassString = "detailed-view";
+    var simpleViewClassString = "simple-view border-start border-end";
 }
 @functions
 {
@@ -41,15 +44,25 @@
         var content = contentsBuilder(key, data);
         classString += (key.Equals(fullList.FirstOrDefault()) ? " border-start " : string.Empty);
         classString += (key.Equals(fullList.LastOrDefault()) ? " border-end " : string.Empty);
+        RenderCell(content, classString, header);
+    }
+
+    public void RenderCell(string? content, string classString, bool header)
+    {
+        if (content is null)
+        {
+            return;
+        }
+
         if (header)
         {
-            <th class=@(classString)>
+            <th class="@(classString.Trim())">
                 @content
             </th>
         }
         else
         {
-            <td class=@(classString)>
+            <td class="@(classString.Trim())">
                 @content
             </td>
         }
@@ -58,183 +71,191 @@
 
 <h1>Scoreboard</h1>
 
-<div class="scoreboard">
-    @if (pinFirstColumn)
-    {
-        <table class="table" style="float: left;">
-            <thead>
-                <tr>
-                    <th colspan=@($"{(Model.PreviousRoundTitle is not null ? 2 : 1)}")>
-                        @if (!string.IsNullOrEmpty(Model.CurrentRoundTitle))
-                        {
-                            @(Model.CurrentRoundTitle)
-                        }
-                        else
-                        {
-                            @:&nbsp;
-                        }
-                    </th>
-                </tr>
-                <tr>
-                    <th>
-                        Player
-                    </th>
-                    @if (Model.PreviousRoundTitle is not null)
-                    {
-                        <th>
-                            <span class="show-lg">Previous</span>
-                            <span class="show-md">Prev.</span>
-                        </th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var ps in Model.PlayerScores)
-                {
+<div class="scoreboard-wrap">
+    <div class="scoreboard-ctrl col-3">
+        <input id="detailed-view-ctrl" class="form-check-inline" type="checkbox" />
+        <label for="detailed-view-ctrl" class="form-check-label">Show Event Score Breakdown</label>
+    </div>
+    <div class="scoreboard">
+        @if (pinFirstColumn)
+        {
+            <table class="table" style="float: left;">
+                <thead>
                     <tr>
-                        <td>
-                            @ps.Name
-                        </td>
-                        @if (Model.PreviousRoundTitle is not null)
-                        {
-                            <td>
-                                @ps.ScoreData.AllRoundsBedoreCurrent
-                            </td>
-                        }
+                        <th colspan=@($"{(Model.PreviousRoundTitle is not null ? 2 : 1)}")>
+                            @if (!string.IsNullOrEmpty(Model.CurrentRoundTitle))
+                            {
+                                @(Model.CurrentRoundTitle)
+                            }
+                            else
+                            {
+                                @:&nbsp;
+                            }
+                        </th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
-
-    <div class="middle-table-wrapper">
-        <table class="table" style="float: left;">
-            <thead>
-                <tr>
-                    @{
-                        var sprintCols = Model.CurrentSprintRace?.Results.Count ?? 0;
-                        var mainCols = Model.CurrentMainRace?.Results.Count ?? 0;
-                        var seasonCols = Model.Season?.Results.Count ?? 0;
-                        if (!pinFirstColumn)
-                        {
-                            <th colspan=@($"{(Model.PreviousRoundTitle is not null ? 2 : 1)}")>
-                                @if (!string.IsNullOrEmpty(Model.CurrentRoundTitle))
-                                {
-                                    @(Model.CurrentRoundTitle)
-                                }
-                                else
-                                {
-                                    @:&nbsp;
-                                }
-                            </th>
-                        }
-                        if (sprintCols != 0)
-                        {
-                            <th colspan="@sprintCols" class="multicol-header border-start border-end">
-                                @(Model.CurrentSprintRace!.Name)
-                            </th>
-                        }
-                        if (mainCols != 0)
-                        {
-                            <th colspan="@mainCols" class="multicol-header border-start border-end">
-                                @(Model.CurrentMainRace!.Name)
-                            </th>
-                        }
-                        if (seasonCols != 0)
-                        {
-                            <th colspan="@seasonCols" class="multicol-header border-start border-end">
-                                @(Model.Season!.Name)
-                            </th>
-                        }
-                        if (!pinLastColumn)
-                        {
-                            <th />
-                        }
-                    }
-                </tr>
-
-                <tr>
-                    @if (!pinFirstColumn)
-                    {
+                    <tr>
                         <th>
                             Player
                         </th>
                         @if (Model.PreviousRoundTitle is not null)
                         {
                             <th>
-                                <span class="show-lg">After @(Model.PreviousRoundTitle)</span>
+                                <span class="show-lg">Previous</span>
                                 <span class="show-md">Prev.</span>
                             </th>
                         }
-                    }
-                    @{
-                        Cells((rt) => rt.ShortName(), Model.CurrentSprintRace, header: true);
-                        Cells((rt) => rt.ShortName(), Model.CurrentMainRace, header: true);
-                        Cells((rt) => rt.ShortName(), Model.Season, header: true);
-                    }
-                    @if (!pinLastColumn)
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ps in Model.PlayerScores)
                     {
-                        <th>
-                            Current
-                        </th>
+                        <tr>
+                            @{
+                                RenderCell(ps.Name, string.Empty, false);
+                                if (Model.PreviousRoundTitle is not null)
+                                {
+                                    RenderCell(ps.ScoreData.AllRoundsBedoreCurrent.ToString(), "numeric", false);
+                                }
+                            }
+                        </tr>
                     }
-                </tr>
-            </thead>
+                </tbody>
+            </table>
+        }
 
-            <tbody>
-                @foreach (var ps in Model.PlayerScores)
-                {
+        <div class="middle-table-wrapper">
+            <table class="table" style="float: left;">
+                <thead>
+                    <tr>
+                        @{
+                            var sprintCols = Model.CurrentSprintRace?.Results.Count ?? 0;
+                            var mainCols = Model.CurrentMainRace?.Results.Count ?? 0;
+                            var seasonCols = Model.Season?.Results.Count ?? 0;
+                            if (!pinFirstColumn)
+                            {
+                                <th colspan=@($"{(Model.PreviousRoundTitle is not null ? 2 : 1)}")>
+                                    @if (!string.IsNullOrEmpty(Model.CurrentRoundTitle))
+                                    {
+                                        @(Model.CurrentRoundTitle)
+                                    }
+                                    else
+                                    {
+                                        @:&nbsp;
+                                    }
+                                </th>
+                            }
+                            if (sprintCols != 0)
+                            {
+                                <th colspan="@sprintCols" class="multicol-header border-start border-end @(detailedViewClassString)">
+                                    @(Model.CurrentSprintRace!.Name)
+                                </th>
+                                <th class="@(simpleViewClassString)">
+                                    @(Model.CurrentSprintRace!.Name)
+                                </th>
+                            }
+                            if (mainCols != 0)
+                            {
+                                <th colspan="@mainCols" class="multicol-header border-start border-end @(detailedViewClassString)">
+                                    @(Model.CurrentMainRace!.Name)
+                                </th>
+                                <th class="@(simpleViewClassString)">
+                                    @(Model.CurrentMainRace!.Name)
+                                </th>
+                            }
+                            if (seasonCols != 0)
+                            {
+                                <th colspan="@seasonCols" class="multicol-header border-start border-end">
+                                    @(Model.Season!.Name)
+                                </th>
+                            }
+                            if (!pinLastColumn)
+                            {
+                                <th />
+                            }
+                        }
+                    </tr>
+
                     <tr>
                         @if (!pinFirstColumn)
                         {
-                            <td>
-                                @ps.Name
-                            </td>
+                            <th>
+                                Player
+                            </th>
                             @if (Model.PreviousRoundTitle is not null)
                             {
-                                <td>
-                                    @ps.ScoreData.AllRoundsBedoreCurrent
-                                </td>
+                                <th>
+                                    <span class="show-lg">After @(Model.PreviousRoundTitle)</span>
+                                    <span class="show-md">Prev.</span>
+                                </th>
                             }
                         }
                         @{
-                            Cells((rt, tips) => tips?.GetValueOrDefault(rt)?.Score.ToString() ?? "\u00A0", Model.CurrentSprintRace, ps.ScoreData.CurrentRoundSprintRace?.ScoredTips);
-                            Cells((rt, tips) => tips?.GetValueOrDefault(rt)?.Score.ToString() ?? "\u00A0", Model.CurrentMainRace, ps.ScoreData.CurrentRoundMainRace?.ScoredTips);
-                            Cells((rt, tips) => tips?.GetValueOrDefault(rt)?.Score.ToString() ?? "\u00A0", Model.Season, ps.ScoreData.Championship?.ScoredTips);
+                            Cells((rt) => rt.ShortName(), Model.CurrentSprintRace, header: true, classString: detailedViewClassString);
+                            RenderCell(Model.CurrentSprintRace?.Results.Any() ?? false ? "\u00A0" : null, simpleViewClassString, true);
+                            Cells((rt) => rt.ShortName(), Model.CurrentMainRace, header: true, classString: detailedViewClassString);
+                            RenderCell(Model.CurrentMainRace?.Results.Any() ?? false ? "\u00A0" : null, simpleViewClassString, true);
+                            Cells((rt) => rt.ShortName(), Model.Season, classString: "numeric", header: true);
                         }
                         @if (!pinLastColumn)
                         {
-                            <td>
-                                @ps.SummedScore
-                            </td>
+                            <th>
+                                Current
+                            </th>
                         }
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </thead>
 
-    @if (pinLastColumn)
-    {
-        <table class="table" style="float: left;">
-            <thead>
-                <tr><th>&nbsp;</th></tr>
-                <tr>
-                    <th>
-                        Current
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var ps in Model.PlayerScores)
-                {
+                <tbody>
+                    @foreach (var ps in Model.PlayerScores)
+                    {
+                        <tr>
+                            @if (!pinFirstColumn)
+                            {
+                                RenderCell(ps.Name, string.Empty, false);
+                                if (Model.PreviousRoundTitle is not null)
+                                {
+                                    RenderCell(ps.ScoreData.AllRoundsBedoreCurrent.ToString(), "numeric", false);
+                                }
+                            }
+                            @{
+                                Cells((rt, tips) => tips?.GetValueOrDefault(rt)?.Score.ToString() ?? "\u00A0", Model.CurrentSprintRace, ps.ScoreData.CurrentRoundSprintRace?.ScoredTips, classString: detailedViewClassString + " numeric");
+                                RenderCell(ps.ScoreData.CurrentRoundSprintRace?.ScoredTips.Values.Sum(t => t.Score).ToString(), simpleViewClassString + " numeric", false);
+                                Cells((rt, tips) => tips?.GetValueOrDefault(rt)?.Score.ToString() ?? "\u00A0", Model.CurrentMainRace, ps.ScoreData.CurrentRoundMainRace?.ScoredTips, classString: detailedViewClassString + " numeric");
+                                RenderCell(ps.ScoreData.CurrentRoundMainRace?.ScoredTips.Values.Sum(t => t.Score).ToString(), simpleViewClassString + " numeric", false);
+                                Cells((rt, tips) => tips?.GetValueOrDefault(rt)?.Score.ToString() ?? "\u00A0", Model.Season, ps.ScoreData.Championship?.ScoredTips, classString: "numeric");
+                            }
+                            @if (!pinLastColumn)
+                            {
+                                RenderCell(ps.SummedScore.ToString(), "numeric", false);
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (pinLastColumn)
+        {
+            <table class="table" style="float: left;">
+                <thead>
+                    <tr><th>&nbsp;</th></tr>
                     <tr>
-                        <td>
-                            @ps.SummedScore
-                        </td>
+                        <th>
+                            Current
+                        </th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
+                </thead>
+                <tbody>
+                    @foreach (var ps in Model.PlayerScores)
+                    {
+                        <tr>
+                            @{
+                                RenderCell(ps.SummedScore.ToString(), "numeric", false);
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
 </div>

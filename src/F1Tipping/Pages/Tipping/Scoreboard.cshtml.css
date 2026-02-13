@@ -11,6 +11,10 @@
     .middle-table-wrapper {
         overflow-x: scroll;
     }
+
+    td.numeric, th.numeric {
+        text-align: right;
+    }
 }
 
 .show-lg {
@@ -31,4 +35,14 @@
     .show-md {
         display: revert;
     }
+}
+
+.scoreboard-wrap:has(input#detailed-view-ctrl:checked) .scoreboard .simple-view
+{
+    display: none;
+}
+
+.scoreboard-wrap:has(input#detailed-view-ctrl:not(:checked)) .scoreboard .detailed-view
+{
+    display: none;
 }
