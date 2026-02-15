@@ -8,6 +8,7 @@ using F1Tipping.Model.Tipping;
 using F1Tipping.Tipping;
 using Microsoft.EntityFrameworkCore;
 using F1Tipping.Platform;
+using F1Tipping.Data.ModelMigrations;
 
 namespace F1Tipping.Pages.Tipping;
 
@@ -36,25 +37,42 @@ public class FullScoresModel(
         var players = (await ModelDb.Players
             .Where(p => p.Status == PlayerStatus.Normal).ToListAsync())
             .OrderBy(p => p != Player)
-            .ThenBy(p => p.Details?.DisplayName ?? p.Details?.FirstName);
+            .ThenBy(p => p.Details?.DisplayName ?? p.Details?.FirstName)
+            .ToList();
 
         var scoreboardEvents = Array.Empty<Event>()
             .Concat(await ModelDb.Seasons.Where(s => s.TipsDeadline < eventCutoff && s.Id == selectedSeasonId).ToListAsync())
             .Concat(await ModelDb.Races.Where(r => r.TipsDeadline < eventCutoff && r.Weekend.Season.Id == selectedSeasonId).ToListAsync())
             .OrderBy(e => e.OrderKey);
 
-        var results = (await (
+        var results = await (
             from r in ModelDb.Results
             join eId in scoreboardEvents.Select(e => e.Id) on r.Event.Id equals eId
-            select r).ToListAsync()).ToLookup(r => r.Event.Id);
+            select r
+            ).ToAsyncEnumerable()
+            .ToLookupAsync(r => r.Event.Id);
 
-        var tips = (await (
-                from t in ModelDb.Tips
-                join eId in scoreboardEvents.Select(e => e.Id) on t.Target.Event.Id equals eId
-                group t by new { eId, t.Tipper.Id, t.Target.Type }
-            ).ToListAsync())
-            .Select(tipList => tipList.MaxBy(t => t.SubmittedAt)!)
-            .ToLookup(t => (t.Tipper.Id, t.Target.Event.Id));
+        var raceTips = (
+            from t in ModelDb.Tips
+            join r in ModelDb.Races on t.Target.Event.Id equals r.Id
+            where r.Weekend.Season.Id == selectedSeasonId
+            orderby t.Target.Event.Id
+            group t by new { eId = t.Target.Event.Id, tId = t.Tipper.Id, t.Target.Type }
+            into g
+            select g.OrderByDescending(t => t.SubmittedAt).First()
+            ).ToAsyncEnumerable();
+
+        var seasonTips = (
+            from t in ModelDb.Tips
+            join s in ModelDb.Seasons on t.Target.Event.Id equals s.Id
+            where s.Id == selectedSeasonId
+            orderby t.Target.Event.Id
+            group t by new { eId = t.Target.Event.Id, tId = t.Tipper.Id, t.Target.Type }
+            into g
+            select g.OrderByDescending(t => t.SubmittedAt).First()
+            ).ToAsyncEnumerable();
+
+        var tips = await raceTips.Concat(seasonTips).ToLookupAsync(t => (pId: t.Tipper.Id, eId: t.Target.Event.Id));
 
         foreach (var p in players)
         {
@@ -68,7 +86,7 @@ public class FullScoresModel(
 
             foreach (var p in players)
             {
-                var playerEventTips = tips[(p.Id, e.Id)].ToList();
+                var playerEventTips = tips[(pId: p.Id, eId: e.Id)].ToList();
                 var report = tipScoring.GetReportFromTips(e, playerEventTips);
                 if (report is not null && report.ScoredTips.Count > 0)
                 {
