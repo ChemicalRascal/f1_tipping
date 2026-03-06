@@ -9,7 +9,7 @@ public class CurrentDataService(ModelDbContext modelDb)
     public async Task<Season> GetCurrentSeasonAsync()
     {
         var currentTime = DateTimeOffset.UtcNow;
-        return await modelDb.Seasons.SingleOrDefaultAsync(s => s.Year.Equals(currentTime))
+        return (await modelDb.Seasons.ToListAsync()).SingleOrDefault(s => s.Year.Equals(currentTime))
         ?? (await modelDb.Seasons.ToListAsync()).Where(s => s.Year < currentTime).OrderBy(s => s.Year).Last();
     }
 

@@ -75,11 +75,11 @@ public class PushNotificationsService(
         }
         catch (Exception e)
         {
-            // TODO: Validate that these logs go somewhere useful
             if (logger?.IsEnabled(LogLevel.Error) ?? false)
             {
                 logger.LogError(e, "Exception on sub ID: {}", sub.Id);
             }
+            throw;
         }
     }
 }

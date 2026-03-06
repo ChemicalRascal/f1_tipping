@@ -1,6 +1,7 @@
 ﻿using F1Tipping.Data;
 using F1Tipping.Platform;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using WebPush = Lib.Net.Http.WebPush;
 
 namespace F1Tipping.Jobs;
@@ -9,12 +10,18 @@ public partial class NotifyJob(
     AppDbContext appDb,
     PushNotificationsService pushService,
     NotificationScheduleService scheduleService,
+    CurrentDataService currentDataService,
     ILogger<NotifyJob> logger)
 {
     private readonly TimeSpan FORWARD_WINDOW = TimeSpan.FromMinutes(1);
 
-    public async Task Execute()
+    public class NotifyJobException(Guid userId, Exception innerException)
+        : Exception($"Error on {userId}!", innerException);
+
+    public async Task<IList<Exception>> Execute()
     {
+        var jobExceptions = new List<Exception>();
+
         var cuttoff = DateTimeOffset.UtcNow + FORWARD_WINDOW;
 
         var users = await pushService.GetUsersWithPushSubs()
@@ -23,9 +30,10 @@ public partial class NotifyJob(
             .GetNextNotificationDates(users.Values)
             .Where(kvp => kvp.Value < cuttoff);
 
+        var round = await currentDataService.GetCurrentRoundAsync() ?? await currentDataService.GetNextRoundAsync();
+
         // TODO: Detailed push message
-        var pMessage = new WebPush.PushMessage("DEBUG: Notif. from NotifyJob");
-        //DateTimeOffset? nextJobRun = null;
+        var pMessage = new WebPush.PushMessage($"Round {round!.Index} tips due soon!");
 
         foreach (var (userId, date) in validDates)
         {
@@ -38,14 +46,9 @@ public partial class NotifyJob(
                     userId,
                     mostRecentNotification: date);
 
-                appDb.Update(user);
                 user.TemporalData.LastNotification = DateTimeOffset.UtcNow;
                 user.TemporalData.NextNotification = next;
-
-                //if (next is not null && (nextJobRun is null || next < nextJobRun))
-                //{
-                //    nextJobRun = next;
-                //}
+                appDb.Update(user);
             }
             catch (Exception e)
             {
@@ -53,11 +56,12 @@ public partial class NotifyJob(
                 {
                     logger.LogError(e, "Exception for user ID: {}", userId);
                 }
+                jobExceptions.Add(new NotifyJobException(userId, e));
             }
         }
         await appDb.SaveChangesAsync();
 
-        //return nextJobRun;
+        return jobExceptions;
     }
 }
 
@@ -73,6 +77,11 @@ public partial class NotifyJob : ISelfSchedulingJob
             .GetNextNotificationDates(users.Values)
             .Where(kvp => kvp.Value.HasValue)
             .Select(kvp => kvp.Value!.Value);
+
+        if (scheduleService.AnyUsersUnscheduled(users.Values))
+        {
+            validDates = validDates.Append(DateTimeOffset.UtcNow);
+        }
 
         if (validDates.Any())
         {
@@ -97,24 +106,36 @@ public partial class NotifyJob : ISelfSchedulingJob
     {
         var scheduler = context.QuartzScheduler;
 
-        var existingTriggers = await scheduler.GetTriggersOfJob(JobKey);
-        if (existingTriggers.Count > 0)
-        {
-            await scheduler.UnscheduleJobs(
-                [.. existingTriggers.Select(t => t.Key)]);
-        }
-
-        var job = Quartz.JobBuilder.Create<NotifyJob>()
-            .WithIdentity(JobKey)
-            .Build();
-
         var newTrigger = Quartz.TriggerBuilder.Create()
             .ForJob(JobKey)
             .WithIdentity(JobKey.Name, JobKey.Group)
             .StartAt(runTime)
             .Build();
 
-        await scheduler.ScheduleJob(job, newTrigger);
+        var existingJob = await scheduler.GetJobDetail(JobKey);
+
+        var existingTriggers = await scheduler.GetTriggersOfJob(JobKey);
+        if (existingTriggers.Count > 0)
+        {
+            foreach (var trigger in existingTriggers)
+            {
+                await scheduler.RescheduleJob(trigger.Key, newTrigger);
+            }
+        }
+        else if (existingJob is not null)
+        {
+            await scheduler.ScheduleJob(newTrigger);
+        }
+        else
+        {
+            var job = Quartz.JobBuilder.Create<NotifyJob>()
+                .WithIdentity(JobKey)
+                .PersistJobDataAfterExecution(true)
+                .StoreDurably(true)
+                .Build();
+
+            await scheduler.ScheduleJob(job, newTrigger);
+        }
     }
 }
 
@@ -122,7 +143,14 @@ public partial class NotifyJob : Quartz.IJob
 {
     async Task Quartz.IJob.Execute(Quartz.IJobExecutionContext context)
     {
-        await Execute();
+        var errors = await Execute();
+
+        context.Result = new Dictionary<string, object>
+        {
+            { "Success", errors.IsNullOrEmpty() },
+            { "Error", new AggregateException([.. errors]) }
+        };
+
         await TriggerSchedulingCheckAsync(new(context.Scheduler));
     }
 }

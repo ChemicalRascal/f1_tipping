@@ -7,16 +7,25 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using F1Tipping.Platform;
 using Quartz;
+using CrystalQuartz.AspNetCore;
+using F1Tipping.Jobs;
+using NLog.Web;
 
 namespace F1Tipping;
 
 public class Program
 {
+    private static string QUARTZ_DASHBOARD_PATH = "/quartz";
+
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         var config = builder.Configuration;
         config.AddDetectedCommandLine(args);
+
+        builder.Logging.ClearProviders();
+        builder.Logging.AddConsole();
+        builder.Host.UseNLog();
 
         // Database setup, dependent on --provider cli arg
         // TODO: Move this to an extension and the new arg definition system.
@@ -103,6 +112,22 @@ public class Program
 
         app.MapRazorPages()
            .WithStaticAssets();
+
+        /* Authentication/authorization middleware
+         * MUST be called before UseCrystalQuartz!
+         */
+        app.RequireAuthenticationOn(QUARTZ_DASHBOARD_PATH);
+        app.RequireAuthorizationRoleOn(QUARTZ_DASHBOARD_PATH, Role.Administrator);
+        app.UseCrystalQuartz(() => app.Services.GetRequiredService<ISchedulerFactory>().GetScheduler(), new CrystalQuartz.Application.CrystalQuartzOptions()
+        {
+            Path = QUARTZ_DASHBOARD_PATH,
+            TimelineSpan = TimeSpan.FromMinutes(30),
+            AllowedJobTypes = [typeof(NotifyJob)],
+            ErrorDetectionOptions = new()
+            {
+                VerbosityLevel = CrystalQuartz.Application.ErrorVerbosityLevel.Detailed,
+            }
+        });
 
         app.UseForcePlayerInitialization();
 

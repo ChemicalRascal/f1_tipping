@@ -34,6 +34,9 @@ public class NotificationScheduleService(
     public IDictionary<Guid, DateTimeOffset?> GetNextNotificationDates(IEnumerable<User> users)
         => users.ToDictionary(u => u.Id, u => u.TemporalData.NextNotification);
 
+    public bool AnyUsersUnscheduled(IEnumerable<User> users)
+        => users.Any(u => u.TemporalData.NextNotification is null && u.TemporalData.LastNotification is null);
+
     /// <summary>
     /// Gets the next datetime a user should be sent a notification for a given round.
     /// </summary>
