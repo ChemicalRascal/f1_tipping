@@ -36,13 +36,13 @@ public class IndexModel(
         var eventsToShowTipsFor = new List<Event>();
         var otherActivePlayers = new List<Player>();
 
-        var nextRound = await currentData.GetNextRoundAsync(selectedSeason);
-        if (nextRound is not null)
+        var upcomingRound = await currentData.GetCurrentRoundAsync(selectedSeason) ?? await currentData.GetNextRoundAsync(selectedSeason);
+        if (upcomingRound is not null)
         {
-            eventsToShowTipsFor.AddRange(nextRound.Events.Where(e => e is IEventWithResults));
-            if (nextRound.Index == 1 && nextRound.Season is IEventWithResults)
+            eventsToShowTipsFor.AddRange(upcomingRound.Events.Where(e => e is IEventWithResults));
+            if (upcomingRound.Index == 1 && upcomingRound.Season is IEventWithResults)
             {
-                eventsToShowTipsFor.Add(nextRound.Season);
+                eventsToShowTipsFor.Add(upcomingRound.Season);
             }
             otherActivePlayers.AddRange(await ModelDb.Players
                 .Where(p => p != Player && p.Status == PlayerStatus.Normal)
