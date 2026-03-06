@@ -32,25 +32,24 @@
         </div>
         @for (var j = 0; j < Model.Events[i].Tips.Count; j++)
         {
-            var tip = (RoundModel m, int i1, int j1) => m.Events[i].Tips[j];
             <div class="row">
                 <div class="col-3">
-                    @Html.ValidationMessageFor(m => tip(m, i, j).TargetType)
-                    @Html.DisplayFor(m => tip(m, i, j).TargetType)
-                    @Html.HiddenFor(m => tip(m, i, j).TargetType)
+                    @Html.ValidationMessageFor(m => m.Events[i].Tips[j].TargetType)
+                    @Html.DisplayFor(m => m.Events[i].Tips[j].TargetType)
+                    @Html.HiddenFor(m => m.Events[i].Tips[j].TargetType)
                 </div>
                 <div class="col-3">
-                    @Html.ValidationMessageFor(m => tip(m, i, j).Selection)
-                    @(Html.DropDownListFor(m => tip(m, i, j).Selection,
+                    @Html.ValidationMessageFor(m => m.Events[i].Tips[j].Selection)
+                    @(Html.DropDownListFor(m => m.Events[i].Tips[j].Selection,
                             Model.Events[i].Candidates[
-                            ResultTypeHelper.RacingEntityTypes(tip(Model, i, j).TargetType)],
+                            ResultTypeHelper.RacingEntityTypes(Model.Events[i].Tips[j].TargetType)],
                             "Select...",
                             Model.Events[i].Lockout ? new { disabled = "disabled" } : new { }))
                 </div>
                 @if (Model.Events[i].DisplayResults)
                 {
                     <div class="col-3">
-                        @if (Model.Events[i].ScoreMap?[tip(Model, i, j).TargetType].Tip.Target
+                        @if (Model.Events[i].ScoreMap?[Model.Events[i].Tips[j].TargetType].Tip.Target
                                 is MultiEntityResult meResult)
                         {
                             if (meResult.ResultHolders?.Any() ?? true)
@@ -62,10 +61,10 @@
                             }
                             else
                             {
-                                <span>No @Html.DisplayFor(m => tip(m, i, j).TargetType) recorded.</span>
+                                <span>No @Html.DisplayFor(m => m.Events[i].Tips[j].TargetType) recorded.</span>
                             }
                         }
-                        else if (Model.Events[i].ScoreMap?[tip(Model, i, j).TargetType].Tip.Target
+                        else if (Model.Events[i].ScoreMap?[Model.Events[i].Tips[j].TargetType].Tip.Target
                                 is Result result)
                         {
                             if (result.ResultHolder is not null)
@@ -74,12 +73,12 @@
                             }
                             else
                             {
-                                <span>No @Html.DisplayFor(m => tip(m, i, j).TargetType) recorded.</span>
+                                <span>No @Html.DisplayFor(m => m.Events[i].Tips[j].TargetType) recorded.</span>
                             }
                         }
                     </div>
                     <div class="col-3">
-                        @(Model.Events[i].ScoreMap?[tip(Model, i, j).TargetType].Score.ToString() ?? string.Empty)
+                        @(Model.Events[i].ScoreMap?[Model.Events[i].Tips[j].TargetType].Score.ToString() ?? string.Empty)
                     </div>
                 }
             </div>

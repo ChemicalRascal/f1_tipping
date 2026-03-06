@@ -38,6 +38,7 @@ public class RoundModel(
         [ValidateNever]
         public string EventName { get; set; } = string.Empty;
         public Guid EventId { get; set; } = default;
+        [BindProperty]
         public IList<TipView> Tips { get; set; } = [];
         [ValidateNever]
         public IDictionary<IEnumerable<Type>, SelectList> Candidates { get; set; } =
