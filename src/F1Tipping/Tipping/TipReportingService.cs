@@ -29,6 +29,7 @@ namespace F1Tipping.Tipping
 
             tips = new CachedTips(DateTimeOffset.UtcNow + CACHE_LENGTH,
                 await modelDb.Tips
+                    .Include(t => t.Target).ThenInclude(t => t.Event)
                     .Where(t => t.Target.Event == @event && t.Tipper == player)
                     .GroupBy(t => t.Target.Type)
                     .Select(tg => tg.OrderByDescending(t => t.SubmittedAt).First())
