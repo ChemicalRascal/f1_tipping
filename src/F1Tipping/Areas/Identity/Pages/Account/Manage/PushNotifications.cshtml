@@ -63,7 +63,9 @@
                 <select
                     asp-for="Input.ScheduleType"
                     class="form-control"
-                    asp-items="@(new SelectList(NotificationsScheduleType.ToSelectList(), "Value", "Text"))">
+                    @* asp-items="@(new SelectList(NotificationsScheduleType.ToSelectListItems(), "Value", "Text"))" *@
+                    asp-items="@(NotificationsScheduleType.ToSelectList())"
+                >
                 </select>
                 <label asp-for="Input.ScheduleType" class="form-label"></label>
                 <span asp-validation-for="Input.ScheduleType" class="text-danger"></span>

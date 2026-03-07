@@ -36,9 +36,9 @@ public static class HtmlExtensions
         return new HtmlString(modelExpression.Metadata.Description);
     }
 
-    extension<T>(T _) where T : Enum
+    extension<T>(T e) where T : Enum
     {
-        public static IEnumerable<SelectListItem> ToSelectList()
+        public static IEnumerable<SelectListItem> ToSelectListItems()
         {
             var vals = Enum.GetValues(typeof(T)).Cast<T>();
 
@@ -47,5 +47,8 @@ public static class HtmlExtensions
                 yield return new SelectListItem(v.DisplayName(), (v).ToString());
             }
         }
+
+        public static SelectList ToSelectList()
+            => new SelectList(ToSelectListItems<T>(), "Value", "Text");
     }
 }

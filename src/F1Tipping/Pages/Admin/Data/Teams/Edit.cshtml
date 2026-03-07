@@ -15,16 +15,21 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Team.Id" />
             <div class="form-group">
-                
                 <label asp-for="Team.Name" class="control-label"></label>
                 <input asp-for="Team.Name" class="form-control" />
                 <span asp-validation-for="Team.Name" class="text-danger"></span>
             </div>
             <div class="form-group">
-                
                 <label asp-for="Team.ListOrder" class="control-label"></label>
                 <input asp-for="Team.ListOrder" class="form-control" />
                 <span asp-validation-for="Team.ListOrder" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Team.Status" class="control-label"></label>
+                <select asp-for="Team.Status" 
+                        asp-items="@(F1Tipping.Model.EntityStatus.ToSelectList())"
+                        class="form-control"></select>
+                <span asp-validation-for="Team.Status" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
