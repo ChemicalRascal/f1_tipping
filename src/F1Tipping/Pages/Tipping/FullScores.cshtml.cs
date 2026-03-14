@@ -53,7 +53,7 @@ public class FullScoresModel(
             .ToLookupAsync(r => r.Event.Id);
 
         var raceTips = (
-            from t in ModelDb.Tips
+            from t in ModelDb.Tips.Include(t => t.Target).ThenInclude(t => t.Event)
             join r in ModelDb.Races on t.Target.Event.Id equals r.Id
             where r.Weekend.Season.Id == selectedSeasonId
             orderby t.Target.Event.Id
@@ -63,7 +63,7 @@ public class FullScoresModel(
             ).ToAsyncEnumerable();
 
         var seasonTips = (
-            from t in ModelDb.Tips
+            from t in ModelDb.Tips.Include(t => t.Target).ThenInclude(t => t.Event)
             join s in ModelDb.Seasons on t.Target.Event.Id equals s.Id
             where s.Id == selectedSeasonId
             orderby t.Target.Event.Id
