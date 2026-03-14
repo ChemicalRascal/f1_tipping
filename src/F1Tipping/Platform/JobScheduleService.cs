@@ -55,7 +55,6 @@ public partial class JobScheduleService : IHostedService
             return;
         }
 
-
         await TriggerChecksForAppStartSelfSchedulingJobsAsync(cancellationToken);
     }
 

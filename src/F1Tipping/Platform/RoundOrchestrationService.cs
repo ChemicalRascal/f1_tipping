@@ -1,4 +1,5 @@
-﻿using F1Tipping.Data;
+﻿using F1Tipping.Common;
+using F1Tipping.Data;
 using F1Tipping.Jobs;
 using Quartz;
 
@@ -25,13 +26,22 @@ public class RoundOrchestrationService(
     }
 }
 
-public class RoundOrchestrationServiceStarter(
+public partial class RoundOrchestrationServiceStarter(
     IServiceProvider serviceProvider,
-    ISchedulerFactory schedulerFactory)
+    ISchedulerFactory schedulerFactory,
+    IConfiguration configuration)
     : IHostedService
 {
+    private const string SKIP_ROUND_ORCHESTRATION_CONFIG_KEY = "SkipRoundOrchestration";
+
     async Task IHostedService.StartAsync(CancellationToken cancellationToken)
     {
+        if (configuration.GetValue<string>(SKIP_ROUND_ORCHESTRATION_CONFIG_KEY)
+            ?.Equals("yes", StringComparison.InvariantCultureIgnoreCase) ?? false)
+        {
+            return;
+        }
+
         using (var scope = serviceProvider.CreateScope())
         {
             var ros = scope.ServiceProvider.GetRequiredService<RoundOrchestrationService>();
@@ -47,4 +57,10 @@ public class RoundOrchestrationServiceStarter(
 
     Task IHostedService.StopAsync(CancellationToken cancellationToken)
         => Task.CompletedTask;
+}
+
+public partial class RoundOrchestrationServiceStarter : IDefineCliArgs
+{
+    static IEnumerable<KeyValuePair<string, string>> IDefineCliArgs.Switches =>
+        [ new("--skip-round-orchestration", SKIP_ROUND_ORCHESTRATION_CONFIG_KEY) ];
 }
