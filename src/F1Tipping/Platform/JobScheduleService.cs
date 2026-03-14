@@ -1,13 +1,17 @@
-﻿using F1Tipping.Jobs;
+﻿using F1Tipping.Common;
+using F1Tipping.Jobs;
 using Quartz;
 
 namespace F1Tipping.Platform;
 
 public partial class JobScheduleService(
     IServiceProvider serviceProvider,
-    ISchedulerFactory schedulerFactory
+    ISchedulerFactory schedulerFactory,
+    IConfiguration configuration
     )
 {
+    private const string SKIP_JOB_START_CONFIG_KEY = "SkipJobStart";
+
     public static IEnumerable<(Type jobType, string cronSchedule)> GetCronJobs()
     {
         yield break;
@@ -45,11 +49,24 @@ public partial class JobScheduleService : IHostedService
 {
     async Task IHostedService.StartAsync(CancellationToken cancellationToken)
     {
+        if (configuration.GetValue<string>(SKIP_JOB_START_CONFIG_KEY)
+            ?.Equals("yes", StringComparison.InvariantCultureIgnoreCase) ?? false)
+        {
+            return;
+        }
+
+
         await TriggerChecksForAppStartSelfSchedulingJobsAsync(cancellationToken);
     }
 
     Task IHostedService.StopAsync(CancellationToken cancellationToken)
         => Task.CompletedTask;
+}
+
+public partial class JobScheduleService : IDefineCliArgs
+{
+    static IEnumerable<KeyValuePair<string, string>> IDefineCliArgs.Switches =>
+        [ new("--skip-jobs-on-start", SKIP_JOB_START_CONFIG_KEY) ];
 }
 
 public interface ISelfSchedulingJob
