@@ -29,7 +29,9 @@ public class Race : Event, IEventWithResults
     public required DateTimeOffset RaceEnd { get; set; }
     public required DateTimeOffset QualificationStart { get; set; }
 
-    public override float OrderKey => Weekend.Index
+    public override float OrderKey =>
+        Weekend.Season.OrderKey
+        + Weekend.Index
         + Type switch
         {
             RaceType.Sprint => 0.1f,
@@ -55,6 +57,8 @@ public class Race : Event, IEventWithResults
 
 public class Season : Event, IEventWithResults
 {
+    private const float SEASON_ORDER_KEYSPACE = 100f;
+
     private static readonly ResultType[] results = [
         ResultType.DriversChampionship,
         ResultType.ConstructorsChampionship,
@@ -63,7 +67,7 @@ public class Season : Event, IEventWithResults
     public Year Year { get; set; }
     public virtual ICollection<Round> Rounds { get; set; } = [];
 
-    public override float OrderKey => -1f;
+    public override float OrderKey => Year.ToInt() * SEASON_ORDER_KEYSPACE;
     public override string EventName => $"{Year} Season Championships";
     public override string ShortName => $"{Year} Championships";
 

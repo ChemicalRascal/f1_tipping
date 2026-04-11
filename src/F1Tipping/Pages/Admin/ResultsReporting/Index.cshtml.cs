@@ -36,7 +36,8 @@ namespace F1Tipping.Pages.Admin.ResultsReporting
 
         public async Task<IActionResult> OnGet()
         {
-            var events = (await _modelDb.Events.ToListAsync()).OrderBy(e => e.OrderKey);
+            var events = (await _modelDb.Events.ToListAsync())
+                .OrderBy(e => e.OrderKey);
 
             Events = events.Select(e => new EventView(
                     EventId: e.Id,
