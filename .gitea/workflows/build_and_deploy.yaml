@@ -1,0 +1,112 @@
+name: The Janky Bootleg Build Pipeline Thing
+run-name: ${{ gitea.actor }} is pushing a new production build
+on:
+  push:
+    branches:
+    - prod
+
+jobs:
+  build:
+    name: Build & Deploy
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      APP_STAGE_DIR: deploy_stage
+      DB_BUNDLE_DIR: db_bundles
+      APP_DEPLOY_DIR: ~/f1
+    steps:
+      - name: Setup SSH Agent
+        run: |
+          eval $(ssh-agent -s)
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+      - name: Install rsync
+        run: |
+          apt-get update
+          apt-get -y install rsync
+      - name: Setup SSH Keys
+        run: |
+          mkdir -p ~/.ssh
+          echo "$PROD_KEYSCAN" >> ~/.ssh/known_hosts
+          echo "$SSH_KEY" | ssh-add -
+        env:
+          PROD_KEYSCAN: |
+            ${{ vars.PROD_KEYSCAN }}
+          SSH_KEY: |
+            ${{ secrets.PROD_KEY }}
+      - name: Check out repository code
+        uses: actions/checkout@v6
+      - name: Setup .NET
+        uses: actions/setup-dotnet@main
+        with:
+          dotnet-version: '10.x'
+      - name: Setup EF Core
+        run: |
+          export PATH=$PATH:/root/.dotnet/tools
+          echo "PATH=$PATH:/root/.dotnet/tools" >> "$GITHUB_ENV"
+          dotnet tool install --global dotnet-ef
+      - name: Build Solution
+        run: |
+          cd src
+          dotnet build --configuration Release
+      - name: Build Postgres db migration bundles
+        run: |
+          cd src
+          mkdir F1Tipping/bin/$DB_BUNDLE_DIR
+          dotnet ef migrations bundle --no-build --configuration Release --self-contained -r linux-x64 -p F1Tipping.Postgres -s F1Tipping -c F1Tipping.Data.AppDbContext -o F1Tipping/bin/$DB_BUNDLE_DIR/postgres_app_bundle
+          dotnet ef migrations bundle --no-build --configuration Release --self-contained -r linux-x64 -p F1Tipping.Postgres -s F1Tipping -c F1Tipping.Data.ModelDbContext -o F1Tipping/bin/$DB_BUNDLE_DIR/postgres_model_bundle
+      - name: Run dotnet publish
+        run: |
+          cd src
+          dotnet publish F1Tipping -p:PublishProfile=FolderProfile
+
+      - name: Push published files to prod server
+        run: |
+          cd src/F1Tipping/bin/
+          # Push published app
+          pushd publish/
+          rsync -vr --mkpath --del f1 ${SSH_USER}@${SSH_HOST}:~/$APP_STAGE_DIR
+          popd
+          # Push migration bundles
+          rsync -vr --mkpath --del $DB_BUNDLE_DIR ${SSH_USER}@${SSH_HOST}:~/$APP_STAGE_DIR
+        env:
+          SSH_USER: ${{ secrets.PROD_USER }}
+          SSH_HOST: ${{ secrets.PROD_HOST }}
+
+      - name: Deploy, run migrations, and restart
+        run: |
+          cat <<EOF > performDeployment.sh
+          #!/usr/bin/env bash
+          pipe='/tmp/f1pipe';
+          echo "Killing existing deployment";
+          sudo killall F1Tipping;
+
+          # Copy files.
+          cd $APP_STAGE_DIR;
+          pushd f1;
+          echo "=== Moving app to deployment ===";
+          rsync -f'+ *.staticwebassets.endpoints.json' -f'+ libman.json' -f'+ appsettings.json.templ' -f'- *.json' -f'- *.csv' -r --del . $APP_DEPLOY_DIR;
+          popd;
+
+          pushd $DB_BUNDLE_DIR
+          echo "=== Copying bundles to deployment folder ===";
+          rsync -vr . $APP_DEPLOY_DIR;
+          popd;
+
+          export ASPNETCORE_ENVIRONMENT=Production
+          cd $APP_DEPLOY_DIR
+          for bundle in \$(ls -1 postgres_*_bundle); do
+            echo "=== Executing \$bundle ===";
+            ./\$bundle -v && rm \$bundle;
+          done;
+
+          echo > "\$pipe";
+          EOF
+
+          cat performDeployment.sh | ssh -l ${SSH_USER} ${SSH_HOST} /usr/bin/env bash
+        env:
+          SSH_USER: ${{ secrets.PROD_USER }}
+          SSH_HOST: ${{ secrets.PROD_HOST }}
