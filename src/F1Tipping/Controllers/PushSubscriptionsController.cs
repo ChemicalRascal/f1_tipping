@@ -49,12 +49,17 @@ public class PushSubscriptionsController(
             Created = DateTime.UtcNow,
         };
 
-        user.Settings.NotificationsSettings = new()
+        if (user.Settings.NotificationsSettings is null)
         {
-            TipDeadlineStartOffset = new(),
-            NotifyForOldTips = true,
-            ScheduleType = NotificationsScheduleType.ExponentialDecay,
-        };
+            user.Settings.NotificationsSettings = new()
+            {
+                // TODO: SSOT these defaults. Admin configurable?
+                TipDeadlineStartOffset = TimeSpan.FromDays(2),
+                MinimumTimeBetweenNotifications = TimeSpan.FromHours(1),
+                NotifyForOldTips = true,
+                ScheduleType = NotificationsScheduleType.ExponentialDecay,
+            };
+        }
 
         appDb.UserPushNotificationSubscriptions.Add(newPushSub);
 
