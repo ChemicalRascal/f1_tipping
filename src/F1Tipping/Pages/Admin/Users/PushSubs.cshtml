@@ -1,0 +1,71 @@
+﻿@page
+@model PushSubsModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>User Push Subscriptions</h1>
+
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PushSubs[0].UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PushSubs[0].ScheduleType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PushSubs[0].StartOffset)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PushSubs[0].MinGap)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PushSubs[0].StaleNotify)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PushSubs[0].DeviceEndpoint)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PushSubs[0].SubCreated)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PushSubs[0].SubLastCheck)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.PushSubs)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ScheduleType)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartOffset)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MinGap)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StaleNotify)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeviceEndpoint)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SubCreated)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SubLastCheck)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table> 
