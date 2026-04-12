@@ -23,17 +23,17 @@
                         <partial name="_PlayerNavigation" />
                         <partial name="_AdminNavigation" />
                     </ul>
+                    <partial name="_LoginPartial" />
                     @if (Context.User.Identity?.IsAuthenticated ?? false)
                     {
                         <vc:season-selector></vc:season-selector>
                         <vc:notification-toggler></vc:notification-toggler>
                     }
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                            aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <partial name="_LoginPartial" />
                 </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
             </div>
         </nav>
     </header>
@@ -53,7 +53,6 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/pushNotifications.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
