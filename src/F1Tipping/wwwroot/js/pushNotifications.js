@@ -162,13 +162,6 @@ async function _purgeSubscriptionFromServer(sub) {
     });
 }
 
-async function _triggerDebugNotification() {
-    return await $.ajax({
-        method: "HEAD",
-        url: pushApiMainUrl,
-    });
-}
-
 async function _removeSubscription() {
     const registration = await navigator.serviceWorker.getRegistration();
     (await registration.pushManager.getSubscription())?.unsubscribe();

@@ -19,7 +19,7 @@
             UserPlayer = await ModelDb.Players.SingleOrDefaultAsync(p => p.AuthUserId == AuthUser.Id);
         }
         <li class="nav-item">
-            <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @(UserPlayer?.Details?.FirstName ?? User.Identity?.Name)!</a>
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Account Settings</a>
         </li>
         <li class="nav-item">
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })">

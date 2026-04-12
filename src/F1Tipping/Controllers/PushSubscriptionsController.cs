@@ -134,20 +134,4 @@ public class PushSubscriptionsController(
 
         return Ok(await pushNotifications.UserHasAnySubsAsync(user));
     }
-
-    [HttpHead]
-    public async Task<ActionResult> HeadPushSubscription()
-    {
-        var user = await userManager.GetUserAsync(User);
-        if (user is null)
-        {
-            return Unauthorized();
-        }
-
-        var pMessage = new WebPush.PushMessage("Debug Notification.");
-        pMessage.Urgency = WebPush.PushMessageUrgency.High;
-
-        await pushNotifications.SendNotificationToUserAsync(user, pMessage);
-        return Ok();
-    }
 }
