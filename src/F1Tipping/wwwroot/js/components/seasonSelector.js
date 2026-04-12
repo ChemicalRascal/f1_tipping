@@ -1,5 +1,5 @@
 ﻿
-var SeasonSelector = document.querySelector("select.season-selector");
+var SeasonSelector = document.querySelector(".season-selector select");
 
 const seasonMainUrl = "/api/PlayerSeason/";
 
