@@ -37,6 +37,7 @@ jobs:
             ${{ vars.PROD_KEYSCAN }}
           SSH_KEY: |
             ${{ secrets.PROD_KEY }}
+
       - name: Check out repository code
         uses: actions/checkout@v6
       - name: Setup .NET
@@ -73,8 +74,8 @@ jobs:
           # Push migration bundles
           rsync -vr --mkpath --del $DB_BUNDLE_DIR ${SSH_USER}@${SSH_HOST}:~/$APP_STAGE_DIR
         env:
-          SSH_USER: ${{ secrets.PROD_USER }}
-          SSH_HOST: ${{ secrets.PROD_HOST }}
+          SSH_USER: ${{ vars.PROD_USER }}
+          SSH_HOST: ${{ vars.PROD_HOST }}
 
       - name: Deploy, run migrations, and restart
         run: |
@@ -108,5 +109,5 @@ jobs:
 
           cat performDeployment.sh | ssh -l ${SSH_USER} ${SSH_HOST} /usr/bin/env bash
         env:
-          SSH_USER: ${{ secrets.PROD_USER }}
-          SSH_HOST: ${{ secrets.PROD_HOST }}
+          SSH_USER: ${{ vars.PROD_USER }}
+          SSH_HOST: ${{ vars.PROD_HOST }}
