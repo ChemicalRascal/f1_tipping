@@ -10,6 +10,7 @@ using Quartz;
 using CrystalQuartz.AspNetCore;
 using F1Tipping.Jobs;
 using NLog.Web;
+using FluffySpoon.AspNet.EncryptWeMust;
 
 namespace F1Tipping;
 
@@ -29,17 +30,17 @@ public class Program
 
         // Database setup, dependent on --provider cli arg
         // TODO: Move this to an extension and the new arg definition system.
-        var provider = config.GetValue("provider", Provider.SqlServer.Name);
+        var dbProvider = config.GetValue("provider", Provider.SqlServer.Name);
         void doDatabaseSetup(DbContextOptionsBuilder options)
         {
-            if (provider == Provider.SqlServer.Name)
+            if (dbProvider == Provider.SqlServer.Name)
             {
                 options.UseSqlServer(
                     config.GetConnectionString(Provider.SqlServer.Name)!,
                     x => x.MigrationsAssembly(Provider.SqlServer.Assembly)
                     );
             }
-            else if (provider == Provider.Postgres.Name)
+            else if (dbProvider == Provider.Postgres.Name)
             {
                 options.UseNpgsql(
                     config.GetConnectionString(Provider.Postgres.Name)!,
@@ -81,6 +82,18 @@ public class Program
             options.Password.RequireNonAlphanumeric = false;
         }).AddRoles<IdentityRole<Guid>>()
           .AddEntityFrameworkStores<AppDbContext>();
+
+        // Offloading cert management to FluffySpoon's EncryptWeMust, which uses Let's Encrypt
+        builder.Services.AddFluffySpoonLetsEncrypt(new()
+        {
+            Email = config.GetValue<string>("Cert:Email"),
+            UseStaging = false,
+            Domains = config.GetSection("Cert:Domains").Get<List<string>>(),
+            TimeAfterIssueDateBeforeRenewal = TimeSpan.FromDays(config.GetValue<double>("Cert:DaysAfterIssueToRenew")),
+            CertificateSigningRequest = new()
+            {
+            },
+        });
 
         var app = builder.Build();
 

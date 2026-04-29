@@ -22,6 +22,7 @@
   <ItemGroup>
     <PackageReference Include="CrystalQuartz.AspNetCore" Version="7.3.0" />
     <PackageReference Include="CsvHelper" Version="33.1.0" />
+    <PackageReference Include="FluffySpoon.AspNet.EncryptWeMust" Version="1.171.0" />
     <PackageReference Include="Lib.AspNetCore.WebPush" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.1" />
