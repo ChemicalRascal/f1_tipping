@@ -18,6 +18,9 @@ public class Program
 {
     private static string QUARTZ_DASHBOARD_PATH = "/quartz";
 
+    private record Cert(string Email, string[] Domains,
+        double DaysAfterIssueToRenew);
+
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -83,17 +86,21 @@ public class Program
         }).AddRoles<IdentityRole<Guid>>()
           .AddEntityFrameworkStores<AppDbContext>();
 
+        var certConfig = config.GetSection("Cert").Get<Cert>();
         // Offloading cert management to FluffySpoon's EncryptWeMust, which uses Let's Encrypt
-        builder.Services.AddFluffySpoonLetsEncrypt(new()
+        if (certConfig is not null)
         {
-            Email = config.GetValue<string>("Cert:Email"),
-            UseStaging = false,
-            Domains = config.GetSection("Cert:Domains").Get<List<string>>(),
-            TimeAfterIssueDateBeforeRenewal = TimeSpan.FromDays(config.GetValue<double>("Cert:DaysAfterIssueToRenew")),
-            CertificateSigningRequest = new()
+            builder.Services.AddFluffySpoonLetsEncrypt(new()
             {
-            },
-        });
+                Email = certConfig.Email,
+                UseStaging = false,
+                Domains = certConfig.Domains,
+                TimeAfterIssueDateBeforeRenewal = TimeSpan.FromDays(certConfig.DaysAfterIssueToRenew),
+                CertificateSigningRequest = new()
+                {
+                },
+            });
+        }
 
         var app = builder.Build();
 
