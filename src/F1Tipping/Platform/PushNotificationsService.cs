@@ -105,11 +105,7 @@ public class PushNotificationsService(
             {
                 logger.LogError(e, "Exception on sub ID: {}", sub.Id);
             }
-            if (e.Message == "Gone")
-            {
-                return new PushSubError(sub.Id, "Gone");
-            }
-            throw;
+            return new PushSubError(sub.Id, e.Message);
         }
         catch (Exception e)
         {
