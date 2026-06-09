@@ -20,10 +20,16 @@ public class PushNotificationsService(
         },
     };
 
+    public record PushSubError(int Id, string Type);
+
     public IQueryable<User> GetUsersWithPushSubs()
     {
         return appDb.UserPushNotificationSubscriptions
-            .Select(x => x.User).Distinct();
+            .Select(x => x.User)
+            .Where(u => u.Settings != null
+                     && u.Settings.NotificationsSettings != null
+                     && u.Settings.NotificationsSettings.ScheduleType != NotificationsScheduleType.NotSet)
+            .Distinct();
     }
 
     public async Task SendNotificationToUserAsync(
@@ -31,10 +37,16 @@ public class PushNotificationsService(
     {
         ArgumentNullException.ThrowIfNull(user);
 
+        var errors = new List<PushSubError>();
         foreach (var sub in PushSubscriptions(user))
         {
-            await SendNotificationAsync(sub, pMessage);
+            var error = await SendNotificationAsync(sub, pMessage);
+            if (error is not null)
+            {
+                errors.Add(error);
+            }
         }
+        await UpdateSubState(errors);
     }
 
     public async Task<bool> UserHasAnySubsAsync(User user)
@@ -57,10 +69,24 @@ public class PushNotificationsService(
     private IQueryable<PushSubscription> PushSubscriptions(User user)
     {
         return appDb.UserPushNotificationSubscriptions
-            .Where(sub => sub.User.Id == user.Id);
+            .Where(sub => sub.User.Id == user.Id
+                       && sub.Error == null);
     }
 
-    private async Task SendNotificationAsync(
+    private async Task UpdateSubState(IEnumerable<PushSubError> errors)
+    {
+        var groupByError = errors.GroupBy(e => e.Type, e => e.Id);
+
+        foreach (var errorGroup in groupByError)
+        {
+            await appDb.UserPushNotificationSubscriptions
+                .Where(x => errorGroup.Contains(x.Id))
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.Error, x => errorGroup.Key));
+        }
+    }
+
+    private async Task<PushSubError?> SendNotificationAsync(
         PushSubscription sub,
         WebPush.PushMessage pMessage)
     {
@@ -73,6 +99,18 @@ public class PushNotificationsService(
         {
             await client.RequestPushMessageDeliveryAsync(pSub, pMessage);
         }
+        catch (WebPush.PushServiceClientException e)
+        {
+            if (logger?.IsEnabled(LogLevel.Error) ?? false)
+            {
+                logger.LogError(e, "Exception on sub ID: {}", sub.Id);
+            }
+            if (e.Message == "Gone")
+            {
+                return new PushSubError(sub.Id, "Gone");
+            }
+            throw;
+        }
         catch (Exception e)
         {
             if (logger?.IsEnabled(LogLevel.Error) ?? false)
@@ -81,5 +119,7 @@ public class PushNotificationsService(
             }
             throw;
         }
+
+        return null;
     }
 }

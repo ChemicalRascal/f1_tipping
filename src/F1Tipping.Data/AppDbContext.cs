@@ -87,4 +87,5 @@ public class PushSubscription
     public required string AuthSecret { get; set; }
     public DateTime Created { get; set; }
     public DateTime? LastCheck { get; set; }
+    public string? Error { get; set; }
 }

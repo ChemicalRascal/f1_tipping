@@ -31,6 +31,7 @@ public class PushSubsModel : AdminPageModel
 
     public class PushSubView
     {
+        public required int PushSubId;
         public required string UserName;
         public required string ScheduleType;
         public TimeSpan? StartOffset;
@@ -39,6 +40,7 @@ public class PushSubsModel : AdminPageModel
         public required string DeviceEndpoint;
         public DateTime SubCreated;
         public DateTime? SubLastCheck;
+        public required string Error;
     }
 
     [BindProperty]
@@ -54,10 +56,11 @@ public class PushSubsModel : AdminPageModel
             .ThenInclude(s => s.NotificationsSettings)
             .OrderBy(s => s.User.NormalizedUserName).ToListAsync();
 
-        PushSubs = pushSubs.Select(s =>
+        PushSubs = [.. pushSubs.Select(s =>
         {
             return new PushSubView()
             {
+                PushSubId = s.Id,
                 UserName = s.User?.UserName ?? "null",
                 ScheduleType = s.User?.Settings.NotificationsSettings?.ScheduleType.DisplayName() ?? "null",
                 StartOffset = s.User?.Settings.NotificationsSettings?.TipDeadlineStartOffset,
@@ -66,12 +69,25 @@ public class PushSubsModel : AdminPageModel
                 DeviceEndpoint = s.DeviceEndpoint[0..60],
                 SubCreated = s.Created,
                 SubLastCheck = s.LastCheck,
+                Error = s.Error ?? "null",
             };
-        }).ToList();
+        })];
     }
 
-    public async Task OnGetAsync()
+    public async Task<IActionResult> OnGetAsync()
     {
         await BuildViewListsAsync();
+        return Page();
+    }
+
+    public async Task<IActionResult> OnGetDeletePushSubAsync(int? id)
+    {
+        var pushSub = await _appDb.UserPushNotificationSubscriptions.FindAsync(id);
+        if (pushSub is not null)
+        {
+            _appDb.UserPushNotificationSubscriptions.Remove(pushSub);
+            await _appDb.SaveChangesAsync();
+        }
+        return RedirectToAction("");
     }
 }

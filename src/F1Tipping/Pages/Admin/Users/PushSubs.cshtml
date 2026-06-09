@@ -5,6 +5,13 @@
     ViewData["Title"] = "Push Subs";
 }
 
+<script>
+    async function tiggerDelete(id)
+    {
+        await $.ajax({ method: "DELETE", url: window.location, data: "id="+id, });
+    }
+</script>
+
 <h1>User Push Subscriptions</h1>
 
 <partial name="_StatusMessage" model="Model.StatusMessage" />
@@ -34,6 +41,11 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.PushSubs[0].SubLastCheck)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PushSubs[0].Error)
+            </th>
+            <th>
             </th>
         </tr>
     </thead>
@@ -65,7 +77,13 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.SubLastCheck)
                 </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Error)
+                </td>
+                <td>
+                    <a asp-page-handler="DeletePushSub" asp-route-id="@item.PushSubId">Delete</a>
+                </td>
             </tr>
         }
     </tbody>
-</table> 
+</table>
